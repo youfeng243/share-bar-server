@@ -10,7 +10,7 @@ start() {
 		return 1
 	fi
 
-    gunicorn -c ${config} ${project}:app
+    gunicorn -c ${config} wsgi:application
     echo "${project} start success..."
 }
 
@@ -21,7 +21,7 @@ stop() {
 	    return 0
 	fi
 
-    ps -ef | grep -v grep | grep ${project} | awk '{print $2}' | xargs kill -9
+    ps -ef | grep -v grep | grep 'wsgi:application' | awk '{print $2}' | xargs kill -9
     rm -rf ${project}.pid
 
 	echo "${project} stop success..."
@@ -35,7 +35,7 @@ restart() {
 }
 
 status() {
-    pid=`ps -ef | grep -v grep | grep ${project} | awk '{print $2}'`
+    pid=`ps -ef | grep -v grep | grep 'wsgi:application' | awk '{print $2}'`
     if [ -z "${pid}" ]; then
         return 0
     fi
