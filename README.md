@@ -5,7 +5,7 @@ CMS based on Flask
 ## Quick Start
 
 #### 0.Init environment
-`sh init.sh`
+`sh deploy.sh`
 
 
 #### 1.Start server

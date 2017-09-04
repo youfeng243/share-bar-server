@@ -9,10 +9,11 @@
 """
 from datetime import datetime
 
-from common import db
-
 
 # 用户充值记录
+from exts.database import db
+
+
 class RechargeRecord(db.Model):
     __tablename__ = 'recharge_record'
 

@@ -11,7 +11,7 @@
 # 设备信息
 from datetime import datetime
 
-from common import db
+from exts.database import db
 
 
 class Device(db.Model):

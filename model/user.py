@@ -9,10 +9,11 @@
 """
 from datetime import datetime
 
-from common import db
-
 
 # 用户信息
+from exts.database import db
+
+
 class User(db.Model):
     __tablename__ = 'users'
 

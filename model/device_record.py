@@ -9,11 +9,11 @@
 """
 from datetime import datetime
 
-from common import db
-
-
 # 使用记录表，用户使用记录 设备使用记录 统一的表
 # 只读记录，写入一次 不需要再修改
+from exts.database import db
+
+
 class DeviceRecord(db.Model):
     __tablename__ = 'device_record'
 

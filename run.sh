@@ -49,7 +49,8 @@ status() {
 }
 
 clean() {
-    rm -rf log/*
+    rm -rf log/*.log
+    rm -rf log/*.pid
 }
 
 case "$1" in

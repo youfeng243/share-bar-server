@@ -9,10 +9,9 @@
 """
 from datetime import datetime
 
-from common import db
+from exts.database import db
 
 
-# 投放地址管理 需要写入统计设备信息
 class AdminManage(db.Model):
     __tablename__ = 'admin_manage'
 

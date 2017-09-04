@@ -9,10 +9,11 @@
 """
 from datetime import datetime
 
-from common import db
-
 
 # 角色管理 主要用于管理管理员
+from exts.database import db
+
+
 class Role(db.Model):
     __tablename__ = 'roles'
 

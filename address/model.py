@@ -9,10 +9,9 @@
 """
 from datetime import datetime
 
-from common import db
+from exts.database import db
 
 
-# 部署地址管理
 class Address(db.Model):
     __tablename__ = 'address'
 
