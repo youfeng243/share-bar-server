@@ -4,7 +4,7 @@
 @author: youfeng
 @email: youfeng243@163.com
 @license: Apache Licence
-@file: gun_config.py
+@file: gun.config.py
 @time: 2017/8/28 20:45
 """
 
