@@ -10,6 +10,7 @@ start() {
 		return 1
 	fi
 
+    mkdir -p log
     pip install virtualenv
     virtualenv .venv -p python2
     .venv/bin/pip install -U pip
