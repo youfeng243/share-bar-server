@@ -10,7 +10,11 @@ start() {
 		return 1
 	fi
 
-    gunicorn -c ${config} wsgi:application
+    pip install virtualenv
+    virtualenv .venv -p python2
+    .venv/bin/pip install -U pip
+    .venv/bin/pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+    .venv/bin/gunicorn -c ${config} wsgi:application
     echo "${project} start success..."
 }
 

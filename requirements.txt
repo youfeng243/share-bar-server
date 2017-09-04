@@ -2,3 +2,7 @@ werkzeug
 Flask==0.12.1
 gunicorn==19.7.1
 meinheld==0.6.1
+MySQL-python==1.2.5
+redis==2.10.5
+Flask-login==0.4.0
+Flask-SQLAlchemy==2.2

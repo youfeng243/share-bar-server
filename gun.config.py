@@ -33,10 +33,10 @@ daemon = True
 proc_name = 'share-bar-server.proc'
 
 # 进程pid记录文件
-pidfile = 'share-bar-server.pid'
+pidfile = 'log/share-bar-server.pid'
 
 loglevel = 'info'
-accesslog = 'access.log'
+accesslog = 'log/access.log'
 
 # 接受最大请求数然后重启进程
 max_requests = 1000000

@@ -7,25 +7,31 @@
 @file: common.py
 @time: 2017/8/28 20:58
 """
+
+import json
 import os
 
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.contrib.fixers import ProxyFix
+from flask import Response
 
-from config import MYSQL_URL
 from logger import Logger
 
-# flask 句柄
-app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)
+HTTP_OK = 200
+HTTP_BAD_REQUEST = 400
+HTTP_UNAUTHORIZED = 401
+HTTP_FORBIDDEN = 403
+HTTP_NOT_FOUND = 404
+HTTP_SERVER_ERROR = 500
+HTTP_NOT_IMPLEMENTED = 501
 
-# 初始化mysql句柄
-app.config['SECRET_KEY'] = 'hard to guess..'
-app.config['SQLALCHEMY_DATABASE_URI'] = MYSQL_URL
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-db = SQLAlchemy(app)
+ERROR_MSG = {
+    HTTP_OK: 'OK',
+    HTTP_BAD_REQUEST: 'bad request',
+    HTTP_UNAUTHORIZED: 'unauthorized',
+    HTTP_FORBIDDEN: 'forbidden',
+    HTTP_NOT_FOUND: 'not found',
+    HTTP_SERVER_ERROR: 'server error',
+    HTTP_NOT_IMPLEMENTED: 'not implemented',
+}
 
 
 # 获得当前进程log
@@ -33,10 +39,32 @@ def get_pid_log_name(log_name):
     return log_name + '-' + str(os.getpid()) + '.log'
 
 
-global_logger = Logger(get_pid_log_name('share-bar-server'))
-log = global_logger.get_logger()
+log = Logger(get_pid_log_name('share-bar-server')).get_logger()
 
 
-# 获得当前返回信息
-def get_response(code, msg, data=''):
-    return {'code': code, 'msg': msg, 'data': data}
+def json_resp(data, http_status):
+    return Response(data, status=http_status, mimetype="application/json")
+
+
+# 返回成功
+def success(result=None, **kwargs):
+    resp = {
+        'success': True,
+        'error': None,
+        'result': result
+    }
+    if kwargs:
+        resp.update(kwargs)
+    data = json.dumps(resp)
+    return json_resp(data, HTTP_OK)
+
+
+# 返回失败
+def fail(http_status, error=None):
+    resp = {
+        'success': False,
+        'error': error or ERROR_MSG.get(http_status, "undefined error"),
+        'result': None
+    }
+    data = json.dumps(resp)
+    return json_resp(data, http_status)

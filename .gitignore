@@ -19,6 +19,6 @@ task/gsxt/gsxt_hunan_worker.pyc
 "doc/~*.xlsx"
 log/*.file
 log/*.pid
+log/*.log
 /env/
 /env3/
-/log/
