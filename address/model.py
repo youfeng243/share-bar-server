@@ -49,7 +49,7 @@ class Address(db.Model):
         return '<Address {}>'.format(self.id)
 
     @classmethod
-    def create(cls, province, city, area, location, device_num):
+    def create(cls, province, city, area, location, device_num=1):
         address = Address(
             province=province,
             city=city,
@@ -77,6 +77,7 @@ class Address(db.Model):
         db.session.commit()
 
     def save(self):
+        self.utime = datetime.now()
         db.session.add(self)
         db.session.commit()
 
