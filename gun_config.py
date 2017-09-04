@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+@author: youfeng
+@email: youfeng243@163.com
+@license: Apache Licence
+@file: gun_config.py
+@time: 2017/8/28 20:45
+"""
+
+import multiprocessing
+
+# 监听本机的8888端口
+bind = '0.0.0.0:8888'
+
+# preload_app = True
+
+# 开启进程
+workers = multiprocessing.cpu_count() * 2 + 1
+
+# 每个进程的开启线程
+threads = multiprocessing.cpu_count() * 2
+
+backlog = 2048
+
+# 工作模式为meinheld
+worker_class = "egg:meinheld#gunicorn_worker"
+
+# 如果不使用supervisord之类的进程管理工具可以是进程成为守护进程，否则会出问题
+daemon = True
+
+# 进程名称
+proc_name = 'share-bar-server.proc'
+
+# 进程pid记录文件
+pidfile = 'share-bar-server.pid'
+
+loglevel = 'info'
+accesslog = 'access.log'
+
+# 接受最大请求数然后重启进程
+max_requests = 1000000
+max_requests_jitter = 500000
+
+x_forwarded_for_header = 'X-FORWARDED-FOR'
