@@ -26,7 +26,7 @@ class Address(db.Model):
     city = db.Column(db.String(64), nullable=False)
 
     # 区域信息
-    area = db.Column(db.String(32), nullable=False)
+    area = db.Column(db.String(64), nullable=False)
 
     # 详细地址信息
     location = db.Column(db.String(128), nullable=False)
@@ -94,5 +94,6 @@ class Address(db.Model):
             'area': self.area,
             'location': self.location,
             'device_num': self.device_num,
+            'utime': self.utime,
             'ctime': self.ctime,
         }
