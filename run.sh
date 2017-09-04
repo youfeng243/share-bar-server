@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 project=share-bar-server
-config=gun_config.py
+config=gun.config.py
 
 start() {
 	status
