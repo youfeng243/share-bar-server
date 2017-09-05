@@ -3,7 +3,7 @@
 from werkzeug.contrib.fixers import ProxyFix
 
 from app import create_app
-from common import log
+from exts.common import log
 
 application = create_app('share-bar-server')
 
