@@ -23,11 +23,25 @@ class Device(db.Model):
     # 设备ID
     id = db.Column(db.Integer, primary_key=True)
 
+    # 设备机器码
+    machine_code = db.Column(db.String(128), index=True)
+
     # 设备名称
     name = db.Column(db.String(128), unique=True, index=True)
 
-    # 投放地址
-    address = db.Column(db.String(128), nullable=False)
+    # # 投放地址
+    # address = db.Column(db.String(128), nullable=False)
+    # 省份信息
+    province = db.Column(db.String(16), nullable=False)
+
+    # 市级信息
+    city = db.Column(db.String(64), nullable=False)
+
+    # 区域信息
+    area = db.Column(db.String(64), nullable=False)
+
+    # 详细地址信息
+    location = db.Column(db.String(128), nullable=False)
 
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
@@ -42,10 +56,15 @@ class Device(db.Model):
     utime = db.Column(db.DateTime(), default=datetime.utcnow)
 
     @classmethod
-    def create(cls, name, address):
+    def create(cls, name, machine_code,
+               province, city, area, location):
         device = cls(
             name=name,
-            address=address)
+            machine_code=machine_code,
+            province=province,
+            city=city,
+            area=area,
+            location=location)
         db.session.add(device)
         db.session.commit()
         return device
@@ -76,7 +95,11 @@ class Device(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'address': self.address,
+            'machine_code': self.machine_code,
+            'province': self.province,
+            'city': self.city,
+            'area': self.area,
+            'location': self.location,
             'income': self.income,
             'state': self.state,
             'utime': self.utime,
