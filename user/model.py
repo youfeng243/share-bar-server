@@ -9,10 +9,11 @@
 """
 from datetime import datetime
 
+from exts.base import Base
 from exts.database import db
 
 
-class User(db.Model):
+class User(Base):
     __tablename__ = 'user'
 
     # 使用状态
@@ -61,29 +62,10 @@ class User(db.Model):
         db.session.commit()
         return user
 
-    @classmethod
-    def get(cls, a_id):
-        return cls.query.get(a_id)
-
-    @classmethod
-    def get_all(cls):
-        return cls.query.all()
-
-    # 删除用户
-    def delete(self):
-        self.deleted = True
-        self.save()
-
     # 禁止用户
     def forbidden(self):
         self.forbid = True
         self.save()
-
-    # 更新下修改时间
-    def save(self):
-        self.utime = datetime.now()
-        db.session.add(self)
-        db.session.commit()
 
     def to_dict(self):
         return {

@@ -9,11 +9,12 @@
 """
 from datetime import datetime
 
+from exts.base import Base
 from exts.database import db
 
 
 # 管理员角色管理
-class Role(db.Model):
+class Role(Base):
     __tablename__ = 'role'
 
     # ID
@@ -37,25 +38,6 @@ class Role(db.Model):
         db.session.add(role)
         db.session.commit()
         return role
-
-    @classmethod
-    def get(cls, a_id):
-        return cls.query.get(a_id)
-
-    @classmethod
-    def get_all(cls):
-        return cls.query.all()
-
-    # 删除数据
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    # 更新下修改时间
-    def save(self):
-        self.utime = datetime.now()
-        db.session.add(self)
-        db.session.commit()
 
     def __repr__(self):
         return '<Role {}>'.format(self.role_name)

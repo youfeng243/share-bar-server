@@ -9,11 +9,12 @@
 """
 from datetime import datetime
 
+from exts.base import Base
 from exts.database import db
 
 
 # 投放管理
-class Address(db.Model):
+class Address(Base):
     __tablename__ = 'address'
 
     # ID
@@ -64,23 +65,6 @@ class Address(db.Model):
     @classmethod
     def find_address(cls, province, city, area, location):
         return cls.query.filter_by(province=province, city=city, area=area, location=location).first()
-
-    @classmethod
-    def get(cls, addr_id):
-        return cls.query.get(addr_id)
-
-    @classmethod
-    def get_all(cls):
-        return cls.query.all()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def save(self):
-        self.utime = datetime.now()
-        db.session.add(self)
-        db.session.commit()
 
     # 增加设备数目
     def add_device_num(self, device_num):

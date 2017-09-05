@@ -9,11 +9,12 @@
 """
 from datetime import datetime
 
+from exts.base import Base
 from exts.database import db
 
 
 # 设备部署管理 部署记录信息
-class Deploy(db.Model):
+class Deploy(Base):
     __tablename__ = 'deploy'
 
     # ID
@@ -51,23 +52,6 @@ class Deploy(db.Model):
         db.session.add(deploy)
         db.session.commit()
         return deploy
-
-    @classmethod
-    def get(cls, a_id):
-        return cls.query.get(a_id)
-
-    @classmethod
-    def get_all(cls):
-        return cls.query.all()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def save(self):
-        self.utime = datetime.now()
-        db.session.add(self)
-        db.session.commit()
 
     def to_dict(self):
         return {

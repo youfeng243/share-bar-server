@@ -9,11 +9,12 @@
 """
 from datetime import datetime
 
+from exts.base import Base
 from exts.database import db
 
 
 # 用户的充值记录
-class Recharge(db.Model):
+class Recharge(Base):
     __tablename__ = 'recharge'
 
     # ID
@@ -37,25 +38,6 @@ class Recharge(db.Model):
         db.session.add(recharge)
         db.session.commit()
         return recharge
-
-    @classmethod
-    def get(cls, a_id):
-        return cls.query.get(a_id)
-
-    @classmethod
-    def get_all(cls):
-        return cls.query.all()
-
-    # 删除数据
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    # 更新下修改时间
-    def save(self):
-        self.utime = datetime.now()
-        db.session.add(self)
-        db.session.commit()
 
     def __repr__(self):
         return '<Recharge {} {}>'.format(self.username, self.dev_name)
