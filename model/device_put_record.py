@@ -9,12 +9,10 @@
 """
 from datetime import datetime
 
-
-
-# 设备投放记录 只读记录，写入一次 不需要再修改
 from exts.database import db
 
 
+# 设备投放管理
 class DevicePutRecord(db.Model):
     __tablename__ = 'device_put_record'
 
