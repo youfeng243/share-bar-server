@@ -19,7 +19,7 @@ class Recharge(db.Model):
     # ID
     id = db.Column(db.Integer, primary_key=True)
 
-    # 用户名
+    # 用户ID
     user_id = db.Column(db.Integer, index=True, nullable=False)
 
     # 充值金额
