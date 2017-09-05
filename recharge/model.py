@@ -4,36 +4,26 @@
 @author: youfeng
 @email: youfeng243@163.com
 @license: Apache Licence
-@file: device.py
-@time: 2017/8/29 20:59
+@file: device_record.py
+@time: 2017/8/29 21:16
 """
-
 from datetime import datetime
 
 from exts.database import db
 
 
-# 设备信息
-class Device(db.Model):
-    __tablename__ = 'device'
+# 用户的充值记录
+class Recharge(db.Model):
+    __tablename__ = 'recharge'
 
-    # 使用状态
-    STATE_VALUES = ('unused', 'using')
-
-    # 设备ID
+    # ID
     id = db.Column(db.Integer, primary_key=True)
 
-    # 设备名称
-    name = db.Column(db.String(128), unique=True, index=True)
+    # 用户名
+    user_id = db.Column(db.Integer, index=True, nullable=False)
 
-    # 投放地址
-    address = db.Column(db.String(128), nullable=False)
-
-    # 设备收入
-    income = db.Column(db.Integer, nullable=False, default=0)
-
-    # 设备当前使用状态 0 未使用 1 正在使用
-    state = db.Column(db.Enum(*STATE_VALUES), nullable=False, index=True, default='unused')
+    # 充值金额
+    amount = db.Column(db.Integer, nullable=False)
 
     # 创建时间
     ctime = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -42,13 +32,11 @@ class Device(db.Model):
     utime = db.Column(db.DateTime(), default=datetime.utcnow)
 
     @classmethod
-    def create(cls, name, address):
-        device = cls(
-            name=name,
-            address=address)
-        db.session.add(device)
+    def create(cls, user_id, amount):
+        recharge = cls(user_id=user_id, amount=amount)
+        db.session.add(recharge)
         db.session.commit()
-        return device
+        return recharge
 
     @classmethod
     def get(cls, a_id):
@@ -70,15 +58,13 @@ class Device(db.Model):
         db.session.commit()
 
     def __repr__(self):
-        return '<Device {}>'.format(self.name)
+        return '<Recharge {} {}>'.format(self.username, self.dev_name)
 
     def to_dict(self):
         return {
             'id': self.id,
-            'name': self.name,
-            'address': self.address,
-            'income': self.income,
-            'state': self.state,
+            'user_id': self.user_id,
+            'amount': self.amount,
             'utime': self.utime,
             'ctime': self.ctime,
         }
