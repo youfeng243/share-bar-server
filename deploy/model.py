@@ -4,20 +4,23 @@
 @author: youfeng
 @email: youfeng243@163.com
 @license: Apache Licence
-@file: model.py
-@time: 2017/9/2 00:10
+@file: device_put_record.py
+@time: 2017/8/29 21:26
 """
 from datetime import datetime
 
 from exts.database import db
 
 
-# 投放管理
-class Address(db.Model):
-    __tablename__ = 'address'
+# 设备部署管理 部署记录信息
+class Deploy(db.Model):
+    __tablename__ = 'deploy'
 
     # ID
     id = db.Column(db.Integer, primary_key=True)
+
+    # 设备名称
+    device_id = db.Column(db.Integer, index=True)
 
     # 省份信息
     province = db.Column(db.String(16), nullable=False)
@@ -31,43 +34,27 @@ class Address(db.Model):
     # 详细地址信息
     location = db.Column(db.String(128), nullable=False)
 
-    # 统计设备数目
-    device_num = db.Column(db.Integer, nullable=False)
-
     # 生效时间 创建时间
     ctime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
 
     # 数据更新时间
     utime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
 
-    # 创建联合索引
-    __table_args__ = (
-        db.UniqueConstraint('province', 'city', 'area', 'location', name='location_index'),
-        db.Index('location_index'),
-    )
-
-    def __repr__(self):
-        return '<Address {}>'.format(self.id)
-
     @classmethod
-    def create(cls, province, city, area, location, device_num=1):
-        address = Address(
+    def create(cls, device_id, province, city, area, location):
+        deploy = cls(
+            device_id=device_id,
             province=province,
             city=city,
             area=area,
-            location=location, device_num=device_num)
-        db.session.add(address)
+            location=location)
+        db.session.add(deploy)
         db.session.commit()
-        return address
-
-    # 查找是否有相同地址
-    @classmethod
-    def find_address(cls, province, city, area, location):
-        return cls.query.filter_by(province=province, city=city, area=area, location=location).first()
+        return deploy
 
     @classmethod
-    def get(cls, addr_id):
-        return cls.query.get(addr_id)
+    def get(cls, a_id):
+        return cls.query.get(a_id)
 
     @classmethod
     def get_all(cls):
@@ -82,19 +69,17 @@ class Address(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    # 增加设备数目
-    def add_device_num(self, device_num):
-        self.device_num += device_num
-        self.save()
-
     def to_dict(self):
         return {
             'id': self.id,
+            'device_id': self.device_id,
             'province': self.province,
             'city': self.city,
             'area': self.area,
             'location': self.location,
-            'device_num': self.device_num,
             'utime': self.utime,
             'ctime': self.ctime,
         }
+
+    def __repr__(self):
+        return '<Deploy {}>'.format(self.dev_name)
