@@ -11,6 +11,7 @@ from datetime import datetime
 
 from exts.database import db
 
+
 # 用户和设备使用记录
 class UseRecord(db.Model):
     __tablename__ = 'use_record'
@@ -39,8 +40,8 @@ class UseRecord(db.Model):
     # 花费的金额
     cost_money = db.Column(db.Integer, nullable=False, default=0)
 
-    # 下机时间
-    end_time = db.Column(db.DateTime(), nullable=False)
+    # 下机时间 数据初始化时以创建时间为结束时间
+    end_time = db.Column(db.DateTime(), nullable=False, default=datetime.utcnow)
 
     # 开机时间
     ctime = db.Column(db.DateTime(), default=datetime.utcnow)
