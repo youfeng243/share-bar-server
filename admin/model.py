@@ -13,6 +13,7 @@ from exts.base import Base
 from exts.database import db
 
 
+# 管理员信息
 class Admin(Base):
     __tablename__ = 'admin'
 
@@ -26,7 +27,7 @@ class Admin(Base):
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
 
     # 密码
-    password = db.Column(db.String(64), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
 
     # 名称
     name = db.Column(db.String(64), unique=True, nullable=False)
