@@ -13,6 +13,8 @@ from flask import Flask
 import settings
 from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
 from exts.database import db
+from exts.login_manager import setup_admin_login
+from service.admin.view import bp as admin_bp
 
 
 def create_app(name=None):
@@ -26,10 +28,20 @@ def create_app(name=None):
     # 数据库初始化
     db.init_app(app)
 
+    # 管理员登录管理
+    setup_admin_login(app)
+
     # 设置错误处理流程
     setup_error_handler(app)
 
+    # 注册蓝图
+    register_bp(app)
+
     return app
+
+
+def register_bp(app):
+    app.register_blueprint(admin_bp)
 
 
 def setup_error_handler(app):
