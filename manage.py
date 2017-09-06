@@ -13,9 +13,9 @@ manager = Manager(application)
 
 
 def _import_models():
-    puff_packages = find_packages('.')
+    puff_packages = find_packages('./service')
     for each in puff_packages:
-        guess_module_name = '%s.model' % each
+        guess_module_name = 'service.%s.model' % each
         try:
             __import__(guess_module_name, globals(), locals())
             print 'Find model:', guess_module_name
