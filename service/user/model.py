@@ -19,9 +19,6 @@ class User(Base):
     # 使用状态
     STATE_VALUES = ('unused', 'using')
 
-    # ID
-    id = db.Column(db.Integer, primary_key=True)
-
     # 用户名
     username = db.Column(db.String(128), unique=True, index=True, nullable=False)
 

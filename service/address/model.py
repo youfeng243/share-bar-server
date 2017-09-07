@@ -16,9 +16,6 @@ from exts.database import db
 class Address(Base):
     __tablename__ = 'address'
 
-    # ID
-    id = db.Column(db.Integer, primary_key=True)
-
     # 省份信息
     province = db.Column(db.String(16), nullable=False)
 

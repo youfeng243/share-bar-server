@@ -15,6 +15,9 @@ from exts.database import db
 class Base(db.Model):
     __abstract__ = True
 
+    # ID
+    id = db.Column(db.Integer, primary_key=True)
+
     # 生效时间 创建时间
     ctime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
 

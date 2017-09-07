@@ -17,9 +17,6 @@ from exts.database import db
 class UseRecord(Base):
     __tablename__ = 'use_record'
 
-    # ID
-    id = db.Column(db.Integer, primary_key=True)
-
     # 用户名
     user_id = db.Column(db.Integer, index=True, nullable=False)
 

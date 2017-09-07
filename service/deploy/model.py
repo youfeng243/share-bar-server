@@ -17,9 +17,6 @@ from exts.database import db
 class Deploy(Base):
     __tablename__ = 'deploy'
 
-    # ID
-    id = db.Column(db.Integer, primary_key=True)
-
     # 设备名称
     device_id = db.Column(db.Integer, index=True)
 

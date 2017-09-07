@@ -17,9 +17,6 @@ from exts.database import db
 class Role(Base):
     __tablename__ = 'role'
 
-    # ID
-    id = db.Column(db.Integer, primary_key=True)
-
     # 角色名称
     name = db.Column(db.String(64), unique=True, nullable=False, index=True)
 

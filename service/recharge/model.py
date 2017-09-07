@@ -17,9 +17,6 @@ from exts.database import db
 class Recharge(Base):
     __tablename__ = 'recharge'
 
-    # ID
-    id = db.Column(db.Integer, primary_key=True)
-
     # 用户ID
     user_id = db.Column(db.Integer, index=True, nullable=False)
 

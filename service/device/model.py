@@ -21,9 +21,6 @@ class Device(Base):
     # 使用状态
     STATE_VALUES = ('unused', 'using')
 
-    # 设备ID
-    id = db.Column(db.Integer, primary_key=True)
-
     # 设备机器码
     machine_code = db.Column(db.String(128), index=True)
 
