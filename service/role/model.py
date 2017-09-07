@@ -39,6 +39,10 @@ class Role(Base):
         db.session.commit()
         return role
 
+    @classmethod
+    def get_by_name(cls, name):
+        return cls.query.filter_by(name=name).first()
+
     def __repr__(self):
         return '<Role {}>'.format(self.role_name)
 

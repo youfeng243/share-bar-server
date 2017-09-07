@@ -17,5 +17,6 @@ virtualenv .venv -p python2
 .venv/bin/pip install -U pip
 .venv/bin/pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
 
+# 创建表
 .venv/bin/python manage.py syncdb
-echo "数据库初始化完成..."
+echo "环境初始化完成..."

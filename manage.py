@@ -7,9 +7,16 @@ from setuptools import find_packages
 
 from app import create_app
 from exts.database import db
+from service.admin.model import Admin
+from service.role.model import Role
 
 application = create_app('box')
 manager = Manager(application)
+
+ROLE_SUPER_ADMIN = "superadmin"
+SUPER_USER = "youfeng"
+SUPER_PASS = "123456"
+SUPER_NAME = "游丰"
 
 
 def _import_models():
@@ -31,26 +38,16 @@ def syncdb():
         db.create_all()
         db.session.commit()
 
-        # # 管理员
-        # if Admin.query.filter_by(username='youfeng').first() is None:
-        #     admin = Admin.create('youfeng', '555556')
-        #     admin.save()
-        #     logger.info("添加管理员完成...")
-        #
-        # # 产品
-        # if Product.query.filter_by(name='定制防潮防水纸箱').first() is None:
-        #     product = Product(name='定制防潮防水纸箱', price=1,
-        #                       description='413mmx320mmx257mm', avatar_url='www.baidu.com')
-        #     product.save()
-        #     logger.info("添加产品完成...")
-        #
-        # # 存储费用
-        # if Mode.query.filter_by(name='普通').first() is None:
-        #     mode = Mode(name='普通', price=1, description='普通')
-        #     mode.save()
-        #     logger.info("添加费用完成...")
+        # 判断角色是否存在，不存在则创建
+        if Role.get_by_name(ROLE_SUPER_ADMIN) is None:
+            Role.create(ROLE_SUPER_ADMIN)
+            print "超级管理员权限创建完成..."
 
-        print 'Database Created'
+        if Admin.get_by_username(SUPER_USER) is None:
+            Admin.create(SUPER_USER, SUPER_PASS, SUPER_NAME, Role.get_by_name(ROLE_SUPER_ADMIN).id)
+            print "超级管理员角色创建完成..."
+
+        print '数据库创建完成...'
 
 
 @manager.command
@@ -59,7 +56,7 @@ def dropdb():
         _import_models()
         db.drop_all()
         db.session.commit()
-        print 'Database Dropped'
+        print '数据库删除完成...'
 
 
 if __name__ == '__main__':

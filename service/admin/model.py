@@ -45,7 +45,7 @@ class Admin(UserMixin, Base):
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
 
     # 密码
-    hashed_password = db.Column(db.String(128), nullable=False)
+    hashed_password = db.Column(db.String(256), nullable=False)
 
     # 姓名 todo 同一个人可以是多种管理员？ 待与PM确认。。
     name = db.Column(db.String(64), nullable=False)
