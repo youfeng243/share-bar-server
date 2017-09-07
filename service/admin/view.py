@@ -45,6 +45,7 @@ def login():
             login_user(admin, remember=True)
         else:
             login_user(admin, remember=False)
+        log.info("用户登录成功: {} {}".format(username, password))
         return success(u'登录成功')
 
     admin = Admin.get_by_username(username)
