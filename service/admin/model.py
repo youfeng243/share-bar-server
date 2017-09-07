@@ -33,6 +33,7 @@ class AdminQuery(BaseQuery):
 class Admin(UserMixin, Base):
     __tablename__ = 'admin'
 
+    # 接管查询类
     query_class = AdminQuery
 
     # 使用状态
