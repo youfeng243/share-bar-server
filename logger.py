@@ -2,7 +2,8 @@
 import logging
 import os
 import sys
-from logging.handlers import TimedRotatingFileHandler
+
+from cloghandler import ConcurrentRotatingFileHandler
 
 PY3k = sys.version_info >= (3,)
 if not PY3k:
@@ -17,7 +18,7 @@ class Logger(object):
     # 存放目录名称
     folder = 'log'
 
-    def __init__(self, filename, for_mat=None):
+    def __init__(self, filename):
         pwd = os.path.abspath(os.path.dirname(__file__))
 
         directory = os.path.join(pwd, self.folder)
@@ -29,21 +30,21 @@ class Logger(object):
         self.log = logging.getLogger(filename)
         self.log.setLevel(self.level)
 
-        handler = TimedRotatingFileHandler(self.file_path, when='D', interval=1, backupCount=5, encoding='utf-8')
-        handler.suffix = "%Y-%m-%d"
+        handler = ConcurrentRotatingFileHandler(self.file_path, 'a', 1024 * 1024 * 100, backupCount=5, encoding='utf-8')
+        # handler.suffix = "%Y-%m-%d"
 
         # 设置输出格式
-        format_log = "%(asctime)s %(threadName)s %(funcName)s %(filename)s:%(lineno)s %(levelname)s %(message)s"
-        if for_mat is not None:
-            format_log = for_mat
-        fmt = logging.Formatter(format_log)
-        handler.setFormatter(fmt)
+        # format_log = "%(asctime)s %(threadName)s %(funcName)s %(filename)s:%(lineno)s %(levelname)s %(message)s"
+        formatter = logging.Formatter(
+            '%(asctime)s [%(processName)s %(threadName)s %(levelname)s %(module)s:%(funcName)s:%(lineno)d] %(message)s')
+        # fmt = logging.Formatter(formatter)
+        handler.setFormatter(formatter)
 
         self.log.addHandler(handler)
 
         # 控制台输出
         stream = logging.StreamHandler()
-        stream.setFormatter(fmt)
+        stream.setFormatter(formatter)
 
         self.log.addHandler(stream)
 

@@ -9,7 +9,6 @@
 """
 
 import json
-import os
 
 from flask import Response
 
@@ -33,13 +32,12 @@ ERROR_MSG = {
     HTTP_NOT_IMPLEMENTED: 'not implemented',
 }
 
+# # 获得当前进程log
+# def get_pid_log_name(log_name):
+#     return log_name + '-' + str(os.getpid()) + '.log'
 
-# 获得当前进程log
-def get_pid_log_name(log_name):
-    return log_name + '-' + str(os.getpid()) + '.log'
 
-
-log = Logger(get_pid_log_name('share-bar-server')).get_logger()
+log = Logger('share-bar-server.log').get_logger()
 
 
 def json_resp(data, http_status):
