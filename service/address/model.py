@@ -52,7 +52,7 @@ class Address(Base):
 
     @classmethod
     def create(cls, province, city, area, location, device_num=1):
-        address = Address(
+        address = cls(
             province=province,
             city=city,
             area=area,
