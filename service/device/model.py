@@ -8,8 +8,6 @@
 @time: 2017/8/29 20:59
 """
 
-from datetime import datetime
-
 from exts.base import Base
 from exts.database import db
 
@@ -75,6 +73,6 @@ class Device(Base):
             'location': self.location,
             'income': self.income,
             'state': self.state,
-            'utime': self.utime,
-            'ctime': self.ctime,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
         }

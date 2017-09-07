@@ -7,7 +7,6 @@
 @file: role.py
 @time: 2017/8/30 09:06
 """
-from datetime import datetime
 
 from exts.base import Base
 from exts.database import db
@@ -41,6 +40,6 @@ class Role(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'utime': self.utime,
-            'ctime': self.ctime,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
         }

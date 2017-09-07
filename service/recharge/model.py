@@ -7,7 +7,6 @@
 @file: device_record.py
 @time: 2017/8/29 21:16
 """
-from datetime import datetime
 
 from exts.base import Base
 from exts.database import db
@@ -38,6 +37,6 @@ class Recharge(Base):
             'id': self.id,
             'user_id': self.user_id,
             'amount': self.amount,
-            'utime': self.utime,
-            'ctime': self.ctime,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
         }

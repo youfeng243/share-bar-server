@@ -7,10 +7,9 @@
 @file: admin_manage.py
 @time: 2017/8/30 09:10
 """
-from datetime import datetime
 
-from flask_sqlalchemy import BaseQuery
 from flask_login import UserMixin
+from flask_sqlalchemy import BaseQuery
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from exts.base import Base
@@ -95,6 +94,6 @@ class Admin(UserMixin, Base):
             'name': self.name,
             'role_id': self.role_id,
             'state': self.state,
-            'utime': self.utime,
-            'ctime': self.ctime,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
         }

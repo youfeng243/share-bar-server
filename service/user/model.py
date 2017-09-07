@@ -7,7 +7,6 @@
 @file: user.py
 @time: 2017/8/29 17:58
 """
-from datetime import datetime
 
 from exts.base import Base
 from exts.database import db
@@ -67,10 +66,10 @@ class User(Base):
             'total_account': self.total_account,
             'used_account': self.used_account,
             'state': self.state,
-            'ctime': self.ctime,
-            'utime': self.utime,
             'forbid': self.forbid,
             'deleted': self.deleted,
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
+            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
         }
 
     def __repr__(self):

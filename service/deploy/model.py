@@ -7,7 +7,6 @@
 @file: device_put_record.py
 @time: 2017/8/29 21:26
 """
-from datetime import datetime
 
 from exts.base import Base
 from exts.database import db
@@ -52,8 +51,8 @@ class Deploy(Base):
             'city': self.city,
             'area': self.area,
             'location': self.location,
-            'utime': self.utime,
-            'ctime': self.ctime,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
         }
 
     def __repr__(self):
