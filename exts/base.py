@@ -16,9 +16,6 @@ class Base(db.Model):
     __abstract__ = True
 
     def delete(self):
-        """Delete object from database.
-        :param commit: Commit to database immediately
-        """
         if hasattr(self, 'deleted'):
             self.deleted = True
             db.session.add(self)
