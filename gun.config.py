@@ -37,6 +37,7 @@ pidfile = 'log/share-bar-server.pid'
 
 loglevel = 'info'
 accesslog = 'log/access.log'
+errorlog = 'log/gunicorn.log'
 
 # 接受最大请求数然后重启进程
 max_requests = 1000000
