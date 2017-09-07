@@ -21,6 +21,7 @@ class Base(db.Model):
         """
         if hasattr(self, 'deleted'):
             self.deleted = True
+            db.session.add(self)
         else:
             db.session.delete(self)
 
