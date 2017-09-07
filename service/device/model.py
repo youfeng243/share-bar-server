@@ -50,12 +50,6 @@ class Device(Base):
     # 设备当前使用状态 0 未使用 1 正在使用
     state = db.Column(db.Enum(*STATE_VALUES), nullable=False, index=True, default='unused')
 
-    # 创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow)
-
     @classmethod
     def create(cls, name, machine_code,
                province, city, area, location):

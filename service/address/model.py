@@ -7,7 +7,6 @@
 @file: model.py
 @time: 2017/9/2 00:10
 """
-from datetime import datetime
 
 from exts.base import Base
 from exts.database import db
@@ -34,12 +33,6 @@ class Address(Base):
 
     # 统计设备数目
     device_num = db.Column(db.Integer, nullable=False)
-
-    # 生效时间 创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
 
     # 创建联合索引
     __table_args__ = (

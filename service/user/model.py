@@ -40,12 +40,6 @@ class User(Base):
     # 当前用户使用状态信息 unused 离线  using 在线
     state = db.Column(db.Enum(*STATE_VALUES), index=True, default='unused')
 
-    # 创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow)
-
     # 删除用户
     deleted = db.Column(db.Boolean, default=False)
 

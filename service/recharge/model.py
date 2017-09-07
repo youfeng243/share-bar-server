@@ -26,12 +26,6 @@ class Recharge(Base):
     # 充值金额
     amount = db.Column(db.Integer, nullable=False)
 
-    # 创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow)
-
     @classmethod
     def create(cls, user_id, amount):
         recharge = cls(user_id=user_id, amount=amount)

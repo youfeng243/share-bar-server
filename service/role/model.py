@@ -25,12 +25,6 @@ class Role(Base):
 
     # todo 角色权限 这里需要角色的权限管理，目前没想好先预留
 
-    # 创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow)
-
     @classmethod
     def create(cls, name):
         role = cls(

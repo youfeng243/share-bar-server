@@ -58,12 +58,6 @@ class Admin(UserMixin, Base):
     # 管理员启用状态 using 启用 unused 停用
     state = db.Column(db.Enum(*STATE_VALUES), index=True, default='using')
 
-    # 管理员创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow)
-
     @classmethod
     def create(cls, username, password, name, role_id):
         admin = cls(

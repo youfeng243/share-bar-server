@@ -44,11 +44,5 @@ class UseRecord(Base):
     # 下机时间 数据初始化时以创建时间为结束时间
     end_time = db.Column(db.DateTime(), nullable=False, default=datetime.utcnow)
 
-    # 开机时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow)
-
     def __repr__(self):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)

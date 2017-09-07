@@ -35,12 +35,6 @@ class Deploy(Base):
     # 详细地址信息
     location = db.Column(db.String(128), nullable=False)
 
-    # 生效时间 创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
-
-    # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
-
     @classmethod
     def create(cls, device_id, province, city, area, location):
         deploy = cls(

@@ -15,6 +15,12 @@ from exts.database import db
 class Base(db.Model):
     __abstract__ = True
 
+    # 生效时间 创建时间
+    ctime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
+
+    # 数据更新时间
+    utime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
+
     def delete(self):
         if hasattr(self, 'deleted'):
             self.deleted = True
