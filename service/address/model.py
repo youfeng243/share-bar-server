@@ -41,8 +41,9 @@ class Address(Base):
 
     # 创建联合索引
     __table_args__ = (
-        db.UniqueConstraint('province', 'city', 'area', 'location', name='location_index'),
-        # db.Index('location_index_key', 'province', 'city', 'area', 'location'),
+        # 第一句与第二句是同义的，但是第二句需要多加一个参数index=True， UniqueConstraint 唯一性索引创建方式
+        # db.UniqueConstraint('province', 'city', 'area', 'location', name='location_index'),
+        db.Index('location_index_key', 'province', 'city', 'area', 'location', unique=True),
     )
 
     def __repr__(self):
