@@ -42,7 +42,7 @@ class Address(Base):
     # 创建联合索引
     __table_args__ = (
         db.UniqueConstraint('province', 'city', 'area', 'location', name='location_index'),
-        db.Index('location_index_key', 'province', 'city', 'area', 'location'),
+        # db.Index('location_index_key', 'province', 'city', 'area', 'location'),
     )
 
     def __repr__(self):
