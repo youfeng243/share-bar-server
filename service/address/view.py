@@ -17,7 +17,7 @@ from service.address.model import Address
 bp = Blueprint('address', __name__, url_prefix='/admin')
 
 
-# 添加地址 [finish]
+# 添加地址 [finish] 根据 20170908与张雅晴确认 新地址通过部署添加，而不是手动添加地址接口暂不对外提供
 @bp.route('/address', methods=['POST'])
 @login_required
 def new_address():

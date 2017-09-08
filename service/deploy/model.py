@@ -17,7 +17,7 @@ class Deploy(Base):
     __tablename__ = 'deploy'
 
     # 设备名称
-    device_id = db.Column(db.Integer, index=True)
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
 
     # 省份信息
     province = db.Column(db.String(16), nullable=False)

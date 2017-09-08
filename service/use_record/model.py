@@ -18,10 +18,10 @@ class UseRecord(Base):
     __tablename__ = 'use_record'
 
     # 用户名
-    user_id = db.Column(db.Integer, index=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     # 设备号
-    device_id = db.Column(db.Integer, index=True, nullable=False)
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
 
     # 省份信息
     province = db.Column(db.String(16), nullable=False)

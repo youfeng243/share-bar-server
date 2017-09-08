@@ -48,8 +48,8 @@ class Admin(UserMixin, Base):
     name = db.Column(db.String(64), nullable=False)
 
     # 角色 外键 todo 创建外键失败
-    role_id = db.Column(db.Integer, nullable=False)
-    # role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    # role_id = db.Column(db.Integer, nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
     # 管理员启用状态 using 启用 unused 停用
     state = db.Column(db.Enum(*STATE_VALUES), index=True, default='using')

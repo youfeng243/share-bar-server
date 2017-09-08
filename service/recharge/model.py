@@ -17,7 +17,7 @@ class Recharge(Base):
     __tablename__ = 'recharge'
 
     # 用户ID
-    user_id = db.Column(db.Integer, index=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     # 充值金额
     amount = db.Column(db.Integer, nullable=False)
