@@ -19,6 +19,7 @@ from service.admin.model import Admin
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
+# 登录
 @bp.route('/sign_in', methods=['POST'])
 def login():
     if not request.is_json:
@@ -54,6 +55,7 @@ def login():
     return fail(HTTP_OK, u'用户名或密码错误，请重新登陆!')
 
 
+# 登出
 @bp.route('/sign_out', methods=['GET'])
 @login_required
 def logout():
