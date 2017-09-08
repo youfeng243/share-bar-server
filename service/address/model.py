@@ -33,6 +33,9 @@ class Address(Base):
     # 统计设备数目
     device_num = db.Column(db.Integer, nullable=False)
 
+    # 反向指向设备列表信息
+    device_list = db.relationship('Device', backref='address', lazy='dynamic')
+
     # 生效时间 创建时间
     ctime = db.Column(db.DateTime(), index=True, default=datetime.utcnow, nullable=False)
 

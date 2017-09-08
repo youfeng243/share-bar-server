@@ -39,6 +39,9 @@ class Device(Base):
     # # 详细地址信息
     # location = db.Column(db.String(128), nullable=False)
 
+    # 部署记录
+    deploy_list = db.relationship('Deploy', backref='device', lazy='dynamic')
+
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
 

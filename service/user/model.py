@@ -36,6 +36,9 @@ class User(Base):
     # 当前用户使用状态信息 unused 离线  using 在线
     state = db.Column(db.Enum(*STATE_VALUES), index=True, default='unused')
 
+    # 反向指向充值列表信息
+    recharge_list = db.relationship('Recharge', backref='user', lazy='dynamic')
+
     # 删除用户
     deleted = db.Column(db.Boolean, default=False)
 
