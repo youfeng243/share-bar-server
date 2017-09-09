@@ -13,6 +13,7 @@ from flask_sqlalchemy import BaseQuery
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from exts.base import Base
+from exts.common import log
 from exts.database import db
 
 
@@ -64,6 +65,24 @@ class Admin(UserMixin, Base):
         db.session.add(admin)
         db.session.commit()
         return admin
+
+    # 获得管理员列表信息
+    @classmethod
+    def get_admin_list(cls, page, size=10):
+
+        result_list = []
+
+        item_paginate = cls.query.paginate(page=page, per_page=size, error_out=False)
+        if item_paginate is None:
+            log.warn("管理员信息分页查询失败: page = {} size = {}".format(page, size))
+            return result_list
+
+        item_list = item_paginate.items
+        if item_list is None:
+            log.warn("管理员信息分页查询失败: page = {} size = {}".format(page, size))
+            return result_list
+
+        return [item.to_dict() for item in item_list]
 
     @classmethod
     def get_by_username(cls, username):

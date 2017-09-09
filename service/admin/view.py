@@ -124,6 +124,32 @@ def new_admin():
     return success(admin.to_dict())
 
 
+# 分页查询所有管理员接口
+@bp.route('/list', methods=['POST'])
+@login_required
+def get_admin_list():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    page = request.json.get('page')
+    size = request.json.get('size')
+
+    if not isinstance(page, int) or \
+            not isinstance(size, int):
+        log.warn("请求参数错误: page = {} size = {}".format(page, size))
+        return fail(HTTP_OK, u"请求参数错误")
+
+    # 请求参数必须为正数
+    if page <= 0 or size <= 0:
+        msg = "请求参数错误: page = {} size = {}".format(
+            page, size)
+        log.error(msg)
+        return fail(HTTP_OK, msg)
+
+    return success(Admin.get_admin_list(page, size))
+
+
 # 登出
 @bp.route('/sign_out', methods=['GET'])
 @login_required
