@@ -58,7 +58,7 @@ def login():
 
 
 # 编辑管理员信息
-@bp.route('/update', methods=['PUT'])
+@bp.route('', methods=['PUT'])
 @login_required
 def update():
     # 只支持修改 名称 与 启用状态
