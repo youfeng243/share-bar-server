@@ -73,7 +73,7 @@ def delete_address():
         return fail(HTTP_OK, u"与该地址关联的设备数目不为0")
 
     address.delete()
-    return success()
+    return success(address.to_dict())
 
 
 # 分页获取全部地址列表 [finish]

@@ -90,7 +90,7 @@ def update():
 
     admin.save()
     log.info("管理员信息修改成功: {}".format(admin.to_dict()))
-    return success()
+    return success(admin.to_dict())
 
 
 # 添加管理员

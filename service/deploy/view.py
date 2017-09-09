@@ -64,6 +64,8 @@ def deploy_device():
 
     # 添加部署记录 先判断当前部署的位置是否和设备当前所处的位置是一样的
     if device.address_id == address.id:
+        log.info("当前设备部署的位置没有发生任何变化，不需要记录: {} {}".format(
+            device.id, address.id))
         return success()
 
     # 先获得之前部署的位置

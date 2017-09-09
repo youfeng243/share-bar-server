@@ -30,6 +30,13 @@ class Deploy(Base):
 
     # 详细地址信息
     location = db.Column(db.String(128), nullable=False)
+    #
+    # # 创建联合索引
+    # __table_args__ = (
+    #     # 第一句与第二句是同义的，但是第二句需要多加一个参数index=True， UniqueConstraint 唯一性索引创建方式
+    #     # db.UniqueConstraint('province', 'city', 'area', 'location', name='location_index'),
+    #     db.Index('deploy_index_key', 'device_id', 'province', 'city', 'area', 'location'),
+    # )
 
     @classmethod
     def create(cls, device_id, province, city, area, location):

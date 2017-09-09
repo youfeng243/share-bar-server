@@ -47,6 +47,34 @@ class Device(Base):
     def get_device_by_code(cls, device_code):
         return cls.query.filter_by(device_code=device_code).first()
 
+    # 分页获取地址信息
+    @classmethod
+    def get_device_list(cls, page, size=10):
+
+        result_list = []
+
+        # 获取数据总数目
+        total = cls.query.count()
+
+        item_paginate = cls.query.paginate(page=page, per_page=size, error_out=False)
+        if item_paginate is None:
+            log.warn("设备信息分页查询失败: page = {} size = {}".format(page, size))
+            return package_result(total, result_list)
+
+        item_list = item_paginate.items
+        if item_list is None:
+            log.warn("设备信息分页查询失败: page = {} size = {}".format(page, size))
+            return package_result(total, result_list)
+
+        # 还需要获取地址信息
+        for item in item_list:
+            result = item.to_dict()
+            result.pop("address_id")
+            result['address'] = item.address.to_dict()
+            result_list.append(result)
+
+        return package_result(total, result_list)
+
     def __repr__(self):
         return '<Device {}>'.format(self.name)
 
