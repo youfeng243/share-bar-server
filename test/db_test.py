@@ -25,7 +25,7 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     account = db.Column(db.String(80), unique=True)
-    phone_list = db.relationship('Phone', backref='user', lazy='dynamic')
+    phone_query = db.relationship('Phone', backref='user', lazy='dynamic')
 
     # def __init__(self, account, email):
     #     self.account = account
@@ -43,7 +43,7 @@ class Phone(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
     userId = db.Column(db.Integer, db.ForeignKey('user.id'))
-    attr_list = db.relationship('Attr', backref='phone', lazy='dynamic')
+    attr_query = db.relationship('Attr', backref='phone', lazy='dynamic')
 
     @classmethod
     def create(cls, name, userId):
@@ -104,5 +104,10 @@ attr13 = Attr.create(131, phone33.id)
 attr4 = Attr.create(14, phone4.id)
 attr14 = Attr.create(141, phone44.id)
 
-print user1.phone_list.count()
-print [item.name for item in user1.phone_list.paginate(page=1, per_page=1, error_out=False).items]
+# 正向关联
+print user1.phone_query.count()
+
+# 反向引用
+print phone1.user.id
+print phone1.user.account
+print [item.name for item in user1.phone_query.paginate(page=1, per_page=1, error_out=False).items]

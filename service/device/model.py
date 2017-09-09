@@ -27,7 +27,7 @@ class Device(Base):
     address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
 
     # 部署记录
-    deploy_list = db.relationship('Deploy', backref='device', lazy='dynamic')
+    deploy_query = db.relationship('Deploy', backref='device', lazy='dynamic')
 
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
@@ -55,9 +55,9 @@ class Device(Base):
         result_list = list()
 
         # 先获取部署总数信息
-        total = self.deploy_list.count()
+        total = self.deploy_query.count()
 
-        item_paginate = self.deploy_list.paginate(page=page, per_page=size, error_out=False)
+        item_paginate = self.deploy_query.paginate(page=page, per_page=size, error_out=False)
         if item_paginate is None:
             log.warn("获取部署信息翻页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
             return package_result(total, result_list)

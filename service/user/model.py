@@ -37,7 +37,7 @@ class User(Base):
     state = db.Column(db.Enum(*STATE_VALUES), index=True, default='unused')
 
     # 反向指向充值列表信息
-    recharge_list = db.relationship('Recharge', backref='user', lazy='dynamic')
+    recharge_query = db.relationship('Recharge', backref='user', lazy='dynamic')
 
     # 删除用户
     deleted = db.Column(db.Boolean, default=False)

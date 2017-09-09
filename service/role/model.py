@@ -23,7 +23,7 @@ class Role(Base):
     name = db.Column(db.String(64), unique=True, nullable=False, index=True)
 
     # 反向指向用户信息
-    admin_list = db.relationship('Admin', backref='role', lazy='dynamic')
+    admin_query = db.relationship('Admin', backref='role', lazy='dynamic')
 
     # todo 角色权限 这里需要角色的权限管理，目前没想好先预留
 
