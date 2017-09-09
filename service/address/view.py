@@ -137,7 +137,27 @@ def get_address_by_area():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
 
-    return success()
+    page = request.json.get('page')
+    size = request.json.get('size')
+    city = request.json.get('city', None)
+    area = request.json.get('area', None)
+    if city is None:
+        log.warn("参数不正确, city字段为None: city = {} area = {}".format(city, area))
+        return fail(HTTP_OK, u"city字段不能为None")
+
+    if not isinstance(page, int) or \
+            not isinstance(size, int):
+        log.warn("请求参数错误: page = {} size = {}".format(page, size))
+        return fail(HTTP_OK, u"请求参数错误")
+
+        # 请求参数必须为正数
+    if page <= 0 or size <= 0:
+        msg = "请求参数错误: page = {} size = {}".format(
+            page, size)
+        log.error(msg)
+        return fail(HTTP_OK, msg)
+
+    return success(Address.find_address_by_city_and_area(city, area, page, size))
 
 
 # 通过起始结束创建时间获取 地址列表
