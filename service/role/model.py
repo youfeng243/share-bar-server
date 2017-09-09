@@ -16,6 +16,9 @@ from exts.database import db
 class Role(Base):
     __tablename__ = 'role'
 
+    # 超级管理员
+    SUPER_ADMIN = u"superadmin"
+
     # 角色名称
     name = db.Column(db.String(64), unique=True, nullable=False, index=True)
 

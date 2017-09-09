@@ -13,7 +13,6 @@ from service.role.model import Role
 application = create_app('box')
 manager = Manager(application)
 
-ROLE_SUPER_ADMIN = "superadmin"
 SUPER_USER = "youfeng"
 SUPER_PASS = "123456"
 SUPER_NAME = "游丰"
@@ -39,12 +38,12 @@ def syncdb():
         db.session.commit()
 
         # 判断角色是否存在，不存在则创建
-        if Role.get_by_name(ROLE_SUPER_ADMIN) is None:
-            Role.create(ROLE_SUPER_ADMIN)
+        if Role.get_by_name(Role.SUPER_ADMIN) is None:
+            Role.create(Role.SUPER_ADMIN)
             print "超级管理员权限创建完成..."
 
         if Admin.get_by_username(SUPER_USER) is None:
-            Admin.create(SUPER_USER, SUPER_PASS, SUPER_NAME, Role.get_by_name(ROLE_SUPER_ADMIN).id)
+            Admin.create(SUPER_USER, SUPER_PASS, SUPER_NAME, Role.get_by_name(Role.SUPER_ADMIN).id)
             print "超级管理员角色创建完成..."
 
         print '数据库创建完成...'

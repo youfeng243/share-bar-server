@@ -34,8 +34,8 @@ class Base(db.Model):
         db.session.commit()
 
     @classmethod
-    def get(cls, addr_id):
-        return cls.query.get(addr_id)
+    def get(cls, a_id):
+        return cls.query.get(a_id)
 
     @classmethod
     def get_all(cls):

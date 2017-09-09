@@ -9,12 +9,14 @@
 """
 from flask import Blueprint
 from flask import request
+from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
 from flask_login import logout_user
 
 from exts.common import success, log, fail, HTTP_OK
 from service.admin.model import Admin
+from service.role.model import Role
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -53,6 +55,42 @@ def login():
     if admin is None:
         return fail(HTTP_OK, u'用户不存在')
     return fail(HTTP_OK, u'用户名或密码错误，请重新登陆!')
+
+
+# 编辑管理员信息
+@bp.route('/update', methods=['PUT'])
+@login_required
+def update():
+    # 只支持修改 名称 与 启用状态
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    # 判断当前管理员是否为超级管理员，只有超级管理员才有修改管理员信息的权限
+    if current_user.role.name != Role.SUPER_ADMIN:
+        return fail(HTTP_OK, u"没有操作权限，只有超级管理员才能够编辑管理员信息...!")
+
+    a_id = request.json.get('id', None)
+    if a_id is None:
+        log.warn("没有传入管理员id信息")
+        return fail(HTTP_OK, u"没有传入管理员id信息!")
+
+    admin = Admin.get(a_id)
+    if admin is None:
+        log.warn("当前ID信息不存在: id = {}".format(a_id))
+        return fail(HTTP_OK, u"当前ID信息不存在!")
+
+    name = request.json.get('name', None)
+    if isinstance(name, basestring) and name.strip() != '':
+        admin.name = name
+
+    state = request.json.get('state', None)
+    if state in Admin.STATE_VALUES:
+        admin.state = state
+
+    admin.save()
+    log.info("管理员信息修改成功: {}".format(admin.to_dict()))
+    return success()
 
 
 # 登出
