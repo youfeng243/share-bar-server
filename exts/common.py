@@ -45,7 +45,7 @@ def json_resp(data, http_status):
 
 
 # 返回成功
-def success(result=None, **kwargs):
+def success(result=u"success", **kwargs):
     resp = {
         'success': True,
         'error': None,

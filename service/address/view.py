@@ -18,33 +18,33 @@ bp = Blueprint('address', __name__, url_prefix='/admin')
 
 
 # 添加地址 [finish] 根据 20170908与张雅晴确认 新地址通过部署添加，而不是手动添加地址接口暂不对外提供
-@bp.route('/address', methods=['POST'])
-@login_required
-def new_address():
-    if not request.is_json:
-        log.warn("参数错误...")
-        return fail(HTTP_OK, u"need application/json!!")
-
-    province = request.json.get('province', None)
-    city = request.json.get('city', None)
-    area = request.json.get('area', None)
-    location = request.json.get('location', None)
-    if province is None or city is None \
-            or area is None or location is None \
-            or province == '' or city == '' \
-            or area == '' or location == '':
-        log.warn("地址信息传入错误: province = {} city = {} area = {} location = {}".format(
-            province, city, area, location))
-        return fail(HTTP_OK, u"地址信息传入错误!")
-
-    # 查找地址是否已经存在
-    if Address.find_address(province, city, area, location) is not None:
-        log.warn("地址信息已存在: province = {} city = {} area = {} location = {}".format(
-            province, city, area, location))
-        return fail(HTTP_OK, u"地址信息已存在!")
-
-    address = Address.create(province, city, area, location)
-    return success(address.to_dict())
+# @bp.route('/address', methods=['POST'])
+# @login_required
+# def new_address():
+#     if not request.is_json:
+#         log.warn("参数错误...")
+#         return fail(HTTP_OK, u"need application/json!!")
+#
+#     province = request.json.get('province', None)
+#     city = request.json.get('city', None)
+#     area = request.json.get('area', None)
+#     location = request.json.get('location', None)
+#     if province is None or city is None \
+#             or area is None or location is None \
+#             or province == '' or city == '' \
+#             or area == '' or location == '':
+#         log.warn("地址信息传入错误: province = {} city = {} area = {} location = {}".format(
+#             province, city, area, location))
+#         return fail(HTTP_OK, u"地址信息传入错误!")
+#
+#     # 查找地址是否已经存在
+#     if Address.find_address(province, city, area, location) is not None:
+#         log.warn("地址信息已存在: province = {} city = {} area = {} location = {}".format(
+#             province, city, area, location))
+#         return fail(HTTP_OK, u"地址信息已存在!")
+#
+#     address = Address.create(province, city, area, location)
+#     return success(address.to_dict())
 
 
 # 删除地址 [finish]
@@ -66,12 +66,16 @@ def delete_address():
         log.warn("地址信息不存在: {}".format(a_id))
         return fail(HTTP_OK, u"地址信息不存在!")
 
+    # 如果改地址管理的设备数目不为0 则不能删除
+    if address.device_num > 0:
+        return fail(HTTP_OK, u"与该地址关联的设备数目不为0")
+
     address.delete()
-    return success("success")
+    return success()
 
 
 # 分页获取全部地址列表 [finish]
-@bp.route('/address/list', methods=['POST'])
+@bp.route('/address', methods=['POST'])
 @login_required
 def get_address_list():
     if not request.is_json:
@@ -133,7 +137,7 @@ def get_address_by_area():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
 
-    return success('success')
+    return success()
 
 
 # 通过起始结束创建时间获取 地址列表
@@ -144,4 +148,4 @@ def get_address_by_time():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
 
-    return success('success')
+    return success()
