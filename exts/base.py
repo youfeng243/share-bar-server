@@ -45,3 +45,7 @@ class Base(db.Model):
         self.utime = datetime.now()
         db.session.add(self)
         db.session.commit()
+
+    # 字典转换接口 必须实现
+    def to_dict(self):
+        raise NotImplementedError

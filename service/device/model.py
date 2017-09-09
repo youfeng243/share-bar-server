@@ -57,6 +57,7 @@ class Device(Base):
         # 先获取部署总数信息
         total = self.deploy_query.count()
 
+        # 获取部署信息列表
         item_paginate = self.deploy_query.paginate(page=page, per_page=size, error_out=False)
         if item_paginate is None:
             log.warn("获取部署信息翻页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
