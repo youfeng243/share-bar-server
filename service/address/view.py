@@ -168,4 +168,24 @@ def get_address_by_time():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
 
-    return success()
+    page = request.json.get('page')
+    size = request.json.get('size')
+    start_time = request.json.get('start_time', None)
+    end_time = request.json.get('end_time', None)
+    if start_time is None or end_time is None:
+        log.warn("参数不正确, 字段为None: start_time = {} end_time = {}".format(start_time, end_time))
+        return fail(HTTP_OK, u"字段不能为None")
+
+    if not isinstance(page, int) or \
+            not isinstance(size, int):
+        log.warn("请求参数错误: page = {} size = {}".format(page, size))
+        return fail(HTTP_OK, u"请求参数错误")
+
+        # 请求参数必须为正数
+    if page <= 0 or size <= 0:
+        msg = "请求参数错误: page = {} size = {}".format(
+            page, size)
+        log.error(msg)
+        return fail(HTTP_OK, msg)
+    # todo find_address_by_time接口未完成...
+    return success(Address.find_address_by_time(start_time, end_time, page, size))

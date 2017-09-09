@@ -19,10 +19,10 @@ class Base(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # 生效时间 创建时间
-    ctime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
+    ctime = db.Column(db.DateTime, default=datetime.now(), nullable=False)
 
     # 数据更新时间
-    utime = db.Column(db.DateTime(), default=datetime.utcnow, nullable=False)
+    utime = db.Column(db.DateTime, default=datetime.now(), nullable=False)
 
     def delete(self):
         if hasattr(self, 'deleted'):

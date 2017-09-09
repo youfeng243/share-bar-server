@@ -39,7 +39,7 @@ class UseRecord(Base):
     cost_money = db.Column(db.Integer, nullable=False, default=0)
 
     # 下机时间 数据初始化时以创建时间为结束时间
-    end_time = db.Column(db.DateTime(), nullable=False, default=datetime.utcnow)
+    end_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
     def __repr__(self):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)

@@ -37,7 +37,7 @@ class Address(Base):
     device_list = db.relationship('Device', backref='address', lazy='dynamic')
 
     # 生效时间 创建时间
-    ctime = db.Column(db.DateTime(), index=True, default=datetime.utcnow, nullable=False)
+    ctime = db.Column(db.DateTime, index=True, default=datetime.now(), nullable=False)
 
     # 创建联合索引
     __table_args__ = (
