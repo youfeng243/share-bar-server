@@ -10,7 +10,7 @@
 from datetime import datetime
 
 from exts.base import Base
-from exts.common import log
+from exts.common import log, package_result
 from exts.database import db
 
 
@@ -99,14 +99,14 @@ class Address(Base):
 
         if pagination is None:
             log.error("地址信息查询异常...")
-            return result_list
+            return package_result(total, result_list)
 
         item_list = pagination.items
         if not isinstance(item_list, list):
             log.error("地址信息查询异常...")
-            return result_list
+            return package_result(total, result_list)
 
-        return {"total": total, "data": [item.to_dict() for item in item_list]}
+        return package_result(total, [item.to_dict() for item in item_list])
 
     # 根据时间查询地址信息
     @classmethod
@@ -131,14 +131,14 @@ class Address(Base):
 
         if pagination is None:
             log.error("时间信息查询异常...")
-            return result_list
+            return package_result(total, result_list)
 
         item_list = pagination.items
         if not isinstance(item_list, list):
             log.error("时间信息查询异常...")
-            return result_list
+            return package_result(total, result_list)
 
-        return {"total": total, "data": [item.to_dict() for item in item_list]}
+        return package_result(total, [item.to_dict() for item in item_list])
 
     # 获得所有列表信息
     @classmethod
@@ -151,14 +151,14 @@ class Address(Base):
         item_paginate = cls.query.paginate(page=page, per_page=size, error_out=False)
         if item_paginate is None:
             log.warn("地址信息分页查询失败: page = {} size = {}".format(page, size))
-            return result_list
+            return package_result(total, result_list)
 
         item_list = item_paginate.items
         if item_list is None:
             log.warn("地址信息分页查询失败: page = {} size = {}".format(page, size))
-            return result_list
+            return package_result(total, result_list)
 
-        return {"total": total, "data": [item.to_dict() for item in item_list]}
+        return package_result(total, [item.to_dict() for item in item_list])
 
     # 增加设备数目
     def add_device_num(self, device_num):

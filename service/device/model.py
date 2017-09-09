@@ -9,6 +9,7 @@
 """
 
 from exts.base import Base
+from exts.common import log, package_result
 from exts.database import db
 
 
@@ -48,6 +49,25 @@ class Device(Base):
 
     def __repr__(self):
         return '<Device {}>'.format(self.name)
+
+    # 获得部署列表
+    def get_deploy_list(self, page, size):
+        result_list = list()
+
+        # 先获取部署总数信息
+        total = self.deploy_list.count()
+
+        item_paginate = self.deploy_list.paginate(page=page, per_page=size, error_out=False)
+        if item_paginate is None:
+            log.warn("获取部署信息翻页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
+            return package_result(total, result_list)
+
+        item_list = item_paginate.items
+        if item_list is None:
+            log.warn("部署信息分页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
+            return package_result(total, result_list)
+
+        return package_result(total, [item.to_dict() for item in item_list])
 
     def to_dict(self):
         return {

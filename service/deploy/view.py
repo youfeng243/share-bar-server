@@ -78,3 +78,32 @@ def deploy_device():
     # 增加部署记录
     deploy = Deploy.create(device.id, province, city, area, location)
     return success(deploy.to_dict())
+
+
+# 获得部署记录列表
+@bp.route('/deploy/list', methods=['POST'])
+@login_required
+def get_deploy_list():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    page = request.json.get('page', None)
+    size = request.json.get('size', None)
+    if not isinstance(page, int) or not isinstance(size, int):
+        return fail(HTTP_OK, u"翻页参数错误!")
+
+    if page <= 0 or size <= 0:
+        return fail(HTTP_OK, u"翻页参数错误!")
+
+    device_id = request.json.get('id', None)
+    if device_id is None:
+        return fail(HTTP_OK, u"没有设备ID信息，无法获取设备记录")
+
+    # 查找对应的设备
+    device = Device.get(device_id)
+    if device is None:
+        return fail(HTTP_OK, u"没有对应的设备信息...")
+
+    # 返回记录列表信息
+    return success(device.get_deploy_list(page, size))

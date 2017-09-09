@@ -44,6 +44,11 @@ def json_resp(data, http_status):
     return Response(data, status=http_status, mimetype="application/json")
 
 
+# 数据列表返回打包
+def package_result(total, page_list):
+    return {"total": total, "data": page_list}
+
+
 # 返回成功
 def success(result=u"success", **kwargs):
     resp = {
