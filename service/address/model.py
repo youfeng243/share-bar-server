@@ -88,6 +88,9 @@ class Address(Base):
         if area is not None:
             query = query.filter(cls.area == area)
 
+        # 获得数目信息
+        total = query.count()
+
         pagination = query.paginate(
             page=page,
             per_page=size,
@@ -103,7 +106,7 @@ class Address(Base):
             log.error("地址信息查询异常...")
             return result_list
 
-        return [item.to_dict() for item in item_list]
+        return {"total": total, "data": [item.to_dict() for item in item_list]}
 
     # 根据时间查询地址信息
     @classmethod
@@ -113,6 +116,9 @@ class Address(Base):
 
         # 根据创建时间范围进行过滤
         query = query.filter(cls.ctime.between(start_time, end_time))
+
+        # 获取数据总数目
+        total = query.count()
 
         # 根据时间进行排序
         query = query.order_by(cls.ctime)
@@ -132,12 +138,15 @@ class Address(Base):
             log.error("时间信息查询异常...")
             return result_list
 
-        return [item.to_dict() for item in item_list]
+        return {"total": total, "data": [item.to_dict() for item in item_list]}
 
     # 获得所有列表信息
     @classmethod
     def get_address_list(cls, page, size=10):
         result_list = []
+
+        # 获取数据总数目
+        total = cls.query.count()
 
         item_paginate = cls.query.paginate(page=page, per_page=size, error_out=False)
         if item_paginate is None:
@@ -149,7 +158,7 @@ class Address(Base):
             log.warn("地址信息分页查询失败: page = {} size = {}".format(page, size))
             return result_list
 
-        return [item.to_dict() for item in item_list]
+        return {"total": total, "data": [item.to_dict() for item in item_list]}
 
     # 增加设备数目
     def add_device_num(self, device_num):

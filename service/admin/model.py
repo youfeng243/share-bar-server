@@ -72,6 +72,8 @@ class Admin(UserMixin, Base):
 
         result_list = []
 
+        total = cls.query.count()
+
         item_paginate = cls.query.paginate(page=page, per_page=size, error_out=False)
         if item_paginate is None:
             log.warn("管理员信息分页查询失败: page = {} size = {}".format(page, size))
@@ -82,7 +84,7 @@ class Admin(UserMixin, Base):
             log.warn("管理员信息分页查询失败: page = {} size = {}".format(page, size))
             return result_list
 
-        return [item.to_dict() for item in item_list]
+        return {"total": total, "data": [item.to_dict() for item in item_list]}
 
     @classmethod
     def get_by_username(cls, username):
