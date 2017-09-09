@@ -93,6 +93,37 @@ def update():
     return success()
 
 
+# 添加管理员
+@bp.route('', methods=['POST'])
+@login_required
+def new_admin():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    # 判断当前管理员是否为超级管理员，只有超级管理员才有修改管理员信息的权限
+    if current_user.role.name != Role.SUPER_ADMIN:
+        return fail(HTTP_OK, u"没有操作权限，只有超级管理员才能够编辑管理员信息...!")
+
+    name = request.json.get('name', None)
+    username = request.json.get('username', None)
+    role_id = request.json.get("role_id", None)
+    password = request.json.get("password", None)
+
+    if name is None or username is None or role_id is None or password is None:
+        return fail(HTTP_OK, u"添加管理员参数不正确...!")
+
+    # 查找当前用户名是否已经被占用了
+    if Admin.get_by_username(username) is not None:
+        return fail(HTTP_OK, u"该用户名已被使用...!")
+
+    # 创建并添加管理员
+    admin = Admin.create(username, password, name, role_id)
+
+    log.info("管理员信息添加成功: {}".format(admin.to_dict()))
+    return success(admin.to_dict())
+
+
 # 登出
 @bp.route('/sign_out', methods=['GET'])
 @login_required
