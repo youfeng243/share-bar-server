@@ -17,27 +17,13 @@ class Device(Base):
     __tablename__ = 'device'
 
     # 使用状态
-    STATE_VALUES = ('unused', 'using')
+    STATE_VALUES = ('free', 'busy', 'offline')
 
     # 设备机器码
-    machine_code = db.Column(db.String(128), index=True)
-
-    # 设备名称
-    name = db.Column(db.String(128), unique=True, index=True)
+    device_code = db.Column(db.String(128), unique=True, index=True)
 
     # 投放ID
     address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
-    # # 省份信息
-    # province = db.Column(db.String(16), nullable=False)
-    #
-    # # 市级信息
-    # city = db.Column(db.String(64), nullable=False)
-    #
-    # # 区域信息
-    # area = db.Column(db.String(64), nullable=False)
-    #
-    # # 详细地址信息
-    # location = db.Column(db.String(128), nullable=False)
 
     # 部署记录
     deploy_list = db.relationship('Deploy', backref='device', lazy='dynamic')
@@ -45,18 +31,20 @@ class Device(Base):
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
 
-    # 设备当前使用状态 0 未使用 1 正在使用
-    state = db.Column(db.Enum(*STATE_VALUES), nullable=False, index=True, default='unused')
+    # 设备当前使用状态 free 空闲 busy 忙碌  offline 离线
+    state = db.Column(db.Enum(*STATE_VALUES), nullable=False, index=True, default='free')
 
     @classmethod
-    def create(cls, name, machine_code, address_id):
-        device = cls(
-            name=name,
-            machine_code=machine_code,
-            address_id=address_id)
+    def create(cls, device_code, address_id):
+        device = cls(device_code=device_code, address_id=address_id)
         db.session.add(device)
         db.session.commit()
         return device
+
+    # 通过设备编号获取设备信息
+    @classmethod
+    def get_device_by_code(cls, device_code):
+        return cls.query.filter_by(device_code=device_code).first()
 
     def __repr__(self):
         return '<Device {}>'.format(self.name)
@@ -64,8 +52,7 @@ class Device(Base):
     def to_dict(self):
         return {
             'id': self.id,
-            'name': self.name,
-            'machine_code': self.machine_code,
+            'device_code': self.device_code,
             'address_id': self.address_id,
             'income': self.income,
             'state': self.state,

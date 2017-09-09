@@ -14,8 +14,9 @@ import settings
 from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
 from exts.database import db
 from exts.login_manager import setup_admin_login
-from service.admin.view import bp as admin_bp
 from service.address.view import bp as address_bp
+from service.admin.view import bp as admin_bp
+from service.deploy.view import bp as deploy_bp
 
 
 def create_app(name=None):
@@ -41,9 +42,11 @@ def create_app(name=None):
     return app
 
 
+# 注册蓝图
 def register_bp(app):
     app.register_blueprint(admin_bp)
     app.register_blueprint(address_bp)
+    app.register_blueprint(deploy_bp)
 
 
 def setup_error_handler(app):
