@@ -7,6 +7,8 @@
 @file: view.py
 @time: 2017/9/7 20:32
 """
+from datetime import datetime
+
 from flask import Blueprint
 from flask import request
 from flask_login import login_required
@@ -170,11 +172,22 @@ def get_address_by_time():
 
     page = request.json.get('page')
     size = request.json.get('size')
-    start_time = request.json.get('start_time', None)
-    end_time = request.json.get('end_time', None)
-    if start_time is None or end_time is None:
-        log.warn("参数不正确, 字段为None: start_time = {} end_time = {}".format(start_time, end_time))
+    start_time_str = request.json.get('start_time', None)
+    end_time_str = request.json.get('end_time', None)
+    if start_time_str is None or end_time_str is None:
+        log.warn("参数不正确, 字段为None: start_time = {} end_time = {}".format(start_time_str, end_time_str))
         return fail(HTTP_OK, u"字段不能为None")
+
+    try:
+        # 转换为 datetime 类型
+        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%I:%S')
+        end_time = datetime.strptime(end_time_str, '%Y-%m-%d %H:%I:%S')
+        log.info("转换后时间: start_time = {} type = {}".format(start_time, type(start_time)))
+        log.info("转换后时间: end_time = {} type = {}".format(end_time, type(end_time)))
+    except Exception as e:
+        log.error("时间格式转换错误: start_time_str = {} end_time_str = {}".format(start_time_str, end_time_str))
+        log.exception(e)
+        return fail(HTTP_OK, u"时间格式转换错误!")
 
     if not isinstance(page, int) or \
             not isinstance(size, int):

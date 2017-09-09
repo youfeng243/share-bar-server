@@ -105,6 +105,35 @@ class Address(Base):
 
         return [item.to_dict() for item in item_list]
 
+    # 根据时间查询地址信息
+    @classmethod
+    def find_address_by_time(cls, start_time, end_time, page, size=10):
+        result_list = []
+        query = cls.query
+
+        # 根据创建时间范围进行过滤
+        query = query.filter(cls.ctime.between(start_time, end_time))
+
+        # 根据时间进行排序
+        query = query.order_by(cls.ctime)
+
+        pagination = query.paginate(
+            page=page,
+            per_page=size,
+            error_out=False,
+        )
+
+        if pagination is None:
+            log.error("时间信息查询异常...")
+            return result_list
+
+        item_list = pagination.items
+        if not isinstance(item_list, list):
+            log.error("时间信息查询异常...")
+            return result_list
+
+        return [item.to_dict() for item in item_list]
+
     # 获得所有列表信息
     @classmethod
     def get_address_list(cls, page, size=10):
