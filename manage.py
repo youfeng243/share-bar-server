@@ -58,5 +58,15 @@ def dropdb():
         print '数据库删除完成...'
 
 
+@manager.command
+def test():
+    """Run the unit tests"""
+    import unittest
+    # with application.test_request_context():
+    #     _import_tests()
+    tests = unittest.TestLoader().discover('.', pattern="test.py")
+    unittest.TextTestRunner(verbosity=2).run(tests)
+
+
 if __name__ == '__main__':
     manager.run()

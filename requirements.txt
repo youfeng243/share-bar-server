@@ -9,3 +9,4 @@ Flask-SQLAlchemy==2.2
 Flask-Script==2.0.5
 tornado==4.2
 ConcurrentLogHandler==0.9.1
+requests==2.18.4
