@@ -1,0 +1,84 @@
+1. 登录
+/admin/sign_in, method=POST
+Content-Type: application/json
+参数:
+json={
+    username:'xxxx',
+    password:'xxxxx'
+}
+
+返回
+{
+    'success': True,
+    'error': None,
+    'result': 'xxxx'
+}
+
+2. 登出
+/admin/sign_out, method=GET
+Content-Type: application/json
+参数:
+无
+
+返回
+{
+    'success': True,
+    'error': None,
+    'result': 'xxxx'
+}
+
+3. 编辑
+/admin, method=PUT
+Content-Type: application/json
+参数:
+name 或者 state 可选选项
+state = ('unused', 'using')
+json={
+    id:'xxxx'
+    name or state: 'xxx'
+}
+
+返回
+{
+    'success': True,
+    'error': None,
+    'result': 'xxxx'
+}
+
+4. 添加管理员账户
+/admin, method=POST
+Content-Type: application/json
+参数:
+role_id 为role表主键ID
+json={
+    name: 'xxx',
+    username: 'xxx',
+    role_id: 'xxx',
+    password: 'xxx'
+}
+
+返回
+{
+    'success': True,
+    'error': None,
+    'result': 'xxxx'
+}
+
+
+5. 分页获取管理员列表
+/admin/list, method=POST
+Content-Type: application/json
+参数:
+json={
+    page: 1,
+    size: 10,
+}
+
+返回
+{
+    'success': True,
+    'error': None,
+    'result': [
+    {}, {}
+    ]
+}
