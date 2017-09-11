@@ -24,3 +24,4 @@ log/*.log
 /env3/
 /.venv/
 /log/share-bar-server.lock
+/.cache/
