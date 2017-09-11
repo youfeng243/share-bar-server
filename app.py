@@ -40,6 +40,7 @@ def create_app(name=None):
     # 注册蓝图
     register_bp(app)
 
+    log.info("flask 服务初始化完成...")
     return app
 
 
