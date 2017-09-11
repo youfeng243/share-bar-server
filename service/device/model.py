@@ -8,7 +8,7 @@
 @time: 2017/8/29 20:59
 """
 
-from exts.base import Base
+from exts.model_base import Base
 from exts.common import log, package_result
 from exts.database import db
 

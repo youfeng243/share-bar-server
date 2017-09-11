@@ -8,7 +8,7 @@
 @time: 2017/8/29 21:26
 """
 
-from exts.base import Base
+from exts.model_base import Base
 from exts.database import db
 
 
