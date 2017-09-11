@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import
 
+import unittest
+
 from flask_script import Manager
 from setuptools import find_packages
 
@@ -61,7 +63,7 @@ def dropdb():
 @manager.command
 def test():
     """Run the unit tests"""
-    import unittest
+
     # with application.test_request_context():
     #     _import_tests()
     tests = unittest.TestLoader().discover('.', pattern="test.py")
