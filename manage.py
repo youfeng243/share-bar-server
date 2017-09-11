@@ -66,7 +66,7 @@ def test():
 
     # with application.test_request_context():
     #     _import_tests()
-    tests = unittest.TestLoader().discover('.', pattern="test.py")
+    tests = unittest.TestLoader().discover('test', pattern="test_*.py")
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 
