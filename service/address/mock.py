@@ -9,6 +9,8 @@
 """
 
 # 生成数据
+from sqlalchemy.exc import IntegrityError
+
 from exts.common import log
 from exts.database import db
 from service.address.model import Address
@@ -21,7 +23,20 @@ def gen_address():
         Address.create("广东省", "深圳市", "南山区", "芒果网大厦", 0)
         Address.create("广东省", "深圳市", "南山区", "A8音乐大厦", 0)
         Address.create("广东省", "深圳市", "南山区", "腾讯大厦", 0)
+        Address.create("广东省", "深圳市", "南山区", "1111", 0)
+        Address.create("广东省", "深圳市", "南山区", "22222", 0)
+        Address.create("广东省", "深圳市", "南山区", "33333", 0)
+        Address.create("广东省", "深圳市", "南山区", "44444", 0)
+        Address.create("广东省", "深圳市", "南山区", "445454", 0)
+        Address.create("广东省", "深圳市", "南山区", "fasdf", 0)
+        Address.create("广东省", "深圳市", "南山区", "fdas", 0)
+        Address.create("广东省", "深圳市", "南山区", "fasdfdsaff", 0)
+        Address.create("广东省", "深圳市", "南山区", "fasdfsafsad", 0)
+        Address.create("广东省", "深圳市", "南山区", "fdsafadfs", 0)
+        Address.create("广东省", "深圳市", "南山区", "fdsafweewf", 0)
+        Address.create("广东省", "深圳市", "南山区", "vcxzvzxcv", 0)
         log.info("创建地址数据完成...")
-    except:
+    except IntegrityError as e:
+        # log.exception(e)
         db.session.rollback()
         log.info("创建地址数据失败,回滚...")
