@@ -28,7 +28,7 @@ class AddressTest(unittest.TestCase):
     def tearDown(self):
         log.info("测试完成: {}".format(__name__))
 
-    def testSum(self):
+    def test_sum(self):
         self.assertEqual(Sum(1, 1), 2, 'test sum fail')
 
 

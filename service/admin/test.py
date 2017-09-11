@@ -21,7 +21,7 @@ class AdminTest(unittest.TestCase):
     def tearDown(self):
         log.info("测试完成: {}".format(__name__))
 
-    def test_t(self):
+    def test_sum(self):
         log.info("测试测试")
 
 
