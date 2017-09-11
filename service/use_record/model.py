@@ -9,12 +9,12 @@
 """
 from datetime import datetime
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.database import db
 
 
 # 用户和设备使用记录
-class UseRecord(Base):
+class UseRecord(ModelBase):
     __tablename__ = 'use_record'
 
     # 用户名

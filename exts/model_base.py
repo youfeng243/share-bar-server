@@ -12,7 +12,7 @@ from datetime import datetime
 from exts.database import db
 
 
-class Base(db.Model):
+class ModelBase(db.Model):
     __abstract__ = True
 
     # ID

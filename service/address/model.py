@@ -9,13 +9,13 @@
 """
 from datetime import datetime
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.common import log, package_result
 from exts.database import db
 
 
 # 投放管理
-class Address(Base):
+class Address(ModelBase):
     __tablename__ = 'address'
 
     # 省份信息

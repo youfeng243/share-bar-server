@@ -8,12 +8,12 @@
 @time: 2017/8/29 21:16
 """
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.database import db
 
 
 # 用户的充值记录
-class Recharge(Base):
+class Recharge(ModelBase):
     __tablename__ = 'recharge'
 
     # 用户ID

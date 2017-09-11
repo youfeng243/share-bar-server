@@ -12,7 +12,7 @@ from flask_login import UserMixin
 from flask_sqlalchemy import BaseQuery
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.common import log, package_result
 from exts.database import db
 
@@ -30,7 +30,7 @@ class AdminQuery(BaseQuery):
 
 
 # 管理员信息
-class Admin(UserMixin, Base):
+class Admin(UserMixin, ModelBase):
     __tablename__ = 'admin'
 
     # 接管查询类

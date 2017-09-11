@@ -8,12 +8,12 @@
 @time: 2017/8/30 09:06
 """
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.database import db
 
 
 # 管理员角色管理
-class Role(Base):
+class Role(ModelBase):
     __tablename__ = 'role'
 
     # 超级管理员

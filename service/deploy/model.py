@@ -8,12 +8,12 @@
 @time: 2017/8/29 21:26
 """
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.database import db
 
 
 # 设备部署管理 部署记录信息
-class Deploy(Base):
+class Deploy(ModelBase):
     __tablename__ = 'deploy'
 
     # 设备名称

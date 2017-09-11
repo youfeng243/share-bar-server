@@ -8,13 +8,13 @@
 @time: 2017/8/29 20:59
 """
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.common import log, package_result
 from exts.database import db
 
 
 # 设备信息
-class Device(Base):
+class Device(ModelBase):
     __tablename__ = 'device'
 
     # 使用状态

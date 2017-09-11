@@ -8,11 +8,11 @@
 @time: 2017/8/29 17:58
 """
 
-from exts.model_base import Base
+from exts.model_base import ModelBase
 from exts.database import db
 
 
-class User(Base):
+class User(ModelBase):
     __tablename__ = 'user'
 
     # 使用状态
