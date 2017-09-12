@@ -83,12 +83,22 @@ def update():
     name = request.json.get('name', None)
     if isinstance(name, basestring) and name.strip() != '':
         admin.name = name
+    else:
+        log.warn("name信息不正确，不是字符串或为空字符串! name = {}".format(name))
+        return fail(HTTP_OK, u"name信息不正确，不是字符串或为空字符串!")
 
     state = request.json.get('state', None)
     if state in Admin.STATE_VALUES:
         admin.state = state
+    else:
+        log.warn("state 状态信息不正确! state = {}".format(state))
+        return fail(HTTP_OK, u"state 状态信息不正确!")
 
-    admin.save()
+    # 判断存储是否正确
+    if not admin.save():
+        log.warn("管理员信息存储失败!!!")
+        return fail(HTTP_OK, u"管理员信息存储失败!")
+
     log.info("管理员信息修改成功: {}".format(admin.to_dict()))
     return success(admin.to_dict())
 

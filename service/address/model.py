@@ -176,7 +176,7 @@ class Address(ModelBase):
     # 增加设备数目
     def add_device_num(self, device_num):
         self.device_num += device_num
-        self.save()
+        return self.save()
 
     def to_dict(self):
         return {

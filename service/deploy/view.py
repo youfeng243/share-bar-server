@@ -63,7 +63,9 @@ def deploy_device():
         if device is None:
             log.warn("新建设备信息失败了!!")
             return fail(HTTP_OK, u"新建设备信息失败了!")
-        address.add_device_num(1)
+        if not address.add_device_num(1):
+            log.warn("新增设备数目存储失败!!")
+            return fail(HTTP_OK, u"新增设备数目存储失败!")
 
     # 添加部署记录 先判断当前部署的位置是否和设备当前所处的位置是一样的
     if device.address_id == address.id:
@@ -74,11 +76,14 @@ def deploy_device():
     # 先获得之前部署的位置
     address_old = Address.get(device.address_id)
     if address_old.device_num > 0:
-        address_old.add_device_num(-1)
+        if not address_old.add_device_num(-1):
+            return fail(HTTP_OK, u"减少设备数目存储失败!")
 
     # 然后更改部署的位置
     device.address_id = address.id
-    address.add_device_num(1)
+    if not address.add_device_num(1):
+        log.warn("新增设备数目存储失败!!")
+        return fail(HTTP_OK, u"新增设备数目存储失败!")
 
     # 增加部署记录
     deploy, is_success = Deploy.create(device.id, province, city, area, location)

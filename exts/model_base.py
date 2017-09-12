@@ -7,8 +7,10 @@
 @file: common.py
 @time: 2017/8/28 20:58
 """
+import json
 from datetime import datetime
 
+from exts.common import log
 from exts.database import db
 
 
@@ -43,8 +45,16 @@ class ModelBase(db.Model):
 
     def save(self):
         self.utime = datetime.now()
-        db.session.add(self)
-        db.session.commit()
+
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            log.error("未知存储错误: {}".format(json.dumps(self.to_dict(), ensure_ascii=False)))
+            log.exception(e)
+            return False
+        return True
 
     # 字典转换接口 必须实现
     def to_dict(self):

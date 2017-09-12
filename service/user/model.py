@@ -72,7 +72,7 @@ class User(ModelBase):
     # 禁止用户
     def forbidden(self):
         self.forbid = True
-        self.save()
+        return self.save()
 
     def to_dict(self):
         return {
