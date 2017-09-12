@@ -7,9 +7,11 @@
 @file: user.py
 @time: 2017/8/29 17:58
 """
+from sqlalchemy.exc import IntegrityError
 
-from exts.model_base import ModelBase
+from exts.common import log
 from exts.database import db
+from exts.model_base import ModelBase
 
 
 class User(ModelBase):
@@ -51,9 +53,21 @@ class User(ModelBase):
             username=username,
             password=password,
             telephone=telephone)
-        db.session.add(user)
-        db.session.commit()
-        return user
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except IntegrityError:
+            log.error("主键重复: username = {} password = {} telephone = {}".format(
+                username, password, telephone))
+            db.session.rollback()
+            return None, False
+        except Exception as e:
+            log.error("未知插入错误: username = {} password = {} telephone = {}".format(
+                username, password, telephone))
+            log.exception(e)
+            return None, False
+        return user, True
 
     # 禁止用户
     def forbidden(self):

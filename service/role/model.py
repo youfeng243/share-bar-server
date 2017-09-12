@@ -7,7 +7,9 @@
 @file: role.py
 @time: 2017/8/30 09:06
 """
+from sqlalchemy.exc import IntegrityError
 
+from exts.common import log
 from exts.model_base import ModelBase
 from exts.database import db
 
@@ -29,11 +31,21 @@ class Role(ModelBase):
 
     @classmethod
     def create(cls, name):
-        role = cls(
-            name=name)
-        db.session.add(role)
-        db.session.commit()
-        return role
+        role = cls(name=name)
+
+        try:
+            db.session.add(role)
+            db.session.commit()
+        except IntegrityError:
+            log.error("主键重复: name = {}".format(name))
+            db.session.rollback()
+            return None, False
+        except Exception as e:
+            log.error("未知插入错误: name = {}".format(name))
+            log.exception(e)
+            return None, False
+
+        return role, True
 
     @classmethod
     def get_by_name(cls, name):
