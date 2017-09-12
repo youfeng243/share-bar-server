@@ -59,7 +59,10 @@ def deploy_device():
     device = Device.get_device_by_code(device_code)
     if device is None:
         # 如果没有找到设备信息则新建设备信息
-        device = Device.create(device_code, address.id)
+        device, is_success = Device.create(device_code, address.id)
+        if device is None:
+            log.warn("新建设备信息失败了!!")
+            return fail(HTTP_OK, u"新建设备信息失败了!")
         address.add_device_num(1)
 
     # 添加部署记录 先判断当前部署的位置是否和设备当前所处的位置是一样的

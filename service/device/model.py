@@ -7,10 +7,11 @@
 @file: device.py
 @time: 2017/8/29 20:59
 """
+from sqlalchemy.exc import IntegrityError
 
-from exts.model_base import ModelBase
 from exts.common import log, package_result
 from exts.database import db
+from exts.model_base import ModelBase
 
 
 # 设备信息
@@ -38,9 +39,21 @@ class Device(ModelBase):
     @classmethod
     def create(cls, device_code, address_id):
         device = cls(device_code=device_code, address_id=address_id)
-        db.session.add(device)
-        db.session.commit()
-        return device
+
+        try:
+            db.session.add(device)
+            db.session.commit()
+        except IntegrityError:
+            log.error("主键重复: device_code = {} address_id = {}".format(
+                device_code, address_id))
+            db.session.rollback()
+            return None, False
+        except Exception as e:
+            log.error("未知插入错误: device_code = {} address_id = {}".format(
+                device_code, address_id))
+            log.exception(e)
+            return None, False
+        return device, True
 
     # 通过设备编号获取设备信息
     @classmethod
