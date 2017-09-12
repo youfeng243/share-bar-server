@@ -15,6 +15,10 @@ from service.address.model import Address
 
 
 def gen_address():
+
+    for _ in xrange(40):
+        Address.create("广东省", "深圳市", "宝安区", "宝安汽车站{}".format(_), 0)
+
     Address.create("广东省", "深圳市", "宝安区", "宝安汽车站", 0)
     Address.create("广东省", "深圳市", "宝安区", "白金时代公寓", 0)
     Address.create("广东省", "深圳市", "南山区", "芒果网大厦", 0)

@@ -8,6 +8,7 @@ from setuptools import find_packages
 from app import create_app
 from exts.database import db
 from service.address.mock import gen_address
+from service.admin.mock import gen_admin
 from service.admin.model import Admin
 from service.role.model import Role
 
@@ -49,6 +50,9 @@ def syncdb():
 
     # 创建地址数据
     gen_address()
+
+    # 创建管理员数据
+    gen_admin()
 
     print '数据库创建完成...'
 
