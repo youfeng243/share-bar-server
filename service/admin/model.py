@@ -70,7 +70,6 @@ class Admin(UserMixin, ModelBase):
         except IntegrityError:
             log.error("主键重复: username = {} name = {} role_id = {}".format(
                 username, name, role_id))
-            # log.exception(e1)
             db.session.rollback()
             return None, False
         except Exception as e2:

@@ -64,7 +64,6 @@ class Address(ModelBase):
         except IntegrityError:
             log.error("主键重复: province = {} city = {} area = {} location = {}".format(
                 province, city, area, location))
-            # log.exception(e1)
             db.session.rollback()
             return None, False
         except Exception as e2:
