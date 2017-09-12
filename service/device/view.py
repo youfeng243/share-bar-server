@@ -7,6 +7,7 @@
 @file: view.py
 @time: 2017/9/7 20:32
 """
+import json
 
 from flask import Blueprint
 from flask import request
@@ -27,7 +28,9 @@ def delete_device(device_id):
         log.warn("当前设备ID查找设备失败: {}".format(device_id))
         return fail(HTTP_OK, u"设备不存在")
 
-    device.delete()
+    if not device.delete():
+        log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
+        return fail(HTTP_OK, u"删除设备信息失败!")
     return success(device.to_dict())
 
 
@@ -51,9 +54,11 @@ def delete_devices():
             log.warn("当前ID设备信息不存在: {}".format(device_id))
             continue
 
-        device.delete()
-        result_list.append(device_id)
+        if not device.delete():
+            log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
+            continue
 
+        result_list.append(device_id)
     return success(result_list)
 
 

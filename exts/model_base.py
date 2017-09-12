@@ -27,13 +27,19 @@ class ModelBase(db.Model):
     utime = db.Column(db.DateTime, default=datetime.now(), nullable=False)
 
     def delete(self):
-        if hasattr(self, 'deleted'):
-            self.deleted = True
-            db.session.add(self)
-        else:
-            db.session.delete(self)
-
-        db.session.commit()
+        try:
+            if hasattr(self, 'deleted'):
+                self.deleted = True
+                db.session.add(self)
+            else:
+                db.session.delete(self)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            log.error("未知删除错误: {}".format(json.dumps(self.to_dict(), ensure_ascii=False)))
+            log.exception(e)
+            return False
+        return True
 
     @classmethod
     def get(cls, a_id):

@@ -7,6 +7,7 @@
 @file: view.py
 @time: 2017/9/7 20:32
 """
+import json
 from datetime import datetime
 
 from flask import Blueprint
@@ -72,7 +73,10 @@ def delete_address():
     if address.device_num > 0:
         return fail(HTTP_OK, u"与该地址关联的设备数目不为0")
 
-    address.delete()
+    # 判断是否删除成功
+    if not address.delete():
+        log.warn("地址信息删除失败: {}".format(json.dumps(address.to_dict(), ensure_ascii=False)))
+        return fail(HTTP_OK, u"删除地址信息失败!")
     return success(address.to_dict())
 
 
