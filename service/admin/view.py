@@ -160,6 +160,10 @@ def get_admin_list():
         log.error(msg)
         return fail(HTTP_OK, msg)
 
+    if size > 50:
+        log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+        size = 50
+
     return success(Admin.get_admin_list(page, size))
 
 

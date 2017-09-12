@@ -104,6 +104,10 @@ def get_address_list():
         log.error(msg)
         return fail(HTTP_OK, msg)
 
+    if size > 50:
+        log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+        size = 50
+
     return success(Address.get_address_list(page, size))
 
 
@@ -159,6 +163,10 @@ def get_address_by_area():
         log.error(msg)
         return fail(HTTP_OK, msg)
 
+    if size > 50:
+        log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+        size = 50
+
     return success(Address.find_address_by_city_and_area(city, area, page, size))
 
 
@@ -200,5 +208,9 @@ def get_address_by_time():
             page, size)
         log.error(msg)
         return fail(HTTP_OK, msg)
+
+    if size > 50:
+        log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+        size = 50
 
     return success(Address.find_address_by_time(start_time, end_time, page, size))
