@@ -192,8 +192,8 @@ def get_address_by_time():
 
     try:
         # 转换为 datetime 类型
-        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%I:%S')
-        end_time = datetime.strptime(end_time_str, '%Y-%m-%d %H:%I:%S')
+        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+        end_time = datetime.strptime(end_time_str, '%Y-%m-%d %H:%M:%S')
         log.info("转换后时间: start_time = {} type = {}".format(start_time, type(start_time)))
         log.info("转换后时间: end_time = {} type = {}".format(end_time, type(end_time)))
     except Exception as e:
