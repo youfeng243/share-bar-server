@@ -78,7 +78,11 @@ def deploy_device():
     address.add_device_num(1)
 
     # 增加部署记录
-    deploy = Deploy.create(device.id, province, city, area, location)
+    deploy, is_success = Deploy.create(device.id, province, city, area, location)
+    if deploy is None:
+        log.warn("添加部署记录失败!")
+        return fail(HTTP_OK, u"添加部署记录失败!")
+
     return success(deploy.to_dict())
 
 

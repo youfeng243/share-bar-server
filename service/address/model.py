@@ -66,10 +66,10 @@ class Address(ModelBase):
                 province, city, area, location))
             db.session.rollback()
             return None, False
-        except Exception as e2:
+        except Exception as e:
             log.error("未知插入错误: province = {} city = {} area = {} location = {}".format(
                 province, city, area, location))
-            log.exception(e2)
+            log.exception(e)
             return None, False
         return address, True
 

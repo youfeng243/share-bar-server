@@ -7,9 +7,11 @@
 @file: device_put_record.py
 @time: 2017/8/29 21:26
 """
+from sqlalchemy.exc import IntegrityError
 
-from exts.model_base import ModelBase
+from exts.common import log
 from exts.database import db
+from exts.model_base import ModelBase
 
 
 # 设备部署管理 部署记录信息
@@ -30,6 +32,7 @@ class Deploy(ModelBase):
 
     # 详细地址信息
     location = db.Column(db.String(128), nullable=False)
+
     #
     # # 创建联合索引
     # __table_args__ = (
@@ -46,9 +49,22 @@ class Deploy(ModelBase):
             city=city,
             area=area,
             location=location)
-        db.session.add(deploy)
-        db.session.commit()
-        return deploy
+
+        try:
+            db.session.add(deploy)
+            db.session.commit()
+        except IntegrityError:
+            log.error("主键重复: device_id = {} province = {} city = {} area = {} location = {}".format(
+                device_id, province, city, area, location))
+            db.session.rollback()
+            return None, False
+        except Exception as e:
+            log.error("未知插入错误: device_id = {} province = {} city = {} area = {} location = {}".format(
+                device_id, province, city, area, location))
+            log.exception(e)
+            return None, False
+
+        return deploy, True
 
     def to_dict(self):
         return {
