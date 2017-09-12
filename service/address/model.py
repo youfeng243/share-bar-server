@@ -9,9 +9,11 @@
 """
 from datetime import datetime
 
-from exts.model_base import ModelBase
+from sqlalchemy.exc import IntegrityError
+
 from exts.common import log, package_result
 from exts.database import db
+from exts.model_base import ModelBase
 
 
 # 投放管理
@@ -56,9 +58,21 @@ class Address(ModelBase):
                       area=area,
                       location=location,
                       device_num=device_num)
-        db.session.add(address)
-        db.session.commit()
-        return address
+        try:
+            db.session.add(address)
+            db.session.commit()
+        except IntegrityError:
+            log.error("主键重复: province = {} city = {} area = {} location = {}".format(
+                province, city, area, location))
+            # log.exception(e1)
+            db.session.rollback()
+            return None, False
+        except Exception as e2:
+            log.error("未知插入错误: province = {} city = {} area = {} location = {}".format(
+                province, city, area, location))
+            log.exception(e2)
+            return None, False
+        return address, True
 
     # 查找是否有相同地址
     @classmethod

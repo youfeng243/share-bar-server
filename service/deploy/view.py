@@ -49,7 +49,7 @@ def deploy_device():
     address = Address.find_address(province, city, area, location)
     if address is None:
         # 如果地址信息不存在则创建地址但是设备数要先初始化为0
-        address = Address.create(province, city, area, location, device_num=0)
+        address, is_success = Address.create(province, city, area, location, device_num=0)
         if address is None:
             log.warn("部署设备时地址信息创建失败了: province = {} city = {} area = {} location = {} device_code = {}".format(
                 province, city, area, location, device_code))
