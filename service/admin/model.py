@@ -10,11 +10,12 @@
 
 from flask_login import UserMixin
 from flask_sqlalchemy import BaseQuery
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from exts.model_base import ModelBase
 from exts.common import log, package_result
 from exts.database import db
+from exts.model_base import ModelBase
 
 
 # 管理员查询类
@@ -62,9 +63,22 @@ class Admin(UserMixin, ModelBase):
             name=name,
             role_id=role_id)
         admin.password = password
-        db.session.add(admin)
-        db.session.commit()
-        return admin
+
+        try:
+            db.session.add(admin)
+            db.session.commit()
+        except IntegrityError:
+            log.error("主键重复: username = {} name = {} role_id = {}".format(
+                username, name, role_id))
+            # log.exception(e1)
+            db.session.rollback()
+            return None, False
+        except Exception as e2:
+            log.error("未知插入错误: username = {} name = {} role_id = {}".format(
+                username, name, role_id))
+            log.exception(e2)
+            return None, False
+        return admin, True
 
     # 获得管理员列表信息
     @classmethod

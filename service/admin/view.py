@@ -118,7 +118,10 @@ def new_admin():
         return fail(HTTP_OK, u"该用户名已被使用...!")
 
     # 创建并添加管理员
-    admin = Admin.create(username, password, name, role_id)
+    admin, is_success = Admin.create(username, password, name, role_id)
+    if admin is None:
+        log.warn("管理员信息添加失败")
+        return fail(HTTP_OK, u"管理员信息添加失败!")
 
     log.info("管理员信息添加成功: {}".format(admin.to_dict()))
     return success(admin.to_dict())
