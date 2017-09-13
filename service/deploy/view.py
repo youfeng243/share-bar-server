@@ -27,6 +27,14 @@ def deploy_device():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
 
+    # json = {
+    #     'province': 'xxx',
+    #     'city': 'xxxx',
+    #     'area': 'xxxx',
+    #     'location': 'xxx',
+    #     'device_code': 'xxxx',
+    # }
+
     province = request.json.get('province', None)
     city = request.json.get('city', None)
     area = request.json.get('area', None)
@@ -67,11 +75,21 @@ def deploy_device():
             log.warn("新增设备数目存储失败!!")
             return fail(HTTP_OK, u"新增设备数目存储失败!")
 
+        # 这里添加部署记录然后返回
+        deploy, is_success = Deploy.create(device.id, province, city, area, location)
+        if deploy is None:
+            log.warn("添加部署记录失败!")
+            return fail(HTTP_OK, u"添加部署记录失败!")
+
+        log.info("添加部署记录成功: province = {} city = {} area = {} location = {} device_code = {}".format(
+            province, city, area, location, device_code))
+        return success(deploy.to_dict())
+
     # 添加部署记录 先判断当前部署的位置是否和设备当前所处的位置是一样的
     if device.address_id == address.id:
-        log.info("当前设备部署的位置没有发生任何变化，不需要记录: {} {}".format(
+        log.info("当前设备部署的位置没有发生任何变化，不需要记录: device.id = {} address.id = {}".format(
             device.id, address.id))
-        return success()
+        return success(u"当前设备部署位置没有发生任何变化，不需要增加部署记录")
 
     # 先获得之前部署的位置
     address_old = Address.get(device.address_id)
@@ -91,6 +109,8 @@ def deploy_device():
         log.warn("添加部署记录失败!")
         return fail(HTTP_OK, u"添加部署记录失败!")
 
+    log.info("添加部署记录成功: province = {} city = {} area = {} location = {} device_code = {}".format(
+        province, city, area, location, device_code))
     return success(deploy.to_dict())
 
 
