@@ -20,12 +20,6 @@ class User(ModelBase):
     # 使用状态
     STATE_VALUES = ('unused', 'using')
 
-    # 用户名
-    username = db.Column(db.String(128), unique=True, index=True, nullable=False)
-
-    # 密码
-    password = db.Column(db.String(128), nullable=False)
-
     # 电话号码
     telephone = db.Column(db.String(64), unique=True, nullable=False)
 
@@ -48,23 +42,18 @@ class User(ModelBase):
     forbid = db.Column(db.Boolean, default=False)
 
     @classmethod
-    def create(cls, username, password, telephone):
-        user = cls(
-            username=username,
-            password=password,
-            telephone=telephone)
+    def create(cls, telephone):
+        user = cls(telephone=telephone)
 
         try:
             db.session.add(user)
             db.session.commit()
         except IntegrityError:
-            log.error("主键重复: username = {} password = {} telephone = {}".format(
-                username, password, telephone))
+            log.error("主键重复: telephone = {}".format(telephone))
             db.session.rollback()
             return None, False
         except Exception as e:
-            log.error("未知插入错误: username = {} password = {} telephone = {}".format(
-                username, password, telephone))
+            log.error("未知插入错误: telephone = {}".format(telephone))
             log.exception(e)
             return None, False
         return user, True
@@ -77,8 +66,6 @@ class User(ModelBase):
     def to_dict(self):
         return {
             'id': self.id,
-            'username': self.username,
-            'password': self.password,
             'telephone': self.telephone,
             'total_account': self.total_account,
             'used_account': self.used_account,
@@ -88,6 +75,3 @@ class User(ModelBase):
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
         }
-
-    def __repr__(self):
-        return '<User {}>'.format(self.username)
