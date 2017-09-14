@@ -1,0 +1,62 @@
+1. 新建部署
+
+/admin/deploy, method=POST
+Content-Type: application/json
+参数:
+json={
+    "province": "广东省",
+    "city": "深圳市",
+    "area":"南山区",
+    "location":"芒果网大厦",
+    //设备编码，听说是机器mac地址
+    "device_code": "342314321412432"
+}
+
+返回
+{
+    "result": {
+        "province": "广东省",
+        "city": "深圳市",
+        "ctime": "2017-09-14 09:09:21",
+        "location": "芒果网大厦",
+        "area": "南山区",
+        "utime": "2017-09-14 09:09:21",
+        "id": 202,
+        "device_id": 202
+    },
+    "success": true,
+    "error": null
+}
+
+2. 分页获取某个设备部署信息
+
+/admin/deploy/list, method=POST
+Content-Type: application/json
+参数:
+json = {
+    //设备ID
+    "id": 1,
+    "page": 1,
+    "size": 40
+}
+返回
+{
+    "result": {
+        // 数据库中该设备总的部署记录数目，并不是当次返回数据的数目 别搞错了，有疑问找我
+        "total": 1,
+        "data": [
+            {
+                "province": "广东省",
+                "city": "深圳市",
+                "ctime": "2017-09-13 09:09:20",
+                "location": "芒果网大厦0",
+                "area": "南山区",
+                "utime": "2017-09-13 09:09:20",
+                "id": 1,
+                "device_id": 1
+            }
+        ]
+    },
+    "success": true,
+    "error": null
+}
