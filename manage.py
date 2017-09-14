@@ -10,6 +10,7 @@ from exts.database import db
 from service.address.mock import gen_address
 from service.admin.mock import gen_admin
 from service.admin.model import Admin
+from service.role.mock import gen_role
 from service.role.model import Role
 
 application = create_app('box')
@@ -53,6 +54,9 @@ def syncdb():
 
     # 创建管理员数据
     gen_admin()
+
+    # 生成角色数据
+    gen_role()
 
     print '数据库创建完成...'
 

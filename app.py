@@ -18,6 +18,7 @@ from service.address.view import bp as address_bp
 from service.admin.view import bp as admin_bp
 from service.deploy.view import bp as deploy_bp
 from service.device.view import bp as device_bp
+from service.role.view import bp as role_bp
 
 
 def create_app(name=None):
@@ -50,6 +51,7 @@ def register_bp(app):
     app.register_blueprint(address_bp)
     app.register_blueprint(deploy_bp)
     app.register_blueprint(device_bp)
+    app.register_blueprint(role_bp)
 
 
 def setup_error_handler(app):

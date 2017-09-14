@@ -1,0 +1,113 @@
+1. 删除管理员信息
+
+/admin/role/<int:id>, method=DELETE
+Content-Type: application/json
+参数:
+无
+返回
+{
+    "result": {
+        "ctime": "2017-09-14 20:08:52",
+        "utime": "2017-09-14 20:08:25",
+        "id": 3,
+        "name": "lzz管理员z"
+    },
+    "success": true,
+    "error": null
+}
+
+2. 分页获取角色信息， 表中数据总数目由total字段返回，这里total是总数目，并不是返回数据的数目
+
+/admin/role, method=POST
+Content-Type: application/json
+参数:
+{
+"page": 1,
+"size": 3
+}
+返回
+{
+    "result": {
+        "total": 30,
+        "data": [
+            {
+                "ctime": "2017-09-13 09:09:43",
+                "utime": "2017-09-13 09:09:43",
+                "id": 1,
+                "name": "superadmin"
+            },
+            {
+                "ctime": "2017-09-14 20:08:52",
+                "utime": "2017-09-14 20:08:52",
+                "id": 4,
+                "name": "超级管理员2"
+            },
+            {
+                "ctime": "2017-09-14 20:08:52",
+                "utime": "2017-09-14 20:08:52",
+                "id": 5,
+                "name": "超级管理员3"
+            }
+        ]
+    },
+    "success": true,
+    "error": null
+}
+
+3. 添加角色
+/admin/role, method=POST
+Content-Type: application/json
+参数:
+{
+	"name":"lzz管理员"
+}
+返回
+{
+    "result": {
+        "ctime": "2017-09-14 20:08:56",
+        "utime": "2017-09-14 20:08:56",
+        "id": 33,
+        "name": "lzz管理员111"
+    },
+    "success": true,
+    "error": null
+}
+
+4. 根据角色ID 或者角色名称查询角色信息
+/admin/role/<role_info>, method=GET
+参数:
+无
+返回
+{
+    "result": [
+        {
+            "ctime": "2017-09-14 20:08:52",
+            "utime": "2017-09-14 20:08:52",
+            "id": 2,
+            "name": "超级管理员0"
+        }
+    ],
+    "success": true,
+    "error": null
+}
+
+
+5. 编辑修改角色名称
+/admin/role, method=PUT
+Content-Type: application/json
+参数:
+{
+	"id": 3,
+	"name":"lzz管理员z"
+}
+返回
+{
+    "result": {
+        "ctime": "2017-09-14 20:08:52",
+        "utime": "2017-09-14 20:08:25",
+        "id": 3,
+        "name": "lzz管理员z"
+    },
+    "success": true,
+    "error": null
+}

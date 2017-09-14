@@ -9,7 +9,7 @@
 """
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log
+from exts.common import log, package_result
 from exts.model_base import ModelBase
 from exts.database import db
 
@@ -46,6 +46,26 @@ class Role(ModelBase):
             return None, False
 
         return role, True
+
+    # 获得角色列表
+    @classmethod
+    def find_role_list(cls, page, size=10):
+        result_list = []
+
+        # 获取数据总数目
+        total = cls.query.count()
+
+        item_paginate = cls.query.paginate(page=page, per_page=size, error_out=False)
+        if item_paginate is None:
+            log.warn("角色信息分页查询失败: page = {} size = {}".format(page, size))
+            return package_result(total, result_list)
+
+        item_list = item_paginate.items
+        if item_list is None:
+            log.warn("角色信息分页查询失败: page = {} size = {}".format(page, size))
+            return package_result(total, result_list)
+
+        return package_result(total, [item.to_dict() for item in item_list])
 
     @classmethod
     def get_by_name(cls, name):
