@@ -84,6 +84,7 @@ class ModelBase(db.Model):
         total = query.count()
         return total, pagination.items
 
+    # 根据条件进行搜索
     @classmethod
     def search_list(cls):
         if not request.is_json:

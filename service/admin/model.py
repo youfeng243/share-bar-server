@@ -126,7 +126,7 @@ class Admin(UserMixin, ModelBase):
             'id': self.id,
             'username': self.username,
             'name': self.name,
-            'role_id': self.role_id,
+            'role': self.role.to_dict(),
             'state': self.state,
             'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),

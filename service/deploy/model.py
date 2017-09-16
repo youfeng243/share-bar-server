@@ -69,7 +69,7 @@ class Deploy(ModelBase):
     def to_dict(self):
         return {
             'id': self.id,
-            'device_id': self.device_id,
+            'device': self.device.to_dict(),
             'province': self.province,
             'city': self.city,
             'area': self.area,

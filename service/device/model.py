@@ -87,7 +87,7 @@ class Device(ModelBase):
         return {
             'id': self.id,
             'device_code': self.device_code,
-            'address_id': self.address_id,
+            'address': self.address.to_dict(),
             'income': self.income,
             'state': self.state,
             'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),

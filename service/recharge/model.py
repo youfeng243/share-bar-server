@@ -49,7 +49,7 @@ class Recharge(ModelBase):
     def to_dict(self):
         return {
             'id': self.id,
-            'user_id': self.user_id,
+            'user': self.user.to_dict(),
             'amount': self.amount,
             'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
