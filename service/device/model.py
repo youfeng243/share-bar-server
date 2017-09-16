@@ -90,6 +90,6 @@ class Device(ModelBase):
             'address': self.address.to_dict(),
             'income': self.income,
             'state': self.state,
-            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
-            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }

@@ -71,6 +71,6 @@ class User(ModelBase):
             'used_account': self.used_account,
             'state': self.state,
             'forbid': self.forbid,
-            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
-            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
         }

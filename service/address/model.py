@@ -186,6 +186,6 @@ class Address(ModelBase):
             'area': self.area,
             'location': self.location,
             'device_num': self.device_num,
-            'utime': self.utime.strftime('%Y-%m-%d %H:%I:%S'),
-            'ctime': self.ctime.strftime('%Y-%m-%d %H:%I:%S'),
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }
