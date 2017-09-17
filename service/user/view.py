@@ -52,10 +52,10 @@ def delete_user():
     return success(result_list)
 
 
-# 禁用用户 批量功能
+# 改变用户状态 批量功能
 @bp.route('/user', methods=['PUT'])
 @login_required
-def forbid_user():
+def change_user_state():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
