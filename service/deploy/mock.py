@@ -46,7 +46,7 @@ def gen_deploy():
             r = session.post('http://127.0.0.1:8888/admin/deploy', json=json_data)
             print r.status_code
             print json.loads(r.text)['error']
-            print json.loads(r.text)['result']
+            print json.dumps(json.loads(r.text)['result'], ensure_ascii=False)
 
     log.info("创建部署记录数据完成...")
 

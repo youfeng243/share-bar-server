@@ -10,8 +10,11 @@
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log, package_result
-from exts.model_base import ModelBase
 from exts.database import db
+from exts.model_base import ModelBase
+from service.admin.model import Admin
+
+__all__ = ['Admin']
 
 
 # 管理员角色管理

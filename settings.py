@@ -10,7 +10,7 @@
 
 DEBUG = True
 TESTING = True
-SECRET_KEY = 'hard to guess..'
-SQLALCHEMY_DATABASE_URI = 'mysql://root:555556@localhost:3306/share_bar_db?charset=utf8'
+SECRET_KEY = '%$%&^%$%&^&^**(*&&^%%$^$'
+SQLALCHEMY_DATABASE_URI = 'mysql://root:000000@localhost:3306/share_bar_db?charset=utf8'
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = True

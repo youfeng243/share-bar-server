@@ -12,6 +12,10 @@ from sqlalchemy.exc import IntegrityError
 from exts.common import log
 from exts.database import db
 from exts.model_base import ModelBase
+from service.recharge.model import Recharge
+
+# 初始化user表前置依赖
+__all__ = ["Recharge"]
 
 
 class User(ModelBase):

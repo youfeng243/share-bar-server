@@ -11,9 +11,12 @@ from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log, package_result
+from exts.common import log
 from exts.database import db
 from exts.model_base import ModelBase
+from service.device.model import Device
+
+__all__ = ['Device']
 
 
 # 投放管理
