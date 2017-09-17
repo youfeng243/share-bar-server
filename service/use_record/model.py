@@ -15,13 +15,14 @@ from exts.database import db
 
 # 用户和设备使用记录
 class UseRecord(ModelBase):
+
     __tablename__ = 'use_record'
 
     # 用户名
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, index=True, nullable=False)
 
-    # 设备号
-    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    # 设备ID
+    device_id = db.Column(db.Integer, index=True, nullable=False)
 
     # 省份信息
     province = db.Column(db.String(16), nullable=False)
@@ -43,3 +44,6 @@ class UseRecord(ModelBase):
 
     def __repr__(self):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)
+
+    def to_dict(self):
+        pass
