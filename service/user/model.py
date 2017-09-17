@@ -74,3 +74,6 @@ class User(ModelBase):
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
         }
+
+    def __repr__(self):
+        return '<User {}>'.format(self.telephone)

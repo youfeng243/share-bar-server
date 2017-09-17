@@ -8,7 +8,6 @@
 @time: 2017/9/7 20:32
 """
 import json
-from datetime import datetime
 
 from flask import Blueprint
 from flask import request
@@ -111,8 +110,7 @@ def get_address_list():
     # if size > 50:
     #     log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
     #     size = 50
-
-    return success(Address.search_list())
+    return Address.search_list()
 
 
 # 通过ID 或者 location 获取地址信息 [finish]
@@ -137,7 +135,6 @@ def get_address(location):
         log.exception(e)
 
     return success([])
-
 
 # # 通过城市  区域 获取地址列表
 # @bp.route('/address/area', methods=['POST'])

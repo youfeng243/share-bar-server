@@ -29,15 +29,24 @@ json = {
 }
 返回
 {
-    'success': True,
-    'error': None,
-    'result': {
-        total: 10000,
-        data: [
-        {},
-        {},
-        ...
-        ]
+    "success": true,
+    "error": null
+    "result": {
+        "total": 67,
+        "data": [
+            {
+                "province": "广东省",
+                "city": "深圳市",
+                "ctime": "2017-09-13 09:38:43",
+                "location": "宝安汽车站0",
+                "area": "宝安区",
+                "utime": "2017-09-13 09:38:43",
+                "id": 1,
+                "device_num": 0
+            },
+            {},
+            ...
+            ]
     }
 }
 
