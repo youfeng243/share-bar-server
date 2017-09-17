@@ -15,6 +15,7 @@ from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success
 from service.device.model import Device
+from service.use_record.model import UseRecord
 
 bp = Blueprint('device', __name__, url_prefix='/admin')
 
@@ -127,4 +128,4 @@ def get_device_use_records():
     #     "size": 10,
     #     "device_id": 100
     # }
-    return Device.search_list()
+    return UseRecord.search_list()
