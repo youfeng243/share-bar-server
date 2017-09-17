@@ -25,7 +25,7 @@ class User(ModelBase):
     STATE_VALUES = ('unused', 'using')
 
     # 电话号码
-    telephone = db.Column(db.String(64), unique=True, nullable=False)
+    telephone = db.Column(db.String(64), unique=True, index=True, nullable=False)
 
     # 总充值金额
     total_account = db.Column(db.Integer, nullable=False, default=0)
@@ -61,6 +61,11 @@ class User(ModelBase):
             log.exception(e)
             return None, False
         return user, True
+
+    # 根据手机号码查找用户信息
+    @classmethod
+    def get_user_by_phone(cls, phone):
+        return cls.query.filter_by(telephone=phone).first()
 
     # 改变用户使用状态
     def change_state(self, state):

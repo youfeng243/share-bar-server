@@ -91,4 +91,23 @@ def change_user_state():
 
     return success(result_list)
 
+
 # 根据用户ID 用户手机号码查找
+@bp.route('/user/<user_id>', methods=['GET'])
+@login_required
+def get_user_by_id(user_id):
+    # 先通过手机号码查找
+    user = User.get_user_by_phone(user_id)
+    if user is not None:
+        return success(user.to_dict())
+
+    try:
+        a_id = int(user_id)
+        user = User.get(a_id)
+        if user is not None:
+            return success(user.to_dict())
+    except Exception as e:
+        log.error("用户ID信息无法转换为 int 类型: user_id = {}".format(user_id))
+        log.exception(e)
+
+    return success(None)
