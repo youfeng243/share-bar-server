@@ -7,6 +7,8 @@
 @file: device.py
 @time: 2017/8/29 20:59
 """
+import json
+
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log, package_result
@@ -82,6 +84,20 @@ class Device(ModelBase):
             return package_result(total, result_list)
 
         return package_result(total, [item.to_dict() for item in item_list])
+
+    # 删除设备需要事务控制
+    def delete(self):
+        try:
+            db.session.delete(self)
+            self.address.device_num -= 1 if self.address.device_num >= 1 else 0
+            db.session.add(self.address)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            log.error("未知删除错误: {}".format(json.dumps(self.to_dict(), ensure_ascii=False)))
+            log.exception(e)
+            return False
+        return True
 
     def to_dict(self):
         return {

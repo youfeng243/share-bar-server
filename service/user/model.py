@@ -41,9 +41,6 @@ class User(ModelBase):
     # 删除用户
     deleted = db.Column(db.Boolean, default=False)
 
-    # 禁止用户 如用户违反规定则停用该用户
-    forbid = db.Column(db.Boolean, default=False)
-
     @classmethod
     def create(cls, telephone):
         user = cls(telephone=telephone)
@@ -61,9 +58,11 @@ class User(ModelBase):
             return None, False
         return user, True
 
-    # 禁止用户
-    def forbidden(self):
-        self.forbid = True
+    # 改变用户使用状态
+    def change_state(self, state):
+        if state not in self.STATE_VALUES:
+            return False
+        self.state = state
         return self.save()
 
     def to_dict(self):
@@ -74,7 +73,6 @@ class User(ModelBase):
             'used_account': self.used_account,
             'balance_account': self.balance_account,
             'state': self.state,
-            'forbid': self.forbid,
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
         }

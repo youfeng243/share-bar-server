@@ -57,6 +57,7 @@ def delete_device(device_id):
     if not device.delete():
         log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
         return fail(HTTP_OK, u"删除设备信息失败!")
+
     return success(device.id)
 
 
