@@ -12,6 +12,7 @@ from service.admin.mock import gen_admin
 from service.admin.model import Admin
 from service.role.mock import gen_role
 from service.role.model import Role
+from service.use_record.mock import gen_use_record
 from service.user.mock import gen_user
 
 application = create_app('box')
@@ -61,6 +62,9 @@ def syncdb():
 
     # 创建用户数据
     gen_user()
+
+    # 创建用户使用记录
+    gen_use_record()
 
     print '数据库创建完成...'
 

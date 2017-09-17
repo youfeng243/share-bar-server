@@ -14,6 +14,7 @@ from flask import request
 from flask_login import login_required
 
 from exts.common import log, fail, HTTP_OK, success
+from service.use_record.model import UseRecord
 from service.user.model import User
 
 bp = Blueprint('user', __name__, url_prefix='/admin')
@@ -122,3 +123,16 @@ def get_user_by_id(user_id):
 @login_required
 def get_user_list():
     return User.search_list()
+
+
+# 获得用户使用记录
+@bp.route('/user/records', methods=['POST'])
+@login_required
+def get_user_use_records():
+    # {
+    #     "page": 1,
+    #
+    #     "size": 10,
+    #     "user_id": 100
+    # }
+    return UseRecord.search_list()

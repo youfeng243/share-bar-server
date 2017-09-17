@@ -116,3 +116,62 @@ json = {
     "success": true,
     "error": null
 }
+
+5. 获得用户使用记录
+/admin/user/records, methods=['POST']
+Content-Type: application/json
+参数:
+json = {
+        "page": 1,
+        "size": 10,
+        "user_id": 100
+    }
+返回:
+{
+    "result": {
+        "total": 200,
+        "data": [
+            {
+                "province": "广东省",
+                "cost_money": 0,
+                "cost_time": 0,
+                "user": {
+                    "state": "using",
+                    "total_account": 0,
+                    "ctime": "2017-09-17 16:38:48",
+                    "used_account": 0,
+                    "utime": "2017-09-17 16:38:48",
+                    "balance_account": 0,
+                    "id": 1,
+                    "telephone": "13532369100"
+                },
+                "device": {
+                    "device_code": "cfcd208495d565ef66e7dff9f98764da",
+                    "ctime": "2017-09-17 22:45:53",
+                    "address": {
+                        "province": "广东省",
+                        "city": "深圳市",
+                        "ctime": "2017-09-17 22:45:53",
+                        "location": "芒果网大厦0",
+                        "area": "南山区",
+                        "utime": "2017-09-17 22:46:00",
+                        "id": 58,
+                        "device_num": 20
+                    },
+                    "state": "free",
+                    "income": 0,
+                    "id": 1,
+                    "utime": "2017-09-17 22:45:53"
+                },
+                "utime": "2017-09-17 22:48:27",
+                "city": "深圳市",
+                "ctime": "2017-09-17 22:48:27",
+                "area": "南山区",
+                "end_time": "2017-09-17 22:48:27",
+                "location": "芒果网大厦"
+            }
+        ]
+    },
+    "success": true,
+    "error": null
+}

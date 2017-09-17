@@ -9,6 +9,9 @@
 """
 from datetime import datetime
 
+from sqlalchemy.exc import IntegrityError
+
+from exts.common import log
 from exts.database import db
 from exts.model_base import ModelBase
 from service.device.model import Device
@@ -42,6 +45,24 @@ class UseRecord(ModelBase):
     # 下机时间 数据初始化时以创建时间为结束时间
     end_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
+    @classmethod
+    def create(cls, user_id, device_id, province, city, area, location):
+        use_record = cls(user_id=user_id, device_id=device_id,
+                         province=province, city=city,
+                         area=area, location=location)
+        try:
+            db.session.add(use_record)
+            db.session.commit()
+        except IntegrityError:
+            log.error("未知错误: {} {}".format(user_id, device_id))
+            db.session.rollback()
+            return None, False
+        except Exception as e:
+            log.error("未知插入错误: {} {}".format(user_id, device_id))
+            log.exception(e)
+            return None, False
+        return use_record, True
+
     def __repr__(self):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)
 
@@ -53,9 +74,9 @@ class UseRecord(ModelBase):
             'area': self.area,
             'location': self.location,
             'cost_money': self.cost_money,
-            'ctime': self.ctime,
-            'utime': self.utime,
-            'end_time': self.end_time,
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            'end_time': self.end_time.strftime('%Y-%m-%d %H:%M:%S'),
             'cost_time': round((self.end_time - self.ctime).seconds / 60.0, 1)  # 分钟
         }
 

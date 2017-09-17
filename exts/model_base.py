@@ -44,9 +44,14 @@ class ModelBase(db.Model):
         return True
 
     @classmethod
-    def find_list(cls, city, area, start_time, end_time, state, page, size):
+    def find_list(cls, city, area, start_time, end_time, state, page, size, filters=None):
         # 条件查询
         query = cls.query
+
+        # 增加过滤条件
+        if isinstance(filters, list):
+            for filter_item in filters:
+                query = query.filter(filter_item)
 
         # 判断是否由deleted字段，去除掉已经删除的数据信息
         if hasattr(cls, 'deleted'):
@@ -87,10 +92,12 @@ class ModelBase(db.Model):
     # 根据条件进行搜索
     @classmethod
     def search_list(cls):
+
         if not request.is_json:
             log.warn("参数错误...")
             return fail(HTTP_OK, u"need application/json!!")
 
+        filters = list()
         page = request.json.get('page')
         size = request.json.get('size')
         city = request.json.get('city')
@@ -98,6 +105,14 @@ class ModelBase(db.Model):
         start_time_str = request.json.get('start_time')
         end_time_str = request.json.get('end_time')
         state = request.json.get('state')
+
+        user_id = request.json.get('user_id')
+        if user_id is not None:
+            filters.append("user_id={}".format(user_id))
+
+        device_id = request.json.get('device_id')
+        if device_id is not None:
+            filters.append("device_id={}".format(device_id))
 
         # 如果存在状态信息，但是状态错误，则返回错误
         if hasattr(cls, 'state') and state is not None:
@@ -143,7 +158,7 @@ class ModelBase(db.Model):
         if size > 50:
             log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
             size = 50
-        total, item_list = cls.find_list(city, area, start_time, end_time, state, page, size)
+        total, item_list = cls.find_list(city, area, start_time, end_time, state, page, size, filters=filters)
         if total <= 0 or item_list is None:
             return success(package_result(0, []))
         return success(package_result(total, [item.to_dict() for item in item_list]))
