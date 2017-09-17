@@ -11,6 +11,7 @@ import json
 from datetime import datetime
 
 from flask import request
+from sqlalchemy import text
 
 from exts.common import log, fail, HTTP_OK, success, package_result
 from exts.database import db
@@ -108,11 +109,11 @@ class ModelBase(db.Model):
 
         user_id = request.json.get('user_id')
         if user_id is not None:
-            filters.append("user_id={}".format(user_id))
+            filters.append(text("user_id={}".format(user_id)))
 
         device_id = request.json.get('device_id')
         if device_id is not None:
-            filters.append("device_id={}".format(device_id))
+            filters.append(text("device_id={}".format(device_id)))
 
         # 如果存在状态信息，但是状态错误，则返回错误
         if hasattr(cls, 'state') and state is not None:
