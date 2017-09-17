@@ -32,8 +32,8 @@ daemon = True
 # 进程名称
 proc_name = 'share-bar-server.proc'
 
-# 进程pid记录文件
-pidfile = 'log/share-bar-server.pid'
+# # 进程pid记录文件
+# pidfile = 'log/share-bar-server.pid'
 
 loglevel = 'info'
 accesslog = 'log/access.log'
