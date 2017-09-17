@@ -1,0 +1,101 @@
+1. 获得设备列表信息
+
+/admin/device/list, method=POST
+Content-Type: application/json
+参数:
+state: ('free', 'busy', 'offline')
+json = {
+     "page": 1,
+     "size": 10,
+     "state": "free", //这个是可选字段，可不填，空闲状态
+     "city": xxxx, //这个可选字段
+     "area": xxxx  //这个可选字段，如不填则搜索city字段指定所有地址信息
+     "start_time": "2017-07-01 23:23:23", //可选字段 时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
+     "end_time": "2017-07-30 23:23:23"  //可选字段时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
+}
+
+返回
+{
+    "success": true,
+    "error": null
+    "result": {
+        "total": 202,
+        "data": [
+            {
+                "device_code": "cfcd208495d565ef66e7dff9f98764da",
+                "ctime": "2017-09-13 09:39:20",
+                "address": {
+                    "province": "广东省",
+                    "city": "深圳市",
+                    "ctime": "2017-09-13 09:39:20",
+                    "location": "芒果网大厦0",
+                    "area": "南山区",
+                    "utime": "2017-09-13 09:39:23",
+                    "id": 115,
+                    "device_num": 20
+                },
+                "state": "free",
+                "income": 0,
+                "id": 1,
+                "utime": "2017-09-13 09:39:20"
+            },
+            {}.
+            ...
+        ]
+    }
+}
+
+2. 根据设备ID删除设备信息
+/admin/device/<int:device_id>, method=DELETE
+参数:
+无
+返回:
+{
+    "result": 11,  //设备ID
+    "success": true,
+    "error": null
+}
+
+3. 批量删除设备信息
+/admin/device, method=DELETE
+Content-Type: application/json
+参数
+json = {
+     "list": [1,2,3,4,5]   //设备ID列表
+}
+返回
+{
+    "result": [
+        1,2,3,4,5  //成功被删除的设备ID信息
+    ],
+    "success": true,
+    "error": null
+}
+
+4. 根据设备ID 或者设备mac地址 获得设备信息
+/admin/device/<device_id>, method=GET
+参数
+device_id
+返回
+{
+    "result": {
+        "device_code": "2723d092b63885e0d7c260cc007e8b9d",
+        "ctime": "2017-09-13 09:39:20",
+        "address": {
+            "province": "广东省",
+            "city": "深圳市",
+            "ctime": "2017-09-13 09:39:20",
+            "location": "芒果网大厦1",
+            "area": "南山区",
+            "utime": "2017-09-13 09:39:24",
+            "id": 116,
+            "device_num": 20
+        },
+        "state": "free",
+        "income": 0,
+        "id": 30,
+        "utime": "2017-09-13 09:39:20"
+    },
+    "success": true,
+    "error": null
+}

@@ -22,12 +22,12 @@ bp = Blueprint('device', __name__, url_prefix='/admin')
 设备管理需求:
 1. 删除设备 [finish]
 2. 批量删除设备 [finish]
-3. 通过设备ID（mac or 数据库ID）/ 详细地址(不明白是哪个地址)
-4. 通过城市区域时间等复合查询
+3. 通过设备ID（mac or 数据库ID）/ 详细地址(不明白是哪个地址) [目前采用简单的ID或者设备mac进行查询]
+4. 通过城市区域时间等复合查询 [finish]
 '''
 
 
-# 通过城市  区域 获取地址列表
+# 通过城市  区域 时间 区间 状态获取地址列表
 @bp.route('/device/list', methods=['POST'])
 @login_required
 def get_device_list():
@@ -57,7 +57,7 @@ def delete_device(device_id):
     if not device.delete():
         log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
         return fail(HTTP_OK, u"删除设备信息失败!")
-    return success(device.to_dict())
+    return success(device.id)
 
 
 # 批量删除设备
