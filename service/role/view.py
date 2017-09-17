@@ -97,7 +97,7 @@ def delete_role(role_id):
     if not role.delete():
         log.warn("设备信息删除失败: {}".format(json.dumps(role.to_dict(), ensure_ascii=False)))
         return fail(HTTP_OK, u"角色设备信息失败!")
-    return success(role.to_dict())
+    return success(role.id)
 
 
 # 添加角色

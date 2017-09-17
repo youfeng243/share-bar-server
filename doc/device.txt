@@ -45,18 +45,7 @@ json = {
     }
 }
 
-2. 根据设备ID删除设备信息
-/admin/device/<int:device_id>, method=DELETE
-参数:
-无
-返回:
-{
-    "result": 11,  //设备ID
-    "success": true,
-    "error": null
-}
-
-3. 批量删除设备信息
+2. 批量删除设备信息
 /admin/device, method=DELETE
 Content-Type: application/json
 参数
@@ -72,7 +61,7 @@ json = {
     "error": null
 }
 
-4. 根据设备ID 或者设备mac地址 获得设备信息
+3. 根据设备ID 或者设备mac地址 获得设备信息
 /admin/device/<device_id>, method=GET
 参数
 device_id
