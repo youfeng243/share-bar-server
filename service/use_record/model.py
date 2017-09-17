@@ -9,13 +9,13 @@
 """
 from datetime import datetime
 
-from exts.model_base import ModelBase
 from exts.database import db
+from exts.model_base import ModelBase
+from service.device.model import Device
+from service.user.model import User
 
 
-# 用户和设备使用记录
 class UseRecord(ModelBase):
-
     __tablename__ = 'use_record'
 
     # 用户名
@@ -46,4 +46,24 @@ class UseRecord(ModelBase):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)
 
     def to_dict(self):
-        pass
+
+        to_json = {
+            'province': self.province,
+            'city': self.city,
+            'area': self.area,
+            'location': self.location,
+            'cost_money': self.cost_money,
+            'ctime': self.ctime,
+            'utime': self.utime,
+            'end_time': self.end_time,
+            'cost_time': round((self.end_time - self.ctime).seconds / 60.0, 1)  # 分钟
+        }
+
+        item = User.get(self.user_id)
+        if item is not None:
+            to_json['user'] = item.to_dict()
+        item = Device.get(self.device_id)
+        if item is not None:
+            to_json['device'] = item.to_dict()
+
+        return to_json
