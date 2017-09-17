@@ -11,9 +11,12 @@
 # 生成数据
 import hashlib
 import json
+import sys
 
 import requests
 
+sys.path.append("..")
+sys.path.append("../..")
 from exts.common import log
 
 
