@@ -108,3 +108,23 @@ def get_device_by_id(device_id):
         log.exception(e)
 
     return success(None)
+
+
+# 通过城市  区域 时间 区间 状态获取地址列表
+@bp.route('/device/records', methods=['POST'])
+@login_required
+def get_device_use_records():
+    '''
+    page: 当前页码
+    size: 每页读取数目, 最大不超过50项
+    start_time: 查询的起始时间段 时间段其实时间必须小于或者等于end_time
+    end_time: 查询的结束时间段 时间段必须大于或者等于start_time
+    :return:
+    '''
+    # {
+    #     "page": 1,
+    #
+    #     "size": 10,
+    #     "device_id": 100
+    # }
+    return Device.search_list()
