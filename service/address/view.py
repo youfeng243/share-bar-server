@@ -84,35 +84,35 @@ def delete_address():
 @bp.route('/address', methods=['POST'])
 @login_required
 def get_address_list():
-    if not request.is_json:
-        log.warn("参数错误...")
-        return fail(HTTP_OK, u"need application/json!!")
+    # if not request.is_json:
+    #     log.warn("参数错误...")
+    #     return fail(HTTP_OK, u"need application/json!!")
 
     # json = {
     #     'page': 1,
     #     'size': 10,
     # }
 
-    page = request.json.get('page')
-    size = request.json.get('size')
+    # page = request.json.get('page')
+    # size = request.json.get('size')
+    #
+    # if not isinstance(page, int) or \
+    #         not isinstance(size, int):
+    #     log.warn("请求参数错误: page = {} size = {}".format(page, size))
+    #     return fail(HTTP_OK, u"请求参数错误")
+    #
+    #     # 请求参数必须为正数
+    # if page <= 0 or size <= 0:
+    #     msg = "请求参数错误: page = {} size = {}".format(
+    #         page, size)
+    #     log.error(msg)
+    #     return fail(HTTP_OK, msg)
+    #
+    # if size > 50:
+    #     log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+    #     size = 50
 
-    if not isinstance(page, int) or \
-            not isinstance(size, int):
-        log.warn("请求参数错误: page = {} size = {}".format(page, size))
-        return fail(HTTP_OK, u"请求参数错误")
-
-        # 请求参数必须为正数
-    if page <= 0 or size <= 0:
-        msg = "请求参数错误: page = {} size = {}".format(
-            page, size)
-        log.error(msg)
-        return fail(HTTP_OK, msg)
-
-    if size > 50:
-        log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
-        size = 50
-
-    return success(Address.get_address_list(page, size))
+    return success(Address.search_list())
 
 
 # 通过ID 或者 location 获取地址信息 [finish]
@@ -139,82 +139,82 @@ def get_address(location):
     return success([])
 
 
-# 通过城市  区域 获取地址列表
-@bp.route('/address/area', methods=['POST'])
-@login_required
-def get_address_by_area():
-    if not request.is_json:
-        log.warn("参数错误...")
-        return fail(HTTP_OK, u"need application/json!!")
-
-    page = request.json.get('page')
-    size = request.json.get('size')
-    city = request.json.get('city', None)
-    area = request.json.get('area', None)
-    if city is None:
-        log.warn("参数不正确, city字段为None: city = {} area = {}".format(city, area))
-        return fail(HTTP_OK, u"city字段不能为None")
-
-    if not isinstance(page, int) or \
-            not isinstance(size, int):
-        log.warn("请求参数错误: page = {} size = {}".format(page, size))
-        return fail(HTTP_OK, u"请求参数错误")
-
-        # 请求参数必须为正数
-    if page <= 0 or size <= 0:
-        msg = "请求参数错误: page = {} size = {}".format(
-            page, size)
-        log.error(msg)
-        return fail(HTTP_OK, msg)
-
-    if size > 50:
-        log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
-        size = 50
-
-    return success(Address.find_address_by_city_and_area(city, area, page, size))
-
-
-# 通过起始结束创建时间获取 地址列表
-@bp.route('/address/time', methods=['POST'])
-@login_required
-def get_address_by_time():
-    if not request.is_json:
-        log.warn("参数错误...")
-        return fail(HTTP_OK, u"need application/json!!")
-
-    page = request.json.get('page')
-    size = request.json.get('size')
-    start_time_str = request.json.get('start_time', None)
-    end_time_str = request.json.get('end_time', None)
-    if start_time_str is None or end_time_str is None:
-        log.warn("参数不正确, 字段为None: start_time = {} end_time = {}".format(start_time_str, end_time_str))
-        return fail(HTTP_OK, u"字段不能为None")
-
-    try:
-        # 转换为 datetime 类型
-        start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
-        end_time = datetime.strptime(end_time_str, '%Y-%m-%d %H:%M:%S')
-        log.info("转换后时间: start_time = {} type = {}".format(start_time, type(start_time)))
-        log.info("转换后时间: end_time = {} type = {}".format(end_time, type(end_time)))
-    except Exception as e:
-        log.error("时间格式转换错误: start_time_str = {} end_time_str = {}".format(start_time_str, end_time_str))
-        log.exception(e)
-        return fail(HTTP_OK, u"时间格式转换错误!")
-
-    if not isinstance(page, int) or \
-            not isinstance(size, int):
-        log.warn("请求参数错误: page = {} size = {}".format(page, size))
-        return fail(HTTP_OK, u"请求参数错误")
-
-        # 请求参数必须为正数
-    if page <= 0 or size <= 0:
-        msg = "请求参数错误: page = {} size = {}".format(
-            page, size)
-        log.error(msg)
-        return fail(HTTP_OK, msg)
-
-    if size > 50:
-        log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
-        size = 50
-
-    return success(Address.find_address_by_time(start_time, end_time, page, size))
+# # 通过城市  区域 获取地址列表
+# @bp.route('/address/area', methods=['POST'])
+# @login_required
+# def get_address_by_area():
+#     if not request.is_json:
+#         log.warn("参数错误...")
+#         return fail(HTTP_OK, u"need application/json!!")
+#
+#     page = request.json.get('page')
+#     size = request.json.get('size')
+#     city = request.json.get('city', None)
+#     area = request.json.get('area', None)
+#     if city is None:
+#         log.warn("参数不正确, city字段为None: city = {} area = {}".format(city, area))
+#         return fail(HTTP_OK, u"city字段不能为None")
+#
+#     if not isinstance(page, int) or \
+#             not isinstance(size, int):
+#         log.warn("请求参数错误: page = {} size = {}".format(page, size))
+#         return fail(HTTP_OK, u"请求参数错误")
+#
+#         # 请求参数必须为正数
+#     if page <= 0 or size <= 0:
+#         msg = "请求参数错误: page = {} size = {}".format(
+#             page, size)
+#         log.error(msg)
+#         return fail(HTTP_OK, msg)
+#
+#     if size > 50:
+#         log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+#         size = 50
+#
+#     return success(Address.find_address_by_city_and_area(city, area, page, size))
+#
+#
+# # 通过起始结束创建时间获取 地址列表
+# @bp.route('/address/time', methods=['POST'])
+# @login_required
+# def get_address_by_time():
+#     if not request.is_json:
+#         log.warn("参数错误...")
+#         return fail(HTTP_OK, u"need application/json!!")
+#
+#     page = request.json.get('page')
+#     size = request.json.get('size')
+#     start_time_str = request.json.get('start_time', None)
+#     end_time_str = request.json.get('end_time', None)
+#     if start_time_str is None or end_time_str is None:
+#         log.warn("参数不正确, 字段为None: start_time = {} end_time = {}".format(start_time_str, end_time_str))
+#         return fail(HTTP_OK, u"字段不能为None")
+#
+#     try:
+#         # 转换为 datetime 类型
+#         start_time = datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S')
+#         end_time = datetime.strptime(end_time_str, '%Y-%m-%d %H:%M:%S')
+#         log.info("转换后时间: start_time = {} type = {}".format(start_time, type(start_time)))
+#         log.info("转换后时间: end_time = {} type = {}".format(end_time, type(end_time)))
+#     except Exception as e:
+#         log.error("时间格式转换错误: start_time_str = {} end_time_str = {}".format(start_time_str, end_time_str))
+#         log.exception(e)
+#         return fail(HTTP_OK, u"时间格式转换错误!")
+#
+#     if not isinstance(page, int) or \
+#             not isinstance(size, int):
+#         log.warn("请求参数错误: page = {} size = {}".format(page, size))
+#         return fail(HTTP_OK, u"请求参数错误")
+#
+#         # 请求参数必须为正数
+#     if page <= 0 or size <= 0:
+#         msg = "请求参数错误: page = {} size = {}".format(
+#             page, size)
+#         log.error(msg)
+#         return fail(HTTP_OK, msg)
+#
+#     if size > 50:
+#         log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+#         size = 50
+#
+#     return success(Address.find_address_by_time(start_time, end_time, page, size))

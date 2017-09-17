@@ -14,7 +14,7 @@ json={
     'result': 'xxxx'
 }
 
-2. 分页获取地址信息， 表中数据总数目由total字段返回，这里total是总数目，并不是返回数据的数目
+2. 分页获取地址信息，符合查询，城市区域 时间范围查询 表中数据总数目由total字段返回，这里total是总数目，并不是返回数据的数目
 
 /admin/address, method=POST
 Content-Type: application/json
@@ -22,6 +22,10 @@ Content-Type: application/json
 json = {
      'page': 1,
      'size': 10,
+     'city': xxxx, //这个可选字段
+     'area': xxxx  //这个可选字段，如不填则搜索city字段指定所有地址信息
+     'start_time': "2017-07-01 23:23:23", //可选字段 时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
+     'end_time': "2017-07-30 23:23:23"  //可选字段时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
 }
 返回
 {
@@ -50,55 +54,4 @@ json = {
         {},
         ...
     ]
-}
-
-4. 分页查询城市区域获取地址信息， 表中数据总数目由total字段返回，这里total是总数目，并不是返回数据的数目
-其中 区域字段如果为None 或者没有传入 则搜索该城市的所有地址信息
-/admin/address/area, method=POST
-Content-Type: application/json
-参数:
-json = {
-     'page': 1,
-     'size': 10,
-     'city': xxxx, //这个字段必填
-     'area': xxxx  //这个字段选填，如不填则搜索city字段指定所有地址信息
-}
-返回
-{
-    'success': True,
-    'error': None,
-    'result': {
-        total: 10000,
-        data: [
-        {},
-        {},
-        ...
-        ]
-    }
-}
-
-
-5. 分页查询生效时间段获取地址信息， 表中数据总数目由total字段返回，这里total是总数目，并不是返回数据的数目
-其中 区域字段如果为None 或者没有传入 则搜索该城市的所有地址信息
-/admin/address/time, method=POST
-Content-Type: application/json
-参数:
-json = {
-     'page': 1,
-     'size': 10,
-     'start_time': "2017-07-01 23:23:23", //时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
-     'end_time': "2017-07-30 23:23:23"  //时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
-}
-返回
-{
-    'success': True,
-    'error': None,
-    'result': {
-        total: 10000,
-        data: [
-        {},
-        {},
-        ...
-        ]
-    }
 }
