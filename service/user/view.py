@@ -28,12 +28,12 @@ def delete_user():
         return fail(HTTP_OK, u"need application/json!!")
 
     result_list = []
-    id_list = request.json.get('id_list', None)
-    if not isinstance(id_list, list):
+    user_list = request.json.get('list', None)
+    if not isinstance(user_list, list):
         log.warn("没有传入ID列表信息..")
         return fail(HTTP_OK, u"传入ID参数错误")
 
-    for user_id in id_list:
+    for user_id in user_list:
 
         if not isinstance(user_id, int):
             log.warn("当前用户ID数据类型错误: {}".format(user_id))
@@ -44,11 +44,15 @@ def delete_user():
             log.warn("当前用户ID查找用户失败: {}".format(user_id))
             continue
 
+        if user.deleted:
+            log.warn("当前用户信息已经被删除: {}".format(user_id))
+            continue
+
         if not user.delete():
             log.warn("用户信息删除失败: {}".format(json.dumps(user.to_dict(), ensure_ascii=False)))
             continue
         result_list.append(user.id)
-
+    log.info("删除用户信息成功: {}".format(result_list))
     return success(result_list)
 
 

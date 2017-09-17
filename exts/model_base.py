@@ -50,7 +50,7 @@ class ModelBase(db.Model):
 
         # 判断是否由deleted字段，去除掉已经删除的数据信息
         if hasattr(cls, 'deleted'):
-            query = query.filter(cls.deleted is not True)
+            query = query.filter(cls.deleted == False)
 
         # 根据状态查询
         if hasattr(cls, 'state') and state is not None:

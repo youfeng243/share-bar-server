@@ -1,0 +1,118 @@
+1. 分页查询用户信息
+/admin/user/list method=POST
+Content-Type: application/json
+state = ['using', 'unused']
+参数
+post = {
+     "page": 1,
+     "size": 10,
+     "state": "using",  //可选字段，筛选状态
+     "start_time": "2017-07-01 23:23:23",   //可选状态 筛选起始时间
+     "end_time": "2017-10-30 23:23:23"      //可选状态  筛选结束时间
+}
+返回
+{
+    "result": {
+        "total": 200,
+        "data": [
+            {
+                "state": "using",
+                "total_account": 0,
+                "ctime": "2017-09-17 16:38:48",
+                "used_account": 0,
+                "utime": "2017-09-17 16:38:48",
+                "balance_account": 0,
+                "id": 1,
+                "telephone": "13532369100"
+            },
+            {},
+            ...
+        ]
+    },
+    "success": true,
+    "error": null
+}
+
+2. 批量删除用户接口
+/admin/user  method=DELETE
+Content-Type: application/json
+参数
+json = {
+	"list": [1, 2, 3, 4, 5, 6,7, 8, 9, 10]
+}
+返回
+{
+    "result": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+    ],
+    "success": true,
+    "error": null
+}
+
+3. 批量修改用户状态接口
+/admin/user method=PUT
+Content-Type: application/json
+state = ['using', 'unused']
+参数
+json = {
+	"list": [
+		{"id": 13, "state": "using"},
+		{"id": 14, "state": "using"}
+		]
+}
+返回
+{
+    "result": [
+        {
+            "state": "using",
+            "total_account": 0,
+            "ctime": "2017-09-17 16:38:48",
+            "used_account": 0,
+            "utime": "2017-09-17 17:05:50",
+            "balance_account": 0,
+            "id": 13,
+            "telephone": "13532369112"
+        },
+        {
+            "state": "using",
+            "total_account": 0,
+            "ctime": "2017-09-17 16:38:48",
+            "used_account": 0,
+            "utime": "2017-09-17 17:05:50",
+            "balance_account": 0,
+            "id": 14,
+            "telephone": "13532369113"
+        }
+    ],
+    "success": true,
+    "error": null
+}
+
+4. 根据用户ID或者手机号码查询用户信息
+/admin/user/<user_id>, methods=['GET']
+参数
+无
+返回
+{
+    "result": {
+        "state": "using",
+        "total_account": 0,
+        "ctime": "2017-09-17 16:38:48",
+        "used_account": 0,
+        "utime": "2017-09-17 17:05:50",
+        "balance_account": 0,
+        "id": 13,
+        "telephone": "13532369112"
+    },
+    "success": true,
+    "error": null
+}
