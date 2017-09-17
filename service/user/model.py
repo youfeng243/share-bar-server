@@ -36,8 +36,8 @@ class User(ModelBase):
     # 总余额，余额不一定是总充值金额 减去 总消费金额，有可能活动获得奖励金额
     balance_account = db.Column(db.Integer, nullable=False, default=0)
 
-    # 当前用户使用状态信息 unused 离线  using 在线
-    state = db.Column(db.Enum(*STATE_VALUES), index=True, default='unused')
+    # 当前用户使用状态信息 unused 禁用  using 使用
+    state = db.Column(db.Enum(*STATE_VALUES), index=True, default='using')
 
     # 反向指向充值列表信息
     recharge_query = db.relationship('Recharge', backref='user', lazy='dynamic')

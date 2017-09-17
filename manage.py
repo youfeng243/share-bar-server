@@ -12,6 +12,7 @@ from service.admin.mock import gen_admin
 from service.admin.model import Admin
 from service.role.mock import gen_role
 from service.role.model import Role
+from service.user.mock import gen_user
 
 application = create_app('box')
 manager = Manager(application)
@@ -58,6 +59,9 @@ def syncdb():
     # 生成角色数据
     gen_role()
 
+    # 创建用户数据
+    gen_user()
+
     print '数据库创建完成...'
 
 
@@ -68,6 +72,7 @@ def dropdb():
         db.drop_all()
         db.session.commit()
         print '数据库删除完成...'
+
 
 if __name__ == '__main__':
     manager.run()

@@ -111,3 +111,10 @@ def get_user_by_id(user_id):
         log.exception(e)
 
     return success(None)
+
+
+# 根据查询条件返回用户信息
+@bp.route('/user/list', methods=['POST'])
+@login_required
+def get_user_list():
+    return User.search_list()

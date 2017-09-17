@@ -99,6 +99,11 @@ class ModelBase(db.Model):
         end_time_str = request.json.get('end_time')
         state = request.json.get('state')
 
+        # 如果存在状态信息，但是状态错误，则返回错误
+        if hasattr(cls, 'state') and state is not None:
+            if hasattr(cls, 'STATE_VALUES') and state not in cls.STATE_VALUES:
+                return fail(HTTP_OK, u'状态信息错误!')
+
         if isinstance(start_time_str, basestring) and isinstance(end_time_str, basestring):
             if end_time_str < start_time_str:
                 return fail(HTTP_OK, u"时间区间错误: start_time = {} > end_time = {}".format(start_time_str, end_time_str))
