@@ -14,7 +14,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 # 配置数据库
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://root:555556@localhost:3306/test_db?charset=utf8"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://root:000000@localhost:3306/test_db?charset=utf8"
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
