@@ -29,6 +29,9 @@ class User(ModelBase):
     # 总的消费金额
     used_account = db.Column(db.Integer, nullable=False, default=0)
 
+    # 总余额，余额不一定是总充值金额 减去 总消费金额，有可能活动获得奖励金额
+    balance_account = db.Column(db.Integer, nullable=False, default=0)
+
     # 当前用户使用状态信息 unused 离线  using 在线
     state = db.Column(db.Enum(*STATE_VALUES), index=True, default='unused')
 
@@ -69,6 +72,7 @@ class User(ModelBase):
             'telephone': self.telephone,
             'total_account': self.total_account,
             'used_account': self.used_account,
+            'balance_account': self.balance_account,
             'state': self.state,
             'forbid': self.forbid,
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
