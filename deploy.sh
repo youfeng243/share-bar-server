@@ -10,7 +10,7 @@ create_db_sql="create database IF NOT EXISTS ${DBNAME} default character set utf
 
 mysql -h${HOST_NAME}  -P${PORT}  -u${USERNAME} -p${PASSWORD} -e "${create_db_sql}"
 
-apt-get install libmysqlclient-dev
+apt-get install -y libmysqlclient-dev
 pip install virtualenv
 
 virtualenv .venv -p python2
