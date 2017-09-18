@@ -10,6 +10,7 @@
 import json
 from datetime import datetime
 
+from flask import has_request_context
 from flask import request
 from sqlalchemy import text
 
@@ -93,6 +94,10 @@ class ModelBase(db.Model):
     # 根据条件进行搜索
     @classmethod
     def search_list(cls):
+
+        if not has_request_context():
+            log.warn("上下文异常")
+            return fail(HTTP_OK, u"服务器未知!")
 
         if not request.is_json:
             log.warn("参数错误...")
