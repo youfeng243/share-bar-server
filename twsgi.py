@@ -18,6 +18,6 @@ def index():
 
 
 http_server = HTTPServer(WSGIContainer(application))
-http_server.listen(8888)
+http_server.listen(8080)
 log.info("tornado服务启动...")
 IOLoop.instance().start()

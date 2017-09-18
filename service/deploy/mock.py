@@ -22,7 +22,7 @@ from exts.common import log
 
 def gen_deploy():
     session = requests.Session()
-    r = session.post('http://127.0.0.1:8888/admin/sign_in', json={
+    r = session.post('http://127.0.0.1:8080/admin/sign_in', json={
         'username': 'youfeng',
         'password': '123456'
     })
@@ -46,7 +46,7 @@ def gen_deploy():
                 'location': location,
                 'device_code': device_code
             }
-            r = session.post('http://127.0.0.1:8888/admin/deploy', json=json_data)
+            r = session.post('http://127.0.0.1:8080/admin/deploy', json=json_data)
             print r.status_code
             print json.loads(r.text)['error']
             print json.dumps(json.loads(r.text)['result'], ensure_ascii=False)
