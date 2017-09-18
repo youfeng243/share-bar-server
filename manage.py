@@ -15,7 +15,7 @@ from service.role.model import Role
 from service.use_record.mock import gen_use_record
 from service.user.mock import gen_user
 
-application = create_app('box')
+application = create_app('share-bar-server')
 manager = Manager(application)
 
 SUPER_USER = "youfeng"
