@@ -4,7 +4,8 @@ Content-Type: application/json
 参数:
 json={
     username:'xxxx',
-    password:'xxxxx'
+    password:'xxxxx',
+    remember: True or False
 }
 
 返回
