@@ -83,9 +83,8 @@ class Admin(UserMixin, ModelBase):
     @classmethod
     def get_admin_list(cls, page, size=10):
 
+        total = 0
         result_list = []
-
-        total = cls.query.count()
 
         item_paginate = cls.query.paginate(page=page, per_page=size, error_out=False)
         if item_paginate is None:
@@ -97,7 +96,7 @@ class Admin(UserMixin, ModelBase):
             log.warn("管理员信息分页查询失败: page = {} size = {}".format(page, size))
             return package_result(total, result_list)
 
-        return package_result(total, [item.to_dict() for item in item_list])
+        return package_result(item_paginate.total, [item.to_dict() for item in item_list])
 
     @classmethod
     def get_by_username(cls, username):

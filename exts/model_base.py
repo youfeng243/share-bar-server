@@ -48,6 +48,7 @@ class ModelBase(db.Model):
     @classmethod
     def find_list(cls, city, area, start_time, end_time, state, page, size, filters=None):
         # 条件查询
+        total = 0
         query = cls.query
 
         # 增加过滤条件
@@ -85,11 +86,10 @@ class ModelBase(db.Model):
             error_out=False)
 
         if pagination is None:
-            return 0, None
+            return total, None
 
         # 获取数据总数目
-        total = query.count()
-        return total, pagination.items
+        return pagination.total, pagination.items
 
     # 根据条件进行搜索
     @classmethod

@@ -70,10 +70,9 @@ class Device(ModelBase):
 
     # 获得部署列表
     def get_deploy_list(self, page, size):
+        # 获取数据总数目
+        total = 0
         result_list = list()
-
-        # 先获取部署总数信息
-        total = self.deploy_query.count()
 
         # 获取部署信息列表
         item_paginate = self.deploy_query.paginate(page=page, per_page=size, error_out=False)
@@ -86,7 +85,7 @@ class Device(ModelBase):
             log.warn("部署信息分页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
             return package_result(total, result_list)
 
-        return package_result(total, [item.to_dict() for item in item_list])
+        return package_result(item_paginate.total, [item.to_dict() for item in item_list])
 
     # 删除设备需要事务控制
     def delete(self):
