@@ -24,6 +24,9 @@ class User(ModelBase):
     # 使用状态
     STATE_VALUES = ('unused', 'using')
 
+    # 用户昵称 通过微信端获取
+    nike_name = db.Column(db.String(63), default="")
+
     # 电话号码
     telephone = db.Column(db.String(64), unique=True, index=True, nullable=False)
 
@@ -46,8 +49,8 @@ class User(ModelBase):
     deleted = db.Column(db.Boolean, default=False)
 
     @classmethod
-    def create(cls, telephone):
-        user = cls(telephone=telephone)
+    def create(cls, telephone, nike_name=""):
+        user = cls(telephone=telephone, nike_name=nike_name)
 
         try:
             db.session.add(user)
@@ -77,6 +80,7 @@ class User(ModelBase):
     def to_dict(self):
         return {
             'id': self.id,
+            'nike_name': self.nike_name,
             'telephone': self.telephone,
             'total_account': self.total_account,
             'used_account': self.used_account,
