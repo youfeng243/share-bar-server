@@ -8,7 +8,9 @@
 @time: 2017/9/2 19:33
 """
 from flask import Blueprint
+from flask import g
 from flask import request
+from flask import session
 from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
@@ -21,9 +23,17 @@ from service.role.model import Role
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
+@bp.before_request
+def before_request():
+    g.user = current_user
+
+
 # 登录
 @bp.route('/sign_in', methods=['POST'])
 def login():
+    if g.user is not None and g.user.is_authenticated:
+        return success(u"账户已经登录!")
+
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
