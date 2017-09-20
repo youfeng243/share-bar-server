@@ -11,7 +11,7 @@ import settings
 from exts.common import HTTP_FORBIDDEN, fail, log
 
 
-def _generate_signature(timestamp, nonce, token):
+def generate_signature(timestamp, nonce, token):
     array = [timestamp, nonce, token]
     array = sorted(array)
     sig_str = ''.join(array)
@@ -29,7 +29,7 @@ def check_signature(func):
 
         token = settings.WECHAT_TOKEN
 
-        cal_signature = _generate_signature(timestamp, nonce, token)
+        cal_signature = generate_signature(timestamp, nonce, token)
         if not cal_signature == signature:
             log.warn("%s != %s" % (signature, cal_signature))
             return fail(HTTP_FORBIDDEN)
