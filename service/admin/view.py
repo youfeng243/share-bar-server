@@ -10,7 +10,6 @@
 from flask import Blueprint
 from flask import g
 from flask import request
-from flask import session
 from flask_login import current_user
 from flask_login import login_required
 from flask_login import login_user
