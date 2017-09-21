@@ -116,7 +116,7 @@ json = {
                     "utime": "2017-09-17 16:38:48",
                     "balance_account": 0,
                     "id": 1,
-                    "telephone": "13532369100"
+                    "mobile": "13532369100"
                 },
                 "device": {
                     "device_code": "cfcd208495d565ef66e7dff9f98764da",

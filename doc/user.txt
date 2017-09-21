@@ -23,7 +23,7 @@ post = {
                 "utime": "2017-09-17 16:38:48",
                 "balance_account": 0,
                 "id": 1,
-                "telephone": "13532369100"
+                "mobile": "13532369100"
             },
             {},
             ...
@@ -80,7 +80,7 @@ json = {
             "utime": "2017-09-17 17:05:50",
             "balance_account": 0,
             "id": 13,
-            "telephone": "13532369112"
+            "mobile": "13532369112"
         },
         {
             "state": "using",
@@ -90,7 +90,7 @@ json = {
             "utime": "2017-09-17 17:05:50",
             "balance_account": 0,
             "id": 14,
-            "telephone": "13532369113"
+            "mobile": "13532369113"
         }
     ],
     "success": true,
@@ -111,7 +111,7 @@ json = {
         "utime": "2017-09-17 17:05:50",
         "balance_account": 0,
         "id": 13,
-        "telephone": "13532369112"
+        "mobile": "13532369112"
     },
     "success": true,
     "error": null
@@ -145,7 +145,7 @@ json = {
                     "utime": "2017-09-17 16:38:48",
                     "balance_account": 0,
                     "id": 1,
-                    "telephone": "13532369100"
+                    "mobile": "13532369100"
                 },
                 "device": {
                     "device_code": "cfcd208495d565ef66e7dff9f98764da",

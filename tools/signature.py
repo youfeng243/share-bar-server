@@ -11,7 +11,7 @@ from urlparse import ParseResult
 
 import requests
 from flask import g
-from flask import has_request_context
+from flask import redirect
 from flask import request
 from flask import session
 from flask import url_for
@@ -59,6 +59,7 @@ def get_oauth_url(endpoint, state):
     args = copy.deepcopy(request.args.to_dict())
     args.update(request.view_args)
     url = url_for(endpoint, _external=True, **args)
+    log.info("当前鉴权后回调url为: {}".format(url))
     qs = urlencode({
         'appid': settings.WECHAT_APP_ID,
         'redirect_uri': url,
@@ -102,14 +103,16 @@ def wechat_required(func):
     @wraps(func)
     def decorator(*args, **kwargs):
 
-        if not has_request_context():
-            return fail(HTTP_OK, u"服务访问异常!")
-
         openid = session.get('openid', None)
         if openid is None:
             code = request.args.get('code', None)
             if code is None:
-                return fail(HTTP_OK, u"参数错误: 没有code参数, 无法登录!")
+                # 第一次进入登录，则一定是GET 需要先进行授权
+                if request.method == 'GET':
+                    url = get_oauth_url(request.endpoint, random.randint(1, 10))
+                    log.info(url)
+                    return redirect(url)
+                return fail(HTTP_OK, u"参数错误: 没有code参数, 微信授权流程异常！")
 
             url = get_token_url(code)
             if url is None:
@@ -131,27 +134,6 @@ def wechat_required(func):
         return func(*args, **kwargs)
 
     return decorator
-
-
-# 微信登录
-# def wechat_required(*args, **kwargs):
-#     if request.endpoint != 'wechat.index':
-#         openid = session.get('openid', None)
-#         if openid is None and has_request_context():
-#             code = request.args.get('code', None)
-#             if code is not None:
-#                 url = get_token_url(code)
-#                 resp = requests.get(url, verify=False)
-#                 if resp.status_code == 200:
-#                     data = json.loads(resp.content)
-#                     openid = data.get('openid', None)
-#                     session['openid'] = openid
-#             else:
-#                 if request.method == 'GET':
-#                     url = get_oauth_url(request.endpoint, randint(1, 10))
-#                     logger.info(url)
-#                     return redirect(url)
-#         g.wechat_openid = openid
 
 
 def signature_mch_info(params):

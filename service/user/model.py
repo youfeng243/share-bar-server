@@ -24,11 +24,14 @@ class User(ModelBase):
     # 使用状态
     STATE_VALUES = ('unused', 'using')
 
+    # 用户微信唯一ID
+    openid = db.Column(db.String(512), index=True, nullable=True)
+
     # 用户昵称 通过微信端获取
     nike_name = db.Column(db.String(63), default="")
 
     # 电话号码
-    telephone = db.Column(db.String(64), unique=True, index=True, nullable=False)
+    mobile = db.Column(db.String(64), unique=True, index=True, nullable=False)
 
     # 总充值金额
     total_account = db.Column(db.Integer, nullable=False, default=0)
@@ -49,26 +52,31 @@ class User(ModelBase):
     deleted = db.Column(db.Boolean, default=False)
 
     @classmethod
-    def create(cls, telephone, nike_name=""):
-        user = cls(telephone=telephone, nike_name=nike_name)
+    def create(cls, mobile, openid, nike_name=""):
+        user = cls(mobile=mobile, openid=openid, nike_name=nike_name)
 
         try:
             db.session.add(user)
             db.session.commit()
         except IntegrityError:
-            log.error("主键重复: telephone = {}".format(telephone))
+            log.error("主键重复: mobile = {}".format(mobile))
             db.session.rollback()
             return None, False
         except Exception as e:
-            log.error("未知插入错误: telephone = {}".format(telephone))
+            log.error("未知插入错误: mobile = {}".format(mobile))
             log.exception(e)
             return None, False
         return user, True
 
+    # 根据微信ID 获取用户信息
+    @classmethod
+    def get_by_openid(cls, openid):
+        return cls.query.filter_by(openid=openid).first()
+
     # 根据手机号码查找用户信息
     @classmethod
     def get_user_by_phone(cls, phone):
-        return cls.query.filter_by(telephone=phone).first()
+        return cls.query.filter_by(mobile=phone).first()
 
     # 改变用户使用状态
     def change_state(self, state):
@@ -81,7 +89,7 @@ class User(ModelBase):
         return {
             'id': self.id,
             'nike_name': self.nike_name,
-            'telephone': self.telephone,
+            'mobile': self.mobile,
             'total_account': self.total_account,
             'used_account': self.used_account,
             'balance_account': self.balance_account,
@@ -91,4 +99,4 @@ class User(ModelBase):
         }
 
     def __repr__(self):
-        return '<User {}>'.format(self.telephone)
+        return '<User {}>'.format(self.mobile)
