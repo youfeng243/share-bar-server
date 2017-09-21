@@ -32,10 +32,11 @@ ERROR_MSG = {
     HTTP_NOT_IMPLEMENTED: 'not implemented',
 }
 
-# # 获得当前进程log
-# def get_pid_log_name(log_name):
-#     return log_name + '-' + str(os.getpid()) + '.log'
-
+# 短信验证码相关
+DEFAULT_MOBILE_EXPIRED = 60  # 1 minute
+LEANCLOUD_HOST = 'https://api.leancloud.cn'
+REQUEST_SMS_CODE_URL = ''.join([LEANCLOUD_HOST, '/1.1/requestSmsCode'])
+VERIFY_SMS_CODE = ''.join([LEANCLOUD_HOST, '/1.1/verifySmsCode/{captcha}'])
 
 log = Logger('share-bar-server.log').get_logger()
 

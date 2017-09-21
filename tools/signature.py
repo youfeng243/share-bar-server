@@ -17,7 +17,7 @@ from flask import session
 from flask import url_for
 
 import settings
-from exts.common import HTTP_FORBIDDEN, fail, log, HTTP_BAD_REQUEST
+from exts.common import fail, log, HTTP_OK
 
 
 # 生成签名
@@ -46,7 +46,7 @@ def check_signature(func):
         cal_signature = gen_signature(timestamp, nonce, token)
         if not cal_signature == signature:
             log.warn("微信-%s != %s" % (signature, cal_signature))
-            return fail(HTTP_FORBIDDEN)
+            return fail(HTTP_OK, u"签名不一致")
 
         log.info("微信-签名校验成功: {}".format(cal_signature))
         return func(*args, **kwargs)
@@ -98,22 +98,22 @@ def get_token_url(code):
 
 
 # 微信登录
-def user_login_required(func):
+def wechat_required(func):
     @wraps(func)
     def decorator(*args, **kwargs):
 
         if not has_request_context():
-            return fail(HTTP_BAD_REQUEST, u"服务访问异常!")
+            return fail(HTTP_OK, u"服务访问异常!")
 
         openid = session.get('openid', None)
         if openid is None:
             code = request.args.get('code', None)
             if code is None:
-                return fail(HTTP_BAD_REQUEST, u"参数错误: 没有code参数, 无法登录!")
+                return fail(HTTP_OK, u"参数错误: 没有code参数, 无法登录!")
 
             url = get_token_url(code)
             if url is None:
-                return fail(HTTP_BAD_REQUEST, u"获得微信token失败!")
+                return fail(HTTP_OK, u"获得微信token失败!")
 
             try:
                 resp = requests.get(url, verify=False, timeout=30)
@@ -126,16 +126,7 @@ def user_login_required(func):
             except Exception as e:
                 log.error("获取用户openid失败:")
                 log.exception(e)
-            return fail(HTTP_BAD_REQUEST, u"微信授权失败!")
-        # else:
-        #     # return fail(HTTP_BAD_REQUEST, u"微信登录异常!")
-        #     if request.method == 'GET':
-        #         url = get_oauth_url(request.endpoint, random.randint(1, 10))
-        #         if url is None:
-        #             log.error("获取微信鉴权url失败...")
-        #             return fail(HTTP_BAD_REQUEST, u"获取微信鉴权url失败!")
-        #         log.info("当前微信鉴权url = {}".format(url))
-        #         return redirect(url)
+            return fail(HTTP_OK, u"微信授权失败!")
         g.openid = openid
         return func(*args, **kwargs)
 
@@ -143,7 +134,7 @@ def user_login_required(func):
 
 
 # 微信登录
-# def user_login_required(*args, **kwargs):
+# def wechat_required(*args, **kwargs):
 #     if request.endpoint != 'wechat.index':
 #         openid = session.get('openid', None)
 #         if openid is None and has_request_context():

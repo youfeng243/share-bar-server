@@ -51,7 +51,7 @@ def login():
     if admin is not None:
         # 判断账户是否被停用
         if not admin.is_active():
-            return fail(HTTP_OK, error=u'账户已被暂停使用,请联系管理员')
+            return fail(HTTP_OK, u'账户已被暂停使用,请联系管理员')
 
         if is_remember:
             login_user(admin, remember=True)

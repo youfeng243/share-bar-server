@@ -46,22 +46,6 @@ def get_device_list():
     return Device.search_list()
 
 
-# # 删除设备
-# @bp.route('/device/<int:device_id>', methods=['DELETE'])
-# @login_required
-# def delete_device(device_id):
-#     device = Device.get(device_id)
-#     if device is None:
-#         log.warn("当前设备ID查找设备失败: {}".format(device_id))
-#         return fail(HTTP_OK, u"设备不存在")
-#
-#     if not device.delete():
-#         log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
-#         return fail(HTTP_OK, u"删除设备信息失败!")
-#
-#     return success(device.id)
-
-
 # 批量删除设备
 @bp.route('/device', methods=['DELETE'])
 @login_required
