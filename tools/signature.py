@@ -12,7 +12,6 @@ from urlparse import ParseResult
 import requests
 from flask import g
 from flask import has_request_context
-from flask import redirect
 from flask import request
 from flask import session
 from flask import url_for
