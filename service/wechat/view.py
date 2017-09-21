@@ -10,6 +10,7 @@
 from flask import Blueprint
 from flask import request
 
+from exts.common import log
 from tools.signature import check_signature
 
 bp = Blueprint('wechat', __name__)
@@ -21,4 +22,5 @@ bp = Blueprint('wechat', __name__)
 @bp.route('/', methods=['GET'])
 @check_signature
 def index():
+    log.info("微信心跳....")
     return request.args.get('echostr')

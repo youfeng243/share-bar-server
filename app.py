@@ -20,6 +20,7 @@ from service.deploy.view import bp as deploy_bp
 from service.device.view import bp as device_bp
 from service.role.view import bp as role_bp
 from service.user.view import bp as user_bp
+from service.wechat.view import bp as wechat_bp
 
 
 def create_app(name=None):
@@ -54,6 +55,7 @@ def register_bp(app):
     app.register_blueprint(device_bp)
     app.register_blueprint(role_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(wechat_bp)
 
 
 def setup_error_handler(app):

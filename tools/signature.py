@@ -38,13 +38,18 @@ def check_signature(func):
         timestamp = request.args.get('timestamp', '')
         nonce = request.args.get('nonce', '')
 
+        log.info("微信-signature: {}".format(signature))
+        log.info("微信-timestamp: {}".format(timestamp))
+        log.info("微信-nonce: {}".format(nonce))
+
         token = settings.WECHAT_TOKEN
 
         cal_signature = gen_signature(timestamp, nonce, token)
         if not cal_signature == signature:
-            log.warn("%s != %s" % (signature, cal_signature))
+            log.warn("微信-%s != %s" % (signature, cal_signature))
             return fail(HTTP_FORBIDDEN)
 
+        log.info("微信-签名校验成功: {}".format(cal_signature))
         return func(*args, **kwargs)
 
     return decorator
