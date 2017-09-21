@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from flask_script import Manager
 from setuptools import find_packages
 
+import settings
 from app import create_app
 from exts.database import db
 from service.address.mock import gen_address
@@ -52,25 +53,27 @@ def syncdb():
         Admin.create(SUPER_USER, SUPER_PASS, SUPER_NAME, Role.get_by_name(Role.SUPER_ADMIN).id)
         print "超级管理员角色创建完成..."
 
-    # 创建地址数据
-    gen_address()
+    if settings.DEBUG:
+        print '当前为测试状态，需要生成测试数据...'
+        # 创建地址数据
+        gen_address()
 
-    # 创建管理员数据
-    gen_admin()
+        # 创建管理员数据
+        gen_admin()
 
-    # 创建部署数据
-    gen_deploy_test(application)
+        # 创建部署数据
+        gen_deploy_test(application)
 
-    # 生成角色数据
-    gen_role()
+        # 生成角色数据
+        gen_role()
 
-    # 创建用户数据
-    gen_user()
+        # 创建用户数据
+        gen_user()
 
-    # 创建用户使用记录
-    gen_use_record()
+        # 创建用户使用记录
+        gen_use_record()
 
-    print '数据库创建完成...'
+        print '数据库创建完成...'
 
 
 @manager.command

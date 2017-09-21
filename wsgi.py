@@ -11,10 +11,8 @@ application = create_app('share-bar-server')
 application.wsgi_app = ProxyFix(application.wsgi_app)
 
 
-@application.route("/")
-@application.route("/home")
-@application.route("/index")
-def index():
+@application.route("/test")
+def run_status():
     log.info("server is running...")
     return "server is runing..."
 
