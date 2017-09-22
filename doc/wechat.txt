@@ -1,0 +1,30 @@
+1. 用户登录
+/wechat/login, methods=['POST']
+Content-Type: application/json
+参数:
+json = {
+    "mobile": "手机号码",
+    "code": "验证码",
+}
+返回:
+{
+    //用户信息
+    "result" : {
+    }
+    "success": true,
+    "error": null
+}
+
+2. 请求短信验证码
+/captcha/code, methods=['POST']
+Content-Type: application/json
+参数:
+json = {
+    "mobile": "手机号码"
+}
+返回:
+{
+    "success": true,
+    "result": "success",
+    "error": null
+}
