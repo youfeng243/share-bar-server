@@ -18,9 +18,9 @@ from flask import url_for
 
 import settings
 from exts.common import fail, log, HTTP_OK
+from exts.database import redis
 
 
-# 生成签名
 def gen_signature(timestamp, nonce, token):
     array = [timestamp, nonce, token]
     array = sorted(array)
@@ -66,15 +66,28 @@ def get_oauth_url(endpoint, state):
         'scope': 'snsapi_userinfo',
         'state': state,
     })
-    try:
-        o = ParseResult('https', 'open.weixin.qq.com',
-                        '/connect/oauth2/authorize', '',
-                        query=qs, fragment='wechat_redirect')
-        return o.geturl()
-    except Exception as e:
-        log.error("解析参数失败:")
-        log.exception(e)
-    return None
+
+    return ParseResult('https', 'open.weixin.qq.com',
+                       '/connect/oauth2/authorize', '',
+                       query=qs, fragment='wechat_redirect').geturl()
+
+
+# 获得跳转到登录链接的鉴权url
+def get_login_oauth_url():
+    state = random.randint(1, 10)
+    login_url = url_for("wechat.menu", name="login", _external=True)
+
+    log.info("当前鉴权后回调url为: {}".format(login_url))
+    qs = urlencode({
+        'appid': settings.WECHAT_APP_ID,
+        'redirect_uri': login_url,
+        'scope': 'snsapi_userinfo',
+        'state': state,
+    })
+
+    return ParseResult('https', 'open.weixin.qq.com',
+                       '/connect/oauth2/authorize', '',
+                       query=qs, fragment='wechat_redirect').geturl()
 
 
 # 获得微信url token
@@ -98,11 +111,24 @@ def get_token_url(code):
     return None
 
 
+# 获取刷新token
+def get_refresh_token(openid):
+    'box:wechat:open:access-token'
+
+    key = 'bar:wechat:refresh:token:{}'.format(openid)
+    refresh_token = redis.get(key)
+    if refresh_token is not None:
+        return refresh_token
+
+    return None
+
+
 # 微信登录
 def wechat_required(func):
     @wraps(func)
     def decorator(*args, **kwargs):
 
+        # 判断重新刷新token是否已经过期，如果过期则需要重新授权登录
         openid = session.get('openid', None)
         if openid is None:
             log.info("session 中没有openid...")
@@ -110,10 +136,16 @@ def wechat_required(func):
             if code is None:
                 log.info("url中没有code参数...")
                 # 第一次进入登录，则一定是GET 需要先进行授权
-                if request.method == 'GET':
-                    url = get_oauth_url(request.endpoint, random.randint(1, 10))
-                    log.info("生成的授权链接: {}".format(url))
+                # if request.method == 'GET':
+                #     url = get_oauth_url(request.endpoint, random.randint(1, 10))
+                #     log.info("生成的授权链接: {}".format(url))
+                #     return redirect(url)
+
+                # 授权跳转到登录界面
+                url = get_login_oauth_url()
+                if url is not None:
                     return redirect(url)
+
                 log.info("当前不是get请求访问到这里: {}".format(request.method))
                 return fail(HTTP_OK, u"微信未授权，请用微信端进行访问!")
 

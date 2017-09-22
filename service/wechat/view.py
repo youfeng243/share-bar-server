@@ -36,6 +36,11 @@ def menu(name):
         log.info("账户还没注册, 需要进入登录流程..")
         return redirect('/login')
 
+    # 判断是否需要重新登录
+    if name == 'login':
+        log.info("当前用户需要重新登录: openid = {}".format(g.openid))
+        return redirect('/login')
+
     # 进入账户中心
     if name == 'account':
         log.info("跳转到/account页面...")
