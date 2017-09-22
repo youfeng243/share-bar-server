@@ -34,21 +34,26 @@ def index():
 def menu(name):
     # 如果没授权 不允许访问
     if g.openid is None:
+        log.info("还未获得openid: name = {}".format(name))
         return "Login Failed"
 
     # 如果没有注册，则先进入注册流程
     user = User.get_by_openid(g.openid)
     if user is None:
+        log.info("账户还没注册, 需要进入登录流程..")
         return redirect('/login')
 
     # 进入账户中心
     if name == 'account':
+        log.info("跳转到/account页面...")
         return redirect('/account')
 
     # 进入游戏仓
     if name == 'playing':
+        log.info("跳转到/playing页面...")
         return redirect('/playing')
 
+    log.info("无法处理请求: name = {}".format(name))
     return fail(HTTP_OK, u"url error!")
 
 

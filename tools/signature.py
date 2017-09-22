@@ -105,19 +105,23 @@ def wechat_required(func):
 
         openid = session.get('openid', None)
         if openid is None:
+            log.info("session 中没有openid...")
             code = request.args.get('code', None)
             if code is None:
+                log.info("url中没有code参数...")
                 # 第一次进入登录，则一定是GET 需要先进行授权
                 if request.method == 'GET':
                     url = get_oauth_url(request.endpoint, random.randint(1, 10))
-                    log.info(url)
+                    log.info("生成的授权链接: {}".format(url))
                     return redirect(url)
+                log.info("当前不是get请求访问到这里: {}".format(request.method))
                 return fail(HTTP_OK, u"参数错误: 没有code参数, 微信授权流程异常！")
 
             url = get_token_url(code)
             if url is None:
+                log.info("获得token链接失败: code = {}".format(code))
                 return fail(HTTP_OK, u"获得微信token失败!")
-
+            log.info("获得token链接为: url = {}".format(url))
             try:
                 resp = requests.get(url, verify=False, timeout=30)
                 if resp.status_code == 200:
@@ -125,11 +129,14 @@ def wechat_required(func):
                     openid = data.get('openid', None)
                     session['openid'] = openid
                     g.openid = openid
+                    log.info("获得openid成功: {}".format(openid))
                     return func(*args, **kwargs)
+                log.warn("访问token链接失败: status_code = {} url = {}".format(resp.status_code, url))
             except Exception as e:
                 log.error("获取用户openid失败:")
                 log.exception(e)
             return fail(HTTP_OK, u"微信授权失败!")
+        log.info("获得openid成功: {}".format(openid))
         g.openid = openid
         return func(*args, **kwargs)
 
