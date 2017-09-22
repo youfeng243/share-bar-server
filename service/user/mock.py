@@ -19,6 +19,6 @@ def gen_user():
         num = 100 + _
         phone = '13532369{}'.format(num)
 
-        User.create(phone)
+        User.create(phone, str(num), str(num))
 
     log.info("创建用户数据完成...")
