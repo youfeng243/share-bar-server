@@ -16,7 +16,7 @@ json = {
 }
 
 2. 请求短信验证码
-/captcha/code, methods=['POST']
+/wechat/captcha, methods=['POST']
 Content-Type: application/json
 参数:
 json = {

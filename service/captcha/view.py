@@ -6,11 +6,11 @@ from flask import Blueprint, request
 from exts.common import fail, success, log, HTTP_OK
 from exts.sms import mobile_reach_ratelimit, request_sms
 
-bp = Blueprint('captcha', __name__)
+bp = Blueprint('captcha', __name__, url_prefix="/wechat")
 
 
 # 请求手机验证码，进行用户注册
-@bp.route('/captcha/code', methods=['POST'])
+@bp.route('/captcha', methods=['POST'])
 def request_code():
     if not request.is_json:
         log.warn("参数错误...")

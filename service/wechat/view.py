@@ -16,20 +16,13 @@ from flask import session
 from exts.common import log, fail, HTTP_OK, success
 from exts.sms import validate_captcha
 from service.user.model import User
-from tools.signature import check_signature, wechat_required
+from tools.signature import wechat_required
 
-bp = Blueprint('wechat', __name__)
-
-
-@bp.route('/', methods=['GET'])
-@check_signature
-def index():
-    log.info("微信心跳....")
-    return request.args.get('echostr')
+bp = Blueprint('wechat', __name__, url_prefix='/wechat')
 
 
 # 进入自定义菜单
-@bp.route('/wechat/menu/<name>', methods=['GET'])
+@bp.route('/menu/<name>', methods=['GET'])
 @wechat_required
 def menu(name):
     # 如果没授权 不允许访问
@@ -58,7 +51,7 @@ def menu(name):
 
 
 # 用户登录
-@bp.route('/wechat/login', methods=['POST'])
+@bp.route('/login', methods=['POST'])
 @wechat_required
 def wechat_login():
     openid = session.get('openid', None)
