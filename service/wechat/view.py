@@ -74,7 +74,10 @@ def wechat_login():
 
     # 校验手机验证码
     if validate_captcha(mobile, code):
-        user = User.create(mobile, openid)
+        user = User.get_by_openid(openid)
+        if user is None:
+            user = User.create(mobile, openid)
+        session['is_login'] = True
         return success(user.to_dict())
 
     return fail(HTTP_OK, u'验证码错误')
