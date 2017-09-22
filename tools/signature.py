@@ -135,11 +135,6 @@ def wechat_required(func):
             code = request.args.get('code', None)
             if code is None:
                 log.info("url中没有code参数...")
-                # 第一次进入登录，则一定是GET 需要先进行授权
-                # if request.method == 'GET':
-                #     url = get_oauth_url(request.endpoint, random.randint(1, 10))
-                #     log.info("生成的授权链接: {}".format(url))
-                #     return redirect(url)
 
                 # 授权跳转到登录界面
                 url = get_login_oauth_url()
@@ -153,17 +148,38 @@ def wechat_required(func):
             if url is None:
                 log.info("获得token链接失败: code = {}".format(code))
                 return fail(HTTP_OK, u"获得微信token失败!")
-            log.info("获得token链接为: url = {}".format(url))
+
             try:
+                log.info("开始获取openid, 获得token链接为: url = {}".format(url))
                 resp = requests.get(url, verify=False, timeout=30)
-                if resp.status_code == 200:
-                    data = json.loads(resp.content)
-                    openid = data.get('openid', None)
-                    session['openid'] = openid
-                    g.openid = openid
-                    log.info("获得openid成功: {}".format(openid))
-                    return func(*args, **kwargs)
-                log.warn("访问token链接失败: status_code = {} url = {}".format(resp.status_code, url))
+                if resp.status_code != 200:
+                    log.warn("访问token链接失败: status_code = {} url = {}".format(resp.status_code, url))
+                    return fail(HTTP_OK, u"获取access_token失败!")
+
+                data = json.loads(resp.content)
+                if data is None:
+                    log.warn("解析access_token失败: data = {}".format(data))
+                    return fail(HTTP_OK, u"解析access_token失败!")
+
+                openid = data.get('openid', None)
+                if openid is None:
+                    log.warn("解析openid失败: data = {}".format(data))
+                    return fail(HTTP_OK, u"解析openid失败!")
+                session['openid'] = openid
+
+                # 保存refresh_token
+                refresh_token = data.get('refresh_token', None)
+                if refresh_token is not None:
+                    session['refresh_token'] = refresh_token
+
+                # 保存access_token
+                access_token = data.get('access_token', None)
+                if access_token is not None:
+                    session['access_token'] = access_token
+
+                g.openid = openid
+                log.info("获得openid成功: {}".format(openid))
+                return func(*args, **kwargs)
             except Exception as e:
                 log.error("获取用户openid失败:")
                 log.exception(e)
