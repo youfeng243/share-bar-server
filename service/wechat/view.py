@@ -88,3 +88,18 @@ def wechat_login():
         return success(user.to_dict())
 
     return fail(HTTP_OK, u'验证码错误')
+
+
+# 获取当前用户信息接口
+@bp.route('/user', methods=['GET'])
+@wechat_required
+def get_user_info():
+    if g.openid is None:
+        return fail(HTTP_OK, u'请使用微信客户端访问')
+
+    user = User.get_by_openid(g.openid)
+    if user is None:
+        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+        return fail(HTTP_OK, u'没有当前用户信息')
+
+    return success(user.to_dict())

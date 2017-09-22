@@ -95,6 +95,7 @@ class User(ModelBase):
         return {
             'id': self.id,
             'nike_name': self.nike_name,
+            'head_img_url': self.head_img_url,
             'mobile': self.mobile,
             'total_account': self.total_account,
             'used_account': self.used_account,

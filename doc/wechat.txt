@@ -28,3 +28,30 @@ json = {
     "result": "success",
     "error": null
 }
+
+3. 微信端获取用户信息
+/wechat/user, methods=['GET']
+{
+    "success": true,
+    "result": {
+            'id': self.id,
+            //用户昵称
+            'nike_name': self.nike_name,
+            //用户头像url
+            'head_img_url': self.head_img_url,
+            //手机号码
+            'mobile': self.mobile,
+            //总充值金额
+            'total_account': self.total_account,
+            //总消费金额
+            'used_account': self.used_account,
+            //余额
+            'balance_account': self.balance_account,
+            //当前用户是否被禁用的状态
+            'state': self.state,
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+    ,
+    "error": null
+}
