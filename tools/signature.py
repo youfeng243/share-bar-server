@@ -136,7 +136,7 @@ def wechat_required(func):
                 log.error("获取用户openid失败:")
                 log.exception(e)
             return fail(HTTP_OK, u"微信授权失败!")
-        log.info("获得openid成功: {}".format(openid))
+        log.info("从session中获取openid成功: openid = {}".format(openid))
         g.openid = openid
         return func(*args, **kwargs)
 
