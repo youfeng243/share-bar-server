@@ -30,6 +30,9 @@ class User(ModelBase):
     # 用户昵称 通过微信端获取
     nike_name = db.Column(db.String(63), default="")
 
+    # 微信头像链接
+    head_img_url = db.Column(db.String(256), default="")
+
     # 电话号码
     mobile = db.Column(db.String(64), unique=True, index=True, nullable=False)
 
@@ -52,8 +55,11 @@ class User(ModelBase):
     deleted = db.Column(db.Boolean, default=False)
 
     @classmethod
-    def create(cls, mobile, openid, nike_name=""):
-        user = cls(mobile=mobile, openid=openid, nike_name=nike_name)
+    def create(cls, mobile, openid, nike_name="", head_img_url=""):
+        user = cls(mobile=mobile,
+                   openid=openid,
+                   nike_name=nike_name,
+                   head_img_url=head_img_url)
 
         try:
             db.session.add(user)

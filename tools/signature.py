@@ -115,7 +115,7 @@ def wechat_required(func):
                     log.info("生成的授权链接: {}".format(url))
                     return redirect(url)
                 log.info("当前不是get请求访问到这里: {}".format(request.method))
-                return fail(HTTP_OK, u"参数错误: 没有code参数, 微信授权流程异常！")
+                return fail(HTTP_OK, u"微信未授权，请用微信端进行访问!")
 
             url = get_token_url(code)
             if url is None:
