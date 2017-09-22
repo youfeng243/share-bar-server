@@ -202,3 +202,28 @@ def signature_mch_info(params):
 
 def get_nonce_str(n):
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n))
+
+
+# 获得用户头像和昵称信息
+def get_user_wechat_info(access_token, openid):
+    url = "https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}&lang=zh_CN". \
+        format(access_token, openid)
+    head_img_url = ""
+    nick_name = ""
+    try:
+        resp = requests.get(url, verify=False, timeout=30)
+        if resp.status_code != 200:
+            log.warn("访问用户信息失败: status_code = {} url = {}".format(resp.status_code, url))
+            return head_img_url, nick_name
+
+        data = json.loads(resp.content)
+        if data is None:
+            log.warn("解析用户信息失败: data = {}".format(data))
+            return head_img_url, nick_name
+
+        head_img_url, nick_name = data.get('headimgurl', ''), data.get('nickname', '')
+    except Exception as e:
+        log.error("访问微信用户信息失败: ")
+        log.exception(e)
+
+    return head_img_url, nick_name

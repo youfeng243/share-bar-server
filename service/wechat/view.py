@@ -16,7 +16,7 @@ from flask import session
 from exts.common import log, fail, HTTP_OK, success
 from exts.sms import validate_captcha
 from service.user.model import User
-from tools.signature import wechat_required
+from tools.signature import wechat_required, get_user_wechat_info
 
 bp = Blueprint('wechat', __name__, url_prefix='/wechat')
 
@@ -59,8 +59,7 @@ def menu(name):
 @bp.route('/login', methods=['POST'])
 @wechat_required
 def wechat_login():
-    openid = session.get('openid', None)
-    if openid is None:
+    if g.openid is None:
         return fail(HTTP_OK, u'请使用微信客户端访问')
 
     if not request.is_json:
@@ -77,10 +76,15 @@ def wechat_login():
 
     # 校验手机验证码
     if validate_captcha(mobile, code):
-        user = User.get_by_openid(openid)
+        user = User.get_by_openid(g.openid)
         if user is None:
-            user = User.create(mobile, openid)
-        session['is_login'] = True
+            # 获得用户的头像与昵称信息
+            head_img_url, nike_name = get_user_wechat_info(session['access_token'], g.openid)
+            log.info("当前用户获取的信息为: openid = {} head = {} nikename = {}".format(
+                g.openid, head_img_url, nike_name))
+            user = User.create(mobile, g.openid,
+                               head_img_url=head_img_url,
+                               nike_name=nike_name)
         return success(user.to_dict())
 
     return fail(HTTP_OK, u'验证码错误')
