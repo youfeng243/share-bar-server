@@ -76,7 +76,7 @@ def wechat_login():
 
     # 校验手机验证码
     if validate_captcha(mobile, code):
-        user = User.get_by_openid(g.openid)
+        user = User.get_user_by_phone(mobile)
         if user is None:
             # 获得用户的头像与昵称信息
             head_img_url, nike_name = get_user_wechat_info(session['access_token'], g.openid)
@@ -85,6 +85,12 @@ def wechat_login():
             user = User.create(mobile, g.openid,
                                head_img_url=head_img_url,
                                nike_name=nike_name)
+        elif user.openid != g.openid:
+            user.openid = g.openid
+            if not user.save():
+                log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
+                return fail(HTTP_OK, u"user 存储错误!")
+
         return success(user.to_dict())
 
     return fail(HTTP_OK, u'验证码错误')
@@ -95,6 +101,7 @@ def wechat_login():
 @wechat_required
 def get_user_info():
     if g.openid is None:
+        log.warn("当前openid还未设置在g中...")
         return fail(HTTP_OK, u'请使用微信客户端访问')
 
     user = User.get_by_openid(g.openid)
