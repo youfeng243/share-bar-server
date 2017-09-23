@@ -16,7 +16,7 @@ from flask import session
 from exts.common import log, fail, HTTP_OK, success
 from exts.sms import validate_captcha
 from service.user.model import User
-from tools.signature import wechat_required, get_user_wechat_info
+from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user
 
 bp = Blueprint('wechat', __name__, url_prefix='/wechat')
 
@@ -100,11 +100,7 @@ def wechat_login():
 @bp.route('/user', methods=['GET'])
 @wechat_required
 def get_user_info():
-    if g.openid is None:
-        log.warn("当前openid还未设置在g中...")
-        return fail(HTTP_OK, u'请使用微信客户端访问')
-
-    user = User.get_by_openid(g.openid)
+    user = get_current_user()
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')

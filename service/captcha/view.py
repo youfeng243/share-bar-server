@@ -5,7 +5,7 @@ from flask import Blueprint, request
 
 from exts.common import fail, success, log, HTTP_OK
 from exts.sms import mobile_reach_ratelimit, request_sms
-from tools.signature import wechat_required
+from tools.wechat_api import wechat_required
 
 bp = Blueprint('captcha', __name__, url_prefix="/wechat")
 

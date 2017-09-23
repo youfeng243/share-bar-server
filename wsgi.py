@@ -4,7 +4,7 @@ from werkzeug.contrib.fixers import ProxyFix
 
 from app import create_app
 from exts.common import log
-from tools.signature import check_signature
+from tools.wechat_api import check_signature
 
 log.info("开始进入初始化流程..")
 application = create_app('share-bar-server')

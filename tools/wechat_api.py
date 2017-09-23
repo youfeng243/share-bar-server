@@ -19,6 +19,7 @@ from flask import url_for
 import settings
 from exts.common import fail, log, HTTP_OK
 from exts.database import redis
+from service.user.model import User
 
 
 def gen_signature(timestamp, nonce, token):
@@ -227,3 +228,12 @@ def get_user_wechat_info(access_token, openid):
         log.exception(e)
 
     return head_img_url, nick_name
+
+
+# 获得当前用户
+def get_current_user():
+    openid = session.get('openid', None)
+    if openid is None:
+        return None
+
+    return User.get_by_openid(openid)
