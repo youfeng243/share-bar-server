@@ -9,6 +9,7 @@
 """
 
 from flask import Flask
+from flask import request
 
 import settings
 from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
@@ -44,6 +45,9 @@ def create_app(name=None):
     # 注册蓝图
     register_bp(app)
 
+    # 注册访问日志钩子
+    setup_hooks(app)
+
     log.info("flask 服务初始化完成...")
     return app
 
@@ -58,6 +62,24 @@ def register_bp(app):
     app.register_blueprint(user_bp)
     app.register_blueprint(wechat_bp)
     app.register_blueprint(captcha_bp)
+
+
+def _request_log(resp, *args, **kwargs):
+    log.info(
+        '{addr} request: [{status}] {method}, '
+        'url: {url}'.format(addr=request.remote_addr,
+                            status=resp.status,
+                            method=request.method,
+                            url=request.url,
+                            )
+    )
+    if resp.mimetype == 'application/json':
+        log.info(resp.get_data())
+    return resp
+
+
+def setup_hooks(app):
+    app.after_request(_request_log)
 
 
 def setup_error_handler(app):
