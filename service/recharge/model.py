@@ -7,6 +7,8 @@
 @file: device_record.py
 @time: 2017/8/29 21:16
 """
+from datetime import datetime
+
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
@@ -21,12 +23,21 @@ class Recharge(ModelBase):
     # 用户ID
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+    # 充值流水账号 每一次充值带时间戳的唯一ID
+    transaction_id = db.Column(db.String(64), index=True, nullable=False)
+
     # 充值金额
     amount = db.Column(db.Integer, nullable=False)
 
+    # 付款时间
+    pay_time = db.Column(db.DateTime, default=datetime.now())
+
     @classmethod
-    def create(cls, user_id, amount):
-        recharge = cls(user_id=user_id, amount=amount)
+    def create(cls, user_id, amount, transaction_id, pay_time):
+        recharge = cls(user_id=user_id,
+                       amount=amount,
+                       transaction_id=transaction_id,
+                       pay_time=pay_time)
 
         try:
             db.session.add(recharge)
@@ -51,6 +62,8 @@ class Recharge(ModelBase):
             'id': self.id,
             'user': self.user.to_dict(),
             'amount': self.amount,
+            'transaction_id': self.transaction_id,
+            'pay_time': self.pay_time.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }

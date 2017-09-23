@@ -55,3 +55,13 @@ json = {
     ,
     "error": null
 }
+
+
+4. 微信端充值接口
+/recharge/<int:account>, methods=['GET']
+返回:
+{
+    "success": true,
+    "result": 'success',
+    "error": null
+}
