@@ -4,8 +4,9 @@ from __future__ import absolute_import
 
 import redis as r_
 
+from exts.common import log
 
-# redis 存储一些到点需要过期的信息 比如微信登录 获得短信验证码过期
+
 class Redis(object):
     def __init__(self, app=None):
         self._client = None
@@ -21,6 +22,7 @@ class Redis(object):
             app.extensions = {}
 
         app.extensions['redis'] = self
+        log.info("redis 初始化完成!!")
 
     def __getattr__(self, name):
         return getattr(self._client, name)
