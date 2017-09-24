@@ -69,6 +69,7 @@ class UseRecord(ModelBase):
     def to_dict(self):
 
         to_json = {
+            'id': self.id,
             'province': self.province,
             'city': self.city,
             'area': self.area,
