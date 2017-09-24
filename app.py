@@ -24,7 +24,7 @@ from service.recharge.view import bp as recharge_bp
 from service.role.view import bp as role_bp
 from service.user.view import bp as user_bp
 from service.wechat.view import bp as wechat_bp
-from service.qrlogin.view import bp as windows_bp
+from service.windows.view import bp as windows_bp
 
 
 def create_app(name=None):
