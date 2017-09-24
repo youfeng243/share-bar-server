@@ -46,7 +46,7 @@ class ModelBase(db.Model):
         return True
 
     @classmethod
-    def find_list(cls, city, area, start_time, end_time, state, page, size, filters=None):
+    def find_list(cls, city, area, start_time, end_time, state, page, size, filters=None, order_by=None):
         # 条件查询
         total = 0
         query = cls.query
@@ -80,6 +80,10 @@ class ModelBase(db.Model):
         elif end_time is not None:
             query = query.filter(cls.ctime <= end_time)
 
+        # 是否需要排序
+        if order_by is not None:
+            query = query.order_by(order_by)
+
         pagination = query.paginate(
             page=page,
             per_page=size,
@@ -111,6 +115,8 @@ class ModelBase(db.Model):
         start_time_str = request.json.get('start_time')
         end_time_str = request.json.get('end_time')
         state = request.json.get('state')
+
+        order_by = request.json.get('order_by')
 
         # 双重判断user_id是否为None
         user_id = request.json.get('user_id')
@@ -167,7 +173,10 @@ class ModelBase(db.Model):
         if size > 50:
             log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
             size = 50
-        total, item_list = cls.find_list(city, area, start_time, end_time, state, page, size, filters=filters)
+        total, item_list = cls.find_list(city, area, start_time,
+                                         end_time, state, page,
+                                         size, filters=filters,
+                                         order_by=order_by)
         if total <= 0 or item_list is None:
             return success(package_result(0, []))
         return success(package_result(total, [item.to_dict() for item in item_list]))

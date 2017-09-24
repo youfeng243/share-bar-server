@@ -134,5 +134,6 @@ def get_user_use_records():
     #
     #     "size": 10,
     #     "user_id": 100
+    #     "order_by" "+cost_time" or "-cost_time" or "+cost_money" or "-cost_money"
     # }
     return UseRecord.search_list()
