@@ -18,6 +18,8 @@ json={
 
 /admin/address, method=POST
 Content-Type: application/json
+order_by: - 降序， + 升序
+device_num: 设备数目
 参数:
 json = {
      'page': 1,
@@ -26,6 +28,7 @@ json = {
      'area': xxxx  //这个可选字段，如不填则搜索city字段指定所有地址信息
      'start_time': "2017-07-01 23:23:23", //可选字段 时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
      'end_time': "2017-07-30 23:23:23"  //可选字段时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
+      "order_by" "+device_num" 或者 "-device_num"
 }
 返回
 {

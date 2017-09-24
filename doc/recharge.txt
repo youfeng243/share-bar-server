@@ -1,6 +1,8 @@
 1. 分页查询用户充值信息
 /admin/recharge/list method=POST
 Content-Type: application/json
+order_by: - 降序， + 升序
+amount: 充值金额
 参数
 post = {
      "page": 1,
@@ -8,6 +10,7 @@ post = {
      "user_id": 1,
      "start_time": "2017-07-01 23:23:23",   //可选状态 筛选起始时间
      "end_time": "2017-10-30 23:23:23"      //可选状态  筛选结束时间
+     "order_by" "+amount" or "-amount"
 }
 返回
 {

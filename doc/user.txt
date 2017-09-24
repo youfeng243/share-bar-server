@@ -120,12 +120,16 @@ json = {
 5. 获得用户使用记录
 /admin/user/records, methods=['POST']
 Content-Type: application/json
+order_by: - 降序， + 升序
+cost_time: 消耗时间
+cost_time: 消耗金额
 参数:
 json = {
         "page": 1,
         "size": 10,
         "start_time": "2017-07-01 23:23:23",   //可选状态 筛选起始时间
         "end_time": "2017-10-30 23:23:23"      //可选状态  筛选结束时间
+        "order_by" "+cost_time" or "-cost_time" or "+cost_money" or "-cost_money"
         "user_id": 100
     }
 返回:
