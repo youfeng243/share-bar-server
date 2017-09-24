@@ -14,6 +14,7 @@ SECRET_KEY = '%$%&^%$%&^&^**(*&&^%%$^$'
 SQLALCHEMY_DATABASE_URI = 'mysql://root:000000@localhost:3306/share_bar_db?charset=utf8'
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = True
+REDIS_URI = "redis://localhost:6379"
 WECHAT_APP_ID = "wx9984ca5754273e7d"
 WECHAT_TOKEN = "fsfjdsalkf"
 WECHAT_PAYMENT_SECRET = ""

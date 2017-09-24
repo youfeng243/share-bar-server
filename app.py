@@ -13,7 +13,7 @@ from flask import request
 
 import settings
 from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
-from exts.database import db
+from exts.database import db, redis
 from exts.login_manager import setup_admin_login
 from service.address.view import bp as address_bp
 from service.admin.view import bp as admin_bp
@@ -37,6 +37,9 @@ def create_app(name=None):
 
     # 数据库初始化
     db.init_app(app)
+
+    # redis 初始化
+    redis.init_app(app)
 
     # 管理员登录管理
     setup_admin_login(app)
