@@ -24,3 +24,29 @@ class Redis(object):
 
     def __getattr__(self, name):
         return getattr(self._client, name)
+
+        # def set(self, key, value):
+        #     self._client.set(key, value)
+
+
+# 获得用户上线使用记录key
+def get_record_key(user_id, device_id):
+    record_key = "online#record#{user_id}#{device_id}".format(user_id=user_id, device_id=device_id)
+    return record_key
+
+
+# 获得用户上线key
+def get_user_key(user_id):
+    user_key = "online#player#{}".format(user_id)
+    return user_key
+
+
+# 获得设备上线key
+def get_device_key(device_id):
+    device_key = "online#device#{}".format(device_id)
+    return device_key
+
+
+# 获得token key
+def get_token_key(device_code):
+    return "online#token#{}".format(device_code)

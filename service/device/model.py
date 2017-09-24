@@ -23,8 +23,12 @@ __all__ = ['Deploy']
 class Device(ModelBase):
     __tablename__ = 'device'
 
+    STATE_FREE = 'free'
+    STATE_BUSY = 'busy'
+    STATE_OFFLINE = 'offline'
+
     # 使用状态
-    STATE_VALUES = ('free', 'busy', 'offline')
+    STATE_VALUES = (STATE_FREE, STATE_BUSY, STATE_OFFLINE)
 
     # 设备机器码
     device_code = db.Column(db.String(128), unique=True, index=True)
@@ -39,7 +43,10 @@ class Device(ModelBase):
     income = db.Column(db.Integer, nullable=False, default=0)
 
     # 设备当前使用状态 free 空闲 busy 忙碌  offline 离线
-    state = db.Column(db.Enum(*STATE_VALUES), index=True, default='free')
+    state = db.Column(db.Enum(*STATE_VALUES), index=True, default=STATE_FREE)
+
+    # 计费方式 分/分钟
+    charge_mode = db.Column(db.Integer, default=5)
 
     @classmethod
     def create(cls, device_code, address_id):
@@ -108,6 +115,7 @@ class Device(ModelBase):
             'address': self.address.to_dict(),
             'income': self.income,
             'state': self.state,
+            'charge_mode': self.charge_mode,
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }

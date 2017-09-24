@@ -69,10 +69,57 @@ class UseRecord(ModelBase):
     def __repr__(self):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)
 
+    @classmethod
+    def cal_offline(cls, user_id, device_id, record_id):
+        try:
+            # 获得用户信息
+            user = User.get(user_id)
+
+            # 获得设备信息
+            device = Device.get(device_id)
+
+            # 获得试用记录
+            record = UseRecord.get(record_id)
+
+            # 记录下机时间
+            record.end_time = datetime.now()
+
+            # 设置设备为空闲状态
+            device.state = Device.STATE_FREE
+
+            # 计算花费时间
+            record.cost_time = (record.end_time - record.ctime).seconds // 60
+
+            # 计算花费金钱
+            record.cost_money = record.cost_time * device.charge_mode
+
+            # 计算设备获得的金钱数目
+            device.income += record.cost_money
+
+            # 计算用户花费的钱
+            user.balance_account -= record.cost_money
+            if user.balance_account < 0:
+                user.balance_account = 0
+            user.used_account += record.cost_money
+
+            db.session.add(user)
+            db.session.add(device)
+            db.session.add(record)
+            db.session.commit()
+        except Exception as e:
+            log.error("未知错误: user_id = {} device_id = {} record_id = {}".format(user_id, device_id, record_id))
+            log.exception(e)
+            db.session.rollback()
+            return False
+
+        return True
+
     def to_dict(self):
 
         to_json = {
             'id': self.id,
+            'user_id': self.user_id,
+            'device_id': self.device_id,
             'province': self.province,
             'city': self.city,
             'area': self.area,
@@ -81,7 +128,7 @@ class UseRecord(ModelBase):
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'end_time': self.end_time.strftime('%Y-%m-%d %H:%M:%S'),
-            'cost_time': round(self.cost_time / 60.0, 1)  # 分钟
+            'cost_time': self.cost_time // 60  # 分钟
         }
 
         item = User.get(self.user_id)

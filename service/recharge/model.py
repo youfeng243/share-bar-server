@@ -14,9 +14,9 @@ from sqlalchemy.exc import IntegrityError
 from exts.common import log
 from exts.database import db
 from exts.model_base import ModelBase
+from service.user.model import User
 
 
-# 用户的充值记录
 class Recharge(ModelBase):
     __tablename__ = 'recharge'
 
@@ -27,7 +27,7 @@ class Recharge(ModelBase):
     transaction_id = db.Column(db.String(64), index=True, nullable=False)
 
     # 充值金额
-    amount = db.Column(db.Integer,  index=True, nullable=False)
+    amount = db.Column(db.Integer, index=True, nullable=False)
 
     # 付款时间
     pay_time = db.Column(db.DateTime, default=datetime.now())
@@ -39,7 +39,17 @@ class Recharge(ModelBase):
                        transaction_id=transaction_id,
                        pay_time=pay_time)
 
+        # 账户总额增加
+        user = User.get(user_id)
+        if user is None:
+            log.warn("当前充值用户信息不存在: user_id = {}".format(user_id))
+            return None, False
+
         try:
+            user.balance_account += amount
+            user.total_account += amount
+            user.utime = datetime.now()
+            db.session.add(user)
             db.session.add(recharge)
             db.session.commit()
         except IntegrityError:

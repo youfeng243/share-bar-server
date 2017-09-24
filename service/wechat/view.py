@@ -158,6 +158,8 @@ def notify():
 
         # 订单金额
         total_fee = result.get('total_fee', 0)
+        if total_fee < 0:
+            total_fee = 0
 
         if 'time_end' not in result:
             log.warn('订单返回信息, time_end not in result: {}'.format(json.dumps(result, ensure_ascii=False)))
