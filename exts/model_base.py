@@ -93,7 +93,7 @@ class ModelBase(db.Model):
 
     # 根据条件进行搜索
     @classmethod
-    def search_list(cls):
+    def search_list(cls, _user_id=None):
 
         if not has_request_context():
             log.warn("上下文异常")
@@ -112,9 +112,12 @@ class ModelBase(db.Model):
         end_time_str = request.json.get('end_time')
         state = request.json.get('state')
 
+        # 双重判断user_id是否为None
         user_id = request.json.get('user_id')
         if user_id is not None:
             filters.append(text("user_id={}".format(user_id)))
+        elif _user_id is not None:
+            filters.append(text("user_id={}".format(_user_id)))
 
         device_id = request.json.get('device_id')
         if device_id is not None:

@@ -20,6 +20,7 @@ from service.admin.view import bp as admin_bp
 from service.captcha.view import bp as captcha_bp
 from service.deploy.view import bp as deploy_bp
 from service.device.view import bp as device_bp
+from service.recharge.view import bp as recharge_bp
 from service.role.view import bp as role_bp
 from service.user.view import bp as user_bp
 from service.wechat.view import bp as wechat_bp
@@ -62,6 +63,7 @@ def register_bp(app):
     app.register_blueprint(user_bp)
     app.register_blueprint(wechat_bp)
     app.register_blueprint(captcha_bp)
+    app.register_blueprint(recharge_bp)
 
 
 def _request_log(resp, *args, **kwargs):

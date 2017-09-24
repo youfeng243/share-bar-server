@@ -1,0 +1,36 @@
+1. 分页查询用户充值信息
+/admin/recharge/list method=POST
+Content-Type: application/json
+参数
+post = {
+     "page": 1,
+     "size": 10,
+     "user_id": 1,
+     "start_time": "2017-07-01 23:23:23",   //可选状态 筛选起始时间
+     "end_time": "2017-10-30 23:23:23"      //可选状态  筛选结束时间
+}
+返回
+{
+    "result": {
+        "total": 200,
+        "data": [
+            {
+                'id': self.id,
+                # 用户信息
+                'user': self.user.to_dict(),
+                # 充值金额
+                'amount': self.amount,
+                # 微信交易订单号
+                'transaction_id': self.transaction_id,
+                # 充值时间
+                'pay_time': self.pay_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+                'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            },
+            {},
+            ...
+        ]
+    },
+    "success": true,
+    "error": null
+}
