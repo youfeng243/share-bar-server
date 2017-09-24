@@ -90,9 +90,9 @@ def wechat_login():
             head_img_url, nike_name = get_user_wechat_info(session['access_token'], g.openid)
             log.info("当前用户获取的信息为: openid = {} head = {} nikename = {}".format(
                 g.openid, head_img_url, nike_name))
-            user = User.create(mobile, g.openid,
-                               head_img_url=head_img_url,
-                               nike_name=nike_name)
+            user, is_success = User.create(mobile, g.openid,
+                                           head_img_url=head_img_url,
+                                           nike_name=nike_name)
         elif user.openid != g.openid:
             user.openid = g.openid
             if not user.save():
@@ -167,7 +167,9 @@ def notify():
         pay_time = datetime.strptime(result.time_end, '%Y%m%d%H%M%S')
 
         # 创建充值记录
-        Recharge.create(user_id, total_fee, transaction_id, pay_time)
+        obj, is_success = Recharge.create(user_id, total_fee, transaction_id, pay_time)
+        if not is_success:
+            return fail(HTTP_OK, u"充值记录存储失败!")
 
         return success()
     except Exception as e:
