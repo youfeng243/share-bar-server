@@ -102,7 +102,7 @@ def change_user_state():
 @login_required
 def get_user_by_id(user_id):
     # 先通过手机号码查找
-    user = User.get_user_by_phone(user_id)
+    user = User.get_user_by_mobile(user_id)
     if user is not None:
         return success(user.to_dict())
 

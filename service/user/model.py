@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from exts.common import log
 from exts.database import db
 from exts.model_base import ModelBase
-from service.recharge import Recharge
+from service.recharge.model import Recharge
 
 # 初始化user表前置依赖
 __all__ = ["Recharge"]
@@ -81,8 +81,8 @@ class User(ModelBase):
 
     # 根据手机号码查找用户信息
     @classmethod
-    def get_user_by_phone(cls, phone):
-        return cls.query.filter_by(mobile=phone).first()
+    def get_user_by_mobile(cls, mobile):
+        return cls.query.filter_by(mobile=mobile).first()
 
     # 改变用户使用状态
     def change_state(self, state):

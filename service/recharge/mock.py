@@ -12,11 +12,11 @@
 from datetime import datetime
 
 from exts.common import log
-from service.recharge.model import Recharge
+from service.recharge.impl import RechargeService
 
 
 def gen_recharge():
     for _ in xrange(200):
-        Recharge.create(1, _, _, datetime.now())
+        RechargeService.create(1, _, _, datetime.now())
 
     log.info("创建充值数据完成...")

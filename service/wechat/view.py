@@ -20,6 +20,7 @@ from flask import url_for
 import settings
 from exts.common import log, fail, HTTP_OK, success
 from exts.sms import validate_captcha
+from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.user.model import User
 from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user
@@ -84,7 +85,7 @@ def wechat_login():
 
     # 校验手机验证码
     if validate_captcha(mobile, code):
-        user = User.get_user_by_phone(mobile)
+        user = User.get_user_by_mobile(mobile)
         if user is None:
             # 获得用户的头像与昵称信息
             head_img_url, nike_name = get_user_wechat_info(session['access_token'], g.openid)
@@ -169,7 +170,7 @@ def notify():
         pay_time = datetime.strptime(result.time_end, '%Y%m%d%H%M%S')
 
         # 创建充值记录
-        obj, is_success = Recharge.create(user_id, total_fee, transaction_id, pay_time)
+        obj, is_success = RechargeService.create(user_id, total_fee, transaction_id, pay_time)
         if not is_success:
             return fail(HTTP_OK, u"充值记录存储失败!")
 
