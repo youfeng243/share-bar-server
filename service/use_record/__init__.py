@@ -7,3 +7,7 @@
 @file: __init__.py.py
 @time: 2017/9/5 23:01
 """
+
+from service.user.model import User
+
+__all__ = ['UseRecord', 'User']
