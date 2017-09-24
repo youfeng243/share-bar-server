@@ -7,5 +7,3 @@
 @file: __init__.py.py
 @time: 2017/9/5 22:20
 """
-
-__all__ = ['User']

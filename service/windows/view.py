@@ -16,6 +16,7 @@ from exts.common import fail, HTTP_OK, log, success
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_token_key
 from service.device.model import Device
+from service.use_record.impl import UseRecordService
 from service.use_record.model import UseRecord
 from service.user.model import User
 from tools.wechat_api import wechat_required
@@ -147,7 +148,7 @@ def logout(token):
         log.info("当前下线信息: user_id = {} device_id = {}".format(user_id, device_id))
 
         # 结账下机
-        if not UseRecord.cal_offline(user_id=user_id, device_id=device_id, record_id=record_id):
+        if not UseRecordService.cal_offline(user_id=user_id, device_id=device_id, record_id=record_id):
             return fail(HTTP_OK, u"下机失败！")
 
     except Exception as e:

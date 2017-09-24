@@ -15,7 +15,7 @@ from exts.common import log
 from exts.database import db
 from exts.model_base import ModelBase
 from service.device.model import Device
-from service.user import User
+from service.user.model import User
 
 
 class UseRecord(ModelBase):
@@ -68,51 +68,6 @@ class UseRecord(ModelBase):
 
     def __repr__(self):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)
-
-    @classmethod
-    def cal_offline(cls, user_id, device_id, record_id):
-        try:
-            # 获得用户信息
-            user = User.get(user_id)
-
-            # 获得设备信息
-            device = Device.get(device_id)
-
-            # 获得试用记录
-            record = UseRecord.get(record_id)
-
-            # 记录下机时间
-            record.end_time = datetime.now()
-
-            # 设置设备为空闲状态
-            device.state = Device.STATE_FREE
-
-            # 计算花费时间
-            record.cost_time = (record.end_time - record.ctime).seconds // 60
-
-            # 计算花费金钱
-            record.cost_money = record.cost_time * device.charge_mode
-
-            # 计算设备获得的金钱数目
-            device.income += record.cost_money
-
-            # 计算用户花费的钱
-            user.balance_account -= record.cost_money
-            if user.balance_account < 0:
-                user.balance_account = 0
-            user.used_account += record.cost_money
-
-            db.session.add(user)
-            db.session.add(device)
-            db.session.add(record)
-            db.session.commit()
-        except Exception as e:
-            log.error("未知错误: user_id = {} device_id = {} record_id = {}".format(user_id, device_id, record_id))
-            log.exception(e)
-            db.session.rollback()
-            return False
-
-        return True
 
     def to_dict(self):
 
