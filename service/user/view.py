@@ -15,6 +15,7 @@ from flask_login import login_required
 
 from exts.common import log, fail, HTTP_OK, success
 from service.use_record.model import UseRecord
+from service.user.impl import UserService
 from service.user.model import User
 
 bp = Blueprint('user', __name__, url_prefix='/admin')
@@ -102,7 +103,7 @@ def change_user_state():
 @login_required
 def get_user_by_id(user_id):
     # 先通过手机号码查找
-    user = User.get_user_by_mobile(user_id)
+    user = UserService.get_user_by_mobile(user_id)
     if user is not None:
         return success(user.to_dict())
 

@@ -18,7 +18,7 @@ from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_tok
 from service.device.model import Device
 from service.use_record.impl import UseRecordService
 from service.use_record.model import UseRecord
-from service.user.model import User
+from service.user.impl import UserService
 from tools.wechat_api import wechat_required
 
 bp = Blueprint('windows', __name__, url_prefix='/windows')
@@ -32,7 +32,7 @@ def login(device_code):
         return fail(HTTP_OK, u"请使用微信端进行操作!")
 
     # 获得用户信息
-    user = User.get_by_openid(g.openid)
+    user = UserService.get_by_openid(g.openid)
     if user is None:
         log.warn("当前openid还未绑定手机号码: openid = {}".format(g.openid))
         return fail(HTTP_OK, u"用户还未登录!")

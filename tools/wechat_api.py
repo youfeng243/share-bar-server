@@ -19,7 +19,7 @@ from flask import url_for
 import settings
 from exts.common import fail, log, HTTP_OK
 from exts.database import redis
-from service.user.model import User
+from service.user.impl import UserService
 
 
 def gen_signature(timestamp, nonce, token):
@@ -236,4 +236,4 @@ def get_current_user():
     if openid is None:
         return None
 
-    return User.get_by_openid(openid)
+    return UserService.get_by_openid(openid)

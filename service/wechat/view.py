@@ -22,7 +22,7 @@ from exts.common import log, fail, HTTP_OK, success
 from exts.sms import validate_captcha
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
-from service.user.model import User
+from service.user.impl import UserService
 from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
@@ -40,7 +40,7 @@ def menu(name):
         return "Login Failed"
 
     # 如果没有注册，则先进入注册流程
-    user = User.get_by_openid(g.openid)
+    user = UserService.get_by_openid(g.openid)
     if user is None:
         log.info("账户还没注册, 需要进入登录流程..")
         return redirect('/login')
@@ -85,15 +85,15 @@ def wechat_login():
 
     # 校验手机验证码
     if validate_captcha(mobile, code):
-        user = User.get_user_by_mobile(mobile)
+        user = UserService.get_user_by_mobile(mobile)
         if user is None:
             # 获得用户的头像与昵称信息
             head_img_url, nike_name = get_user_wechat_info(session['access_token'], g.openid)
             log.info("当前用户获取的信息为: openid = {} head = {} nikename = {}".format(
                 g.openid, head_img_url, nike_name))
-            user, is_success = User.create(mobile, g.openid,
-                                           head_img_url=head_img_url,
-                                           nike_name=nike_name)
+            user, is_success = UserService.create(mobile, g.openid,
+                                                  head_img_url=head_img_url,
+                                                  nike_name=nike_name)
         elif user.openid != g.openid:
             user.openid = g.openid
             if not user.save():

@@ -11,7 +11,7 @@
 # 生成数据
 
 from exts.common import log
-from service.user.model import User
+from service.user.impl import UserService
 
 
 def gen_user():
@@ -19,6 +19,6 @@ def gen_user():
         num = 100 + _
         phone = '13532369{}'.format(num)
 
-        User.create(phone, str(num), str(num))
+        UserService.create(phone, str(num), str(num))
 
     log.info("创建用户数据完成...")

@@ -7,9 +7,7 @@
 @file: user.py
 @time: 2017/8/29 17:58
 """
-from sqlalchemy.exc import IntegrityError
 
-from exts.common import log
 from exts.database import db
 from exts.model_base import ModelBase
 from service.recharge.model import Recharge
@@ -53,36 +51,6 @@ class User(ModelBase):
 
     # 删除用户
     deleted = db.Column(db.Boolean, default=False)
-
-    @classmethod
-    def create(cls, mobile, openid, nike_name="", head_img_url=""):
-        user = cls(mobile=mobile,
-                   openid=openid,
-                   nike_name=nike_name,
-                   head_img_url=head_img_url)
-
-        try:
-            db.session.add(user)
-            db.session.commit()
-        except IntegrityError:
-            log.error("主键重复: mobile = {}".format(mobile))
-            db.session.rollback()
-            return None, False
-        except Exception as e:
-            log.error("未知插入错误: mobile = {}".format(mobile))
-            log.exception(e)
-            return None, False
-        return user, True
-
-    # 根据微信ID 获取用户信息
-    @classmethod
-    def get_by_openid(cls, openid):
-        return cls.query.filter_by(openid=openid).first()
-
-    # 根据手机号码查找用户信息
-    @classmethod
-    def get_user_by_mobile(cls, mobile):
-        return cls.query.filter_by(mobile=mobile).first()
 
     # 改变用户使用状态
     def change_state(self, state):
