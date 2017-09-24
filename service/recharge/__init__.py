@@ -8,5 +8,4 @@
 @time: 2017/9/5 21:59
 """
 
-from service.recharge.model import Recharge
-__all__ = ['User', 'Recharge']
+__all__ = ['Recharge']
