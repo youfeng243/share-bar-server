@@ -12,6 +12,7 @@ from service.address.mock import gen_address
 from service.admin.mock import gen_admin
 from service.admin.model import Admin
 from service.deploy.mock import gen_deploy_test
+from service.recharge.mock import gen_recharge
 from service.role.mock import gen_role
 from service.role.model import Role
 from service.use_record.mock import gen_use_record
@@ -72,6 +73,9 @@ def syncdb():
 
         # 创建用户使用记录
         gen_use_record()
+
+        # 生成充值数据
+        gen_recharge()
 
         print '数据库创建完成...'
 
