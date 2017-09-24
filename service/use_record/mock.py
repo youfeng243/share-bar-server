@@ -16,6 +16,8 @@ from service.use_record.model import UseRecord
 
 def gen_use_record():
     for _ in xrange(200):
-        UseRecord.create(1, 1, "广东省", "深圳市", "南山区", "芒果网大厦")
+        use_record = UseRecord.create(1, 1, "广东省", "深圳市", "南山区", "芒果网大厦")
+        use_record.cost_money = _
+        use_record.cost_time = _
 
     log.info("创建使用记录数据完成...")
