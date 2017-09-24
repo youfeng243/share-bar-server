@@ -39,7 +39,7 @@ class Device(ModelBase):
     income = db.Column(db.Integer, nullable=False, default=0)
 
     # 设备当前使用状态 free 空闲 busy 忙碌  offline 离线
-    state = db.Column(db.Enum(*STATE_VALUES), nullable=False, index=True, default='free')
+    state = db.Column(db.Enum(*STATE_VALUES), index=True, default='free')
 
     @classmethod
     def create(cls, device_code, address_id):

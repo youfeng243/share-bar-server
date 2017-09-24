@@ -40,10 +40,13 @@ class UseRecord(ModelBase):
     location = db.Column(db.String(128), nullable=False)
 
     # 花费的金额
-    cost_money = db.Column(db.Integer, nullable=False, default=0)
+    cost_money = db.Column(db.Integer, nullable=False, index=True, default=0)
 
     # 下机时间 数据初始化时以创建时间为结束时间
     end_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
+
+    # 花费时间 秒为单位
+    cost_time = db.Column(db.Integer, nullable=False, index=True, default=0)
 
     @classmethod
     def create(cls, user_id, device_id, province, city, area, location):
@@ -78,7 +81,7 @@ class UseRecord(ModelBase):
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'end_time': self.end_time.strftime('%Y-%m-%d %H:%M:%S'),
-            'cost_time': round((self.end_time - self.ctime).seconds / 60.0, 1)  # 分钟
+            'cost_time': round(self.cost_time / 60.0, 1)  # 分钟
         }
 
         item = User.get(self.user_id)

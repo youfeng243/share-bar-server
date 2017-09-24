@@ -27,7 +27,7 @@ class Recharge(ModelBase):
     transaction_id = db.Column(db.String(64), index=True, nullable=False)
 
     # 充值金额
-    amount = db.Column(db.Integer, nullable=False)
+    amount = db.Column(db.Integer,  index=True, nullable=False)
 
     # 付款时间
     pay_time = db.Column(db.DateTime, default=datetime.now())
