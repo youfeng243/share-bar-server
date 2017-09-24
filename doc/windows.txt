@@ -1,0 +1,47 @@
+1. 扫码登录
+http://weixin.doumihuyu.com/windows/login/<device_code>, GET
+参数:
+device_code: 机器mac地址
+返回:
+{
+    'success': True,
+    'result': 'success',
+    'error': None
+}
+
+2. 下线接口
+http://weixin.doumihuyu.com/windows/logout/<token>, GET
+参数:
+token: 服务端返回的登录后token
+返回:
+{
+    'success': True,
+    'result': {'status': 1,
+                    'msg': 'logout successed!'}
+    'error': None
+}
+
+3. 心跳接口
+http://weixin.doumihuyu.com/windows/keepalive/<token>, GET
+参数:
+token: 服务端返回的登录后token
+返回:
+{
+    'success': True,
+    'result': {"status": 1,
+                "msg": "keepalive success",
+                "data": json.loads(record_json)}
+    'error': None
+}
+
+4. 校验是否登录接口
+http://weixin.doumihuyu.com/windows/check/<device_code>, GET
+参数:
+device_code: 机器mac地址
+返回:
+{"status": 1, "token": record_key, "msg": "login successed!"}
+{
+    'success': True,
+    'result': {"status": 1, "token": record_key, "msg": "login successed!"}
+    'error': None
+}
