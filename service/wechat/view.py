@@ -22,6 +22,7 @@ from exts.common import log, fail, HTTP_OK, success
 from exts.sms import validate_captcha
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
+from service.use_record.model import UseRecord
 from service.user.impl import UserService
 from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user
 from tools.wx_pay import WxPay, WxPayError
@@ -262,4 +263,14 @@ def get_recharge_list():
 
     return Recharge.search_list(_user_id=user.id)
 
+
 # 消费记录列表
+@bp.route("/expense/list", methods=['POST'])
+@wechat_required
+def get_expense_list():
+    user = get_current_user()
+    if user is None:
+        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+        return fail(HTTP_OK, u'没有当前用户信息')
+
+    return UseRecord.search_list(_user_id=user.id)

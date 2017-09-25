@@ -124,3 +124,44 @@ post = {
     'result': 0,
     'error': xxxx
 }
+
+7. 查询用户消费记录信息
+/wechat/expense/list method=POST
+Content-Type: application/json
+参数
+post = {
+     "page": 1,
+     "size": 10,
+     "start_time": "2017-07-01 23:23:23",   //可选状态 筛选起始时间
+     "end_time": "2017-10-30 23:23:23"      //可选状态  筛选结束时间
+}
+返回
+{
+    "result": {
+        "total": 200,
+        "data": [
+            {
+               'id': self.id,
+                'user_id': self.user_id,
+                'device_id': self.device_id,
+                'province': self.province,
+                'city': self.city,
+                'area': self.area,
+                'location': self.location,
+                # 消费金额
+                'cost_money': self.cost_money,
+                # 起始消费时间
+                'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+                'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+                # 下机时间
+                'end_time': self.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+                # 这次消费花费的时间
+                'cost_time': self.cost_time // 60  # 分钟
+            },
+            {},
+            ...
+        ]
+    },
+    "success": true,
+    "error": null
+}
