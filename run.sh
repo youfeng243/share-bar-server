@@ -33,6 +33,8 @@ stop() {
     ps -ef | grep -v grep | grep 'wsgi:application' | awk '{print $2}' | xargs kill -9
     rm -rf ${project}.pid
 
+    ps -ef | grep -v grep | grep 'process_access_token' | grep python | awk '{print $2}' | xargs kill -9
+
 	echo "${project} stop success..."
 	return 1
 }
