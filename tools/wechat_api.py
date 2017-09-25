@@ -223,10 +223,15 @@ def get_nonce_str(n):
 
 # 获得用户头像和昵称信息
 def get_user_wechat_info(access_token, openid):
-    url = "https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}&lang=zh_CN". \
-        format(access_token, openid)
     head_img_url = ""
     nick_name = ""
+    if access_token is None or openid is None:
+        log.warn("access_token or openid = None, 无法获取头像昵称信息...")
+        return head_img_url, nick_name
+
+    url = "https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}&lang=zh_CN". \
+        format(access_token, openid)
+
     try:
         resp = requests.get(url, verify=False, timeout=30)
         if resp.status_code != 200:

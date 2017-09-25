@@ -105,7 +105,8 @@ def wechat_login():
         user = UserService.get_user_by_mobile(mobile)
         if user is None:
             # 获得用户的头像与昵称信息
-            head_img_url, nike_name = get_user_wechat_info(session['access_token'], g.openid)
+            access_token = session.get('session')
+            head_img_url, nike_name = get_user_wechat_info(access_token, g.openid)
             log.info("当前用户获取的信息为: openid = {} head = {} nikename = {}".format(
                 g.openid, head_img_url, nike_name))
             user, is_success = UserService.create(mobile, g.openid,
