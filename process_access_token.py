@@ -69,8 +69,9 @@ def main():
     SLEEP_TIME = 30
     while True:
         try:
-            value = redis_client.ttl(ACCESS_TOKEN_KEY)
-            if value <= LAST_TIME:
+            ttl = redis_client.ttl(ACCESS_TOKEN_KEY)
+            log.info("当前key存活时间: key = {} ttl = {}".format(ACCESS_TOKEN_KEY, ttl))
+            if ttl <= LAST_TIME:
                 log.info("开始获取token...")
                 update_access_token()
                 log.info("获取token结束...")
