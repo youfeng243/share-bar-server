@@ -8,7 +8,7 @@
 @time: 2017/9/20 14:13
 """
 import json
-from datetime import datetime, time
+from datetime import datetime
 
 from flask import Blueprint
 from flask import g
@@ -224,6 +224,7 @@ def recharge(account):
         # wx_notify_url 开发详见https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
     )
     try:
+        log.info("当前支付用户ID = {}".format(user.id))
         pay_data = wx_pay.js_pay_api(
             openid=user.openid,  # 付款用户openid
             body=u'Account Recharge',  # 例如：饭卡充值100元
