@@ -16,7 +16,7 @@ import requests
 import settings
 from logger import Logger
 
-log = Logger('process_access_token.log').get_logger()
+log = Logger('process_weixin_cache.log').get_logger()
 
 try:
     redis_client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=32)
@@ -27,6 +27,9 @@ except Exception as e:
 
 # 在redis中的key
 ACCESS_TOKEN_KEY = "global:access_token"
+
+# 在redis中的key
+JSAPI_TICKET_KEY = "global:jsapi_ticket"
 
 # 最后剩余阈值
 LAST_TIME = 300
@@ -56,6 +59,8 @@ def update_access_token():
 
         # 设置redis
         redis_client.setex(ACCESS_TOKEN_KEY, expires_in, access_token)
+
+        return True
     except Exception as e:
         log.error("访问token链接失败:")
         log.exception(e)
@@ -63,8 +68,46 @@ def update_access_token():
     return False
 
 
+def update_ticket():
+    access_token = redis_client.get(ACCESS_TOKEN_KEY)
+    url = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token={}&type=jsapi'.format(access_token)
+
+    try:
+        resp = requests.get(url, verify=False, timeout=30)
+        if resp.status_code != 200:
+            log.error("ticket访问状态码不正确: status_code = {}".format(resp.status_code))
+            return False
+
+        json_data = json.loads(resp.text)
+        errcode = json_data.get('errcode')
+        if errcode != 0:
+            log.error("更新jsapi_ticket错误码不正确: {}".format(resp.text))
+            return False
+
+        ticket = json_data.get('ticket')
+        expires_in = json_data.get('expires_in')
+        if not isinstance(ticket, basestring) or not isinstance(expires_in, int):
+            log.error("ticket解析出来的数据类型不正确: {}".format(resp.text))
+            return False
+
+        if expires_in <= 0:
+            log.error("ticket过期时间不正确: {}".format(expires_in))
+            return False
+
+        log.info("成功获取ticket: ticket = {} expires_in = {}".format(ticket, expires_in))
+
+        # 设置redis
+        redis_client.setex(JSAPI_TICKET_KEY, expires_in, ticket)
+
+        return True
+    except Exception as e:
+        log.error("访问ticket链接失败:")
+        log.exception(e)
+    return False
+
+
 def main():
-    log.info("开始启动access_token刷新进程...")
+    log.info("开始启动缓存刷新进程...")
     # 30秒轮询一次
     SLEEP_TIME = 30
     while True:
@@ -75,6 +118,13 @@ def main():
                 log.info("开始获取token...")
                 update_access_token()
                 log.info("获取token结束...")
+
+            ttl = redis_client.ttl(JSAPI_TICKET_KEY)
+            log.info("当前key存活时间: key = {} ttl = {}".format(JSAPI_TICKET_KEY, ttl))
+            if ttl <= LAST_TIME:
+                log.info("开始获取jsapi_ticket...")
+                update_ticket()
+                log.info("获取jsapi_ticket结束...")
 
         except Exception as e:
             log.error("程序异常:")
