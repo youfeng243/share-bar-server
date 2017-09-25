@@ -300,6 +300,7 @@ def get_jsapi_signature():
         log.warn("没有jsapi_ticket: openid = {}".format(g.openid))
         return fail(HTTP_OK, u'没有jsapi_ticket')
 
+    import time
     timestamp = int(time.time())
     nonceStr = get_nonce_str(31)
     signature = gen_jsapi_signature(timestamp, nonceStr, jsapi_ticket, url)
