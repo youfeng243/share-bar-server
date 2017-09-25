@@ -54,7 +54,8 @@ def syncdb():
         Admin.create(SUPER_USER, SUPER_PASS, SUPER_NAME, Role.get_by_name(Role.SUPER_ADMIN).id)
         print "超级管理员角色创建完成..."
 
-    if settings.DEBUG:
+    # 判断是否生成数据
+    if settings.MOCK:
         print '当前为测试状态，需要生成测试数据...'
         # 创建地址数据
         gen_address()
