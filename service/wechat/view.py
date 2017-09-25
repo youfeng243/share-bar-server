@@ -138,7 +138,7 @@ def get_user_info():
 @bp.route("/notify", methods=['POST', 'GET'])
 def notify():
     data = XMLData.parse(request.data)
-
+    log.info("进入支付响应回调...")
     if data.return_code != 'SUCCESS' or data.result_code == 'SUCCESS':
         log.warn("支付失败: {}".format(json.dumps(data, ensure_ascii=False)))
         return fail(HTTP_OK, '支付失败!')
