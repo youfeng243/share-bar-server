@@ -64,10 +64,17 @@ class WxPay(object):
         参考微信签名生成算法
         https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=4_3
         """
-        raw = [(k, str(raw[k]) if isinstance(raw[k], (int, float)) else raw[k]) for k in sorted(raw.keys())]
-        s = "&".join("=".join(kv) for kv in raw if kv[1])
-        s += "&key={0}".format(self.WX_MCH_KEY)
-        return hashlib.md5(self.to_utf8(s)).hexdigest().upper()
+        # raw = [(k, str(raw[k]) if isinstance(raw[k], (int, float)) else raw[k]) for k in sorted(raw.keys())]
+        # s = "&".join("=".join(kv) for kv in raw if kv[1])
+        # s += "&key={0}".format(self.WX_MCH_KEY)
+        # return hashlib.md5(self.to_utf8(s)).hexdigest().upper()
+
+        args = raw.items()
+        result = sorted(args, cmp=lambda x, y: cmp(x[0], y[0]))
+        result = ['%s=%s' % (key, value) for key, value in result if value != '']
+        to_hash = '%s&key=%s' % ('&'.join(result), self.WX_MCH_KEY)
+        hashed = hashlib.md5(to_hash).hexdigest()
+        return hashed.upper()
 
     def check(self, raw):
         """
