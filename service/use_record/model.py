@@ -69,6 +69,22 @@ class UseRecord(ModelBase):
     def __repr__(self):
         return '<UseRecord {} {}>'.format(self.user_id, self.device_id)
 
+    # 得到上机数据
+    def to_charging(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'device_id': self.device_id,
+            # 花费金额数目
+            'cost_money': self.cost_money,
+            # 上机时间
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            # 更新时间，主要用户同步计费
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            # 已经上机时间
+            'cost_time': self.cost_time
+        }
+
     def to_dict(self):
 
         to_json = {

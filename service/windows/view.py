@@ -82,8 +82,15 @@ def login(device_code):
             log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"上机记录创建失败!")
 
+        # 获得计费结构体
+        charging = record.to_charging()
+        # 得到计费方式
+        charging['charge_mode'] = device.charge_mode
+        # 得到当前用户总额
+        charging['balance_account'] = user.balance_account
+
         # 开始上线 把上线信息存储redis
-        redis.set(record_key, json.dumps(record.to_dict()))
+        redis.set(record_key, json.dumps(charging))
         redis.set(user_key, record.id)
         redis.set(device_key, record.id)
         # 根据设备机器码获得记录token
@@ -113,8 +120,8 @@ def check(device_code):
 # 心跳
 @bp.route('/keepalive/<token>', methods=['GET'])
 def keep_alive(token):
-    record_json = redis.get(token)
-    if record_json is None:
+    charging = redis.get(token)
+    if charging is None:
         return success({
             "status": 0,
             "msg": "keepalive failed!reason:token invalid"})
@@ -123,9 +130,9 @@ def keep_alive(token):
         return success({
             "status": 1,
             "msg": "keepalive success",
-            "data": json.loads(record_json)})
+            "data": json.loads(charging)})
     except Exception as e:
-        log.error("json 加载失败: {}".format(record_json))
+        log.error("json 加载失败: {}".format(charging))
         log.exception(e)
 
     return fail(HTTP_OK, u"json 数据解析失败!")
@@ -134,25 +141,30 @@ def keep_alive(token):
 # 下线
 @bp.route('/logout/<token>', methods=['GET'])
 def logout(token):
-    record_json = redis.get(token)
-    if record_json is None:
+    charging = redis.get(token)
+    if charging is None:
         return success({
             'status': 0,
             'msg': "logout failed! reason: user device is already offline"})
 
     try:
-        record_dict = json.loads(record_json)
-        record_id = record_dict.get('id')
-        user_id = record_dict.get('user_id')
-        device_id = record_dict.get('device_id')
-        log.info("当前下线信息: user_id = {} device_id = {}".format(user_id, device_id))
+        charge_dict = json.loads(charging)
+        record_id = charge_dict.get('id')
+        user_id = charge_dict.get('user_id')
+        device_id = charge_dict.get('device_id')
+        charge_mode = charge_dict.get('charge_mode')
+        log.info("当前下线信息: user_id = {} device_id = {} charge_mode = {}".format(
+            user_id, device_id, charge_mode))
 
         # 结账下机
-        if not UseRecordService.cal_offline(user_id=user_id, device_id=device_id, record_id=record_id):
+        if not UseRecordService.cal_offline(user_id=user_id,
+                                            device_id=device_id,
+                                            record_id=record_id,
+                                            charge_mode=charge_mode):
             return fail(HTTP_OK, u"下机失败！")
 
     except Exception as e:
-        log.error("数据解析失败: {}".format(record_json))
+        log.error("数据解析失败: {}".format(charging))
         log.exception(e)
         return fail(HTTP_OK, u"数据解析失败!!")
 

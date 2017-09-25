@@ -18,7 +18,7 @@ from service.user.model import User
 
 class UseRecordService(object):
     @staticmethod
-    def cal_offline(user_id, device_id, record_id):
+    def cal_offline(user_id, device_id, record_id, charge_mode):
         try:
             # 获得用户信息
             user = User.get(user_id)
@@ -39,7 +39,7 @@ class UseRecordService(object):
             record.cost_time = (record.end_time - record.ctime).seconds // 60
 
             # 计算花费金钱
-            record.cost_money = record.cost_time * device.charge_mode
+            record.cost_money = record.cost_time * charge_mode
 
             # 计算设备获得的金钱数目
             device.income += record.cost_money
