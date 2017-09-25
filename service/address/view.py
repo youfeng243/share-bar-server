@@ -27,26 +27,31 @@ def delete_address():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
 
-    a_id = request.json.get('id', None)
-    if a_id is None:
-        log.warn("传入参数错误: addr_id = {} ".format(a_id))
-        return fail(HTTP_OK, u"传入参数错误!")
+    id_list = request.json.get('list', None)
+    if not isinstance(id_list, list):
+        log.warn("参数错误: id_list = {}".format(id_list))
+        return fail(HTTP_OK, u"传入不是id列表")
 
-    # 查找地址是否已经存在
-    address = Address.get(a_id)
-    if address is None:
-        log.warn("地址信息不存在: {}".format(a_id))
-        return fail(HTTP_OK, u"地址信息不存在!")
+    result_list = []
+    for address_id in id_list:
+        # 查找地址是否已经存在
+        address = Address.get(address_id)
+        if address is None:
+            log.warn("地址信息不存在: {}".format(address_id))
+            continue
 
-    # 如果改地址管理的设备数目不为0 则不能删除
-    if address.device_num > 0:
-        return fail(HTTP_OK, u"与该地址关联的设备数目不为0")
+        # 如果改地址管理的设备数目不为0 则不能删除
+        if address.device_num > 0:
+            log.warn("当前地址关联的设备数不为0，不能删除: address_id = {}".format(address_id))
+            continue
 
-    # 判断是否删除成功
-    if not address.delete():
-        log.warn("地址信息删除失败: {}".format(json.dumps(address.to_dict(), ensure_ascii=False)))
-        return fail(HTTP_OK, u"删除地址信息失败!")
-    return success(address.to_dict())
+        # 判断是否删除成功
+        if not address.delete():
+            log.warn("地址信息删除失败: {}".format(json.dumps(address.to_dict(), ensure_ascii=False)))
+            continue
+
+        result_list.append(address_id)
+    return success(result_list)
 
 
 # 分页获取全部地址列表 [finish]
