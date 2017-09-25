@@ -165,3 +165,25 @@ post = {
     "success": true,
     "error": null
 }
+
+8. 获得wx.config
+/wechat/jsapi/signature, methods=['POST']
+Content-Type: application/json
+参数
+post = {
+     "url": xxxx
+}
+
+返回
+{
+    "result": {
+        'debug': True,
+        'appId': settings.WECHAT_APP_ID,
+        'timestamp': timestamp,
+        'nonceStr': nonceStr,
+        'signature': signature,
+        'jsApiList': ['scanQRCode']
+    }
+    "success": true,
+    "error": null
+}

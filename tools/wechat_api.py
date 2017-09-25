@@ -30,6 +30,21 @@ def gen_signature(timestamp, nonce, token):
     return signature
 
 
+# 生成jsapi签名
+def gen_jsapi_signature(timestamp, nonce, jsapi_ticket, url):
+    params = {
+        'noncestr': nonce,
+        'jsapi_ticket': jsapi_ticket,
+        'timestamp': str(timestamp),
+        'url': url
+    }
+    result = sorted(params.items(), key=lambda item: item[0])
+    result_list = ['{}={}'.format(k, v) for k, v in result]
+    to_hash = '&'.join(result_list)
+    signature = hashlib.sha1(to_hash).hexdigest()
+    return signature
+
+
 # 微信心跳校验
 def check_signature(func):
     @wraps(func)

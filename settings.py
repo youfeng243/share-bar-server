@@ -21,6 +21,12 @@ WECHAT_PAYMENT_SECRET = ""
 WECHAT_APP_SECRET = "9ed565f37130030341086824b2eeca43"
 WECHAT_MCH_ID = ""
 
+# 在redis中的key
+WECHAT_ACCESS_TOKEN_KEY = "global:access_token"
+
+# 在redis中的key
+WECHAT_JSAPI_TICKET_KEY = "global:jsapi_ticket"
+
 # 蓝灯sms
 LEANCLOUD_ID = None
 LEANCLOUD_KEY = None

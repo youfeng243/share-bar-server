@@ -8,7 +8,7 @@
 @time: 2017/9/20 14:13
 """
 import json
-from datetime import datetime
+from datetime import datetime, time
 
 from flask import Blueprint
 from flask import g
@@ -19,12 +19,13 @@ from flask import url_for
 
 import settings
 from exts.common import log, fail, HTTP_OK, success
+from exts.database import redis
 from exts.sms import validate_captcha
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
-from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user
+from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, get_nonce_str, gen_jsapi_signature
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
 
@@ -274,3 +275,42 @@ def get_expense_list():
         return fail(HTTP_OK, u'没有当前用户信息')
 
     return UseRecord.search_list(_user_id=user.id)
+
+
+# 获得wx.config
+@bp.route("/jsapi/signature", methods=['POST'])
+@wechat_required
+def get_jsapi_signature():
+    user = get_current_user()
+    if user is None:
+        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+        return fail(HTTP_OK, u'没有当前用户信息')
+
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    url = request.json.get('url')
+    if url is None:
+        log.warn("没有传入url 参数: {}".format(json.dumps(request.json, ensure_ascii=False)))
+        return fail(HTTP_OK, u"没有传入url参数!")
+
+    jsapi_ticket = redis.get(settings.WECHAT_JSAPI_TICKET_KEY)
+    if jsapi_ticket is None:
+        log.warn("没有jsapi_ticket: openid = {}".format(g.openid))
+        return fail(HTTP_OK, u'没有jsapi_ticket')
+
+    timestamp = int(time.time())
+    nonceStr = get_nonce_str(31)
+    signature = gen_jsapi_signature(timestamp, nonceStr, jsapi_ticket, url)
+    config = {
+        'debug': True,
+        'appId': settings.WECHAT_APP_ID,
+        'timestamp': timestamp,
+        'nonceStr': nonceStr,
+        'signature': signature,
+        'jsApiList': ['scanQRCode']
+    }
+
+    log.info("当前openid获取的wx.config = {}".format(json.dumps(config, ensure_ascii=False)))
+    return success(config)

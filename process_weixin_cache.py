@@ -25,12 +25,6 @@ except Exception as e:
     log.exception(e)
     exit(0)
 
-# 在redis中的key
-ACCESS_TOKEN_KEY = "global:access_token"
-
-# 在redis中的key
-JSAPI_TICKET_KEY = "global:jsapi_ticket"
-
 # 最后剩余阈值
 LAST_TIME = 300
 
@@ -58,7 +52,7 @@ def update_access_token():
         log.info("成功获取token: access_token = {} expires_in = {}".format(access_token, expires_in))
 
         # 设置redis
-        redis_client.setex(ACCESS_TOKEN_KEY, expires_in, access_token)
+        redis_client.setex(settings.WECHAT_ACCESS_TOKEN_KEY, expires_in, access_token)
 
         return True
     except Exception as e:
@@ -69,7 +63,7 @@ def update_access_token():
 
 
 def update_ticket():
-    access_token = redis_client.get(ACCESS_TOKEN_KEY)
+    access_token = redis_client.get(settings.WECHAT_ACCESS_TOKEN_KEY)
     url = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token={}&type=jsapi'.format(access_token)
 
     try:
@@ -97,7 +91,7 @@ def update_ticket():
         log.info("成功获取ticket: ticket = {} expires_in = {}".format(ticket, expires_in))
 
         # 设置redis
-        redis_client.setex(JSAPI_TICKET_KEY, expires_in, ticket)
+        redis_client.setex(settings.WECHAT_JSAPI_TICKET_KEY, expires_in, ticket)
 
         return True
     except Exception as e:
@@ -112,15 +106,15 @@ def main():
     SLEEP_TIME = 30
     while True:
         try:
-            ttl = redis_client.ttl(ACCESS_TOKEN_KEY)
-            log.info("当前key存活时间: key = {} ttl = {}".format(ACCESS_TOKEN_KEY, ttl))
+            ttl = redis_client.ttl(settings.WECHAT_ACCESS_TOKEN_KEY)
+            log.info("当前key存活时间: key = {} ttl = {}".format(settings.WECHAT_ACCESS_TOKEN_KEY, ttl))
             if ttl <= LAST_TIME:
                 log.info("开始获取token...")
                 update_access_token()
                 log.info("获取token结束...")
 
-            ttl = redis_client.ttl(JSAPI_TICKET_KEY)
-            log.info("当前key存活时间: key = {} ttl = {}".format(JSAPI_TICKET_KEY, ttl))
+            ttl = redis_client.ttl(settings.WECHAT_JSAPI_TICKET_KEY)
+            log.info("当前key存活时间: key = {} ttl = {}".format(settings.WECHAT_JSAPI_TICKET_KEY, ttl))
             if ttl <= LAST_TIME:
                 log.info("开始获取jsapi_ticket...")
                 update_ticket()
