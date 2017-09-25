@@ -2,16 +2,17 @@
 
 /admin/address, method=DELETE
 Content-Type: application/json
-参数:
-json={
-    id:'xxxx'
+参数
+json = {
+     "list": [1,2,3,4,5]   //地址ID
 }
-
 返回
 {
-    'success': True,
-    'error': None,
-    'result': 'xxxx'
+    "result": [
+        1,2,3,4,5  //成功被删除的地址ID信息
+    ],
+    "success": true,
+    "error": null
 }
 
 2. 分页获取地址信息，符合查询，城市区域 时间范围查询 表中数据总数目由total字段返回，这里total是总数目，并不是返回数据的数目
