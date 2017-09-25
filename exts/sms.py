@@ -21,7 +21,7 @@ def sms_default_callback(session, resp):
 def request_sms(mobile):
     if settings.DEBUG:
         log.info("当前处于调试状态，不进行短信验证码验证...")
-        return False
+        return True
 
     data = {'mobilePhoneNumber': mobile}
     log.info('requestSms: %s', mobile)

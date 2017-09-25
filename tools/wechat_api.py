@@ -194,6 +194,7 @@ def wechat_required(func):
                     session['access_token'] = access_token
 
                 g.openid = openid
+                g.access_token = access_token
                 log.info("获得openid成功: {}".format(openid))
                 return func(*args, **kwargs)
             except Exception as e:
