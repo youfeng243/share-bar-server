@@ -16,6 +16,10 @@ start() {
     .venv/bin/pip install -U pip
     .venv/bin/pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
     .venv/bin/gunicorn -c ${config} wsgi:application
+
+    # 启动access_token进程
+    nohup .venv/bin/python process_access_token.py > /dev/null 2>&1 &
+
     echo "${project} start success..."
 }
 
