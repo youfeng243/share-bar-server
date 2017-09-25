@@ -10,7 +10,7 @@
 
 DEBUG = True
 TESTING = True
-MOCK = True
+MOCK = False
 SECRET_KEY = '%$%&^%$%&^&^**(*&&^%%$^$'
 SQLALCHEMY_DATABASE_URI = 'mysql://root:000000@localhost:3306/share_bar_db?charset=utf8'
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
