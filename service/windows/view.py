@@ -88,6 +88,8 @@ def login(device_code):
         charging['charge_mode'] = device.charge_mode
         # 得到当前用户总额
         charging['balance_account'] = user.balance_account
+        # 填充设备机器码
+        charging['device_code'] = device_code
 
         # 开始上线 把上线信息存储redis
         redis.set(record_key, json.dumps(charging))
@@ -153,8 +155,9 @@ def logout(token):
         user_id = charge_dict.get('user_id')
         device_id = charge_dict.get('device_id')
         charge_mode = charge_dict.get('charge_mode')
-        log.info("当前下线信息: user_id = {} device_id = {} charge_mode = {}".format(
-            user_id, device_id, charge_mode))
+        device_code = charge_dict.get('device_code')
+        log.info("当前下线信息: user_id = {} device_id = {} charge_mode = {} device_code = {}".format(
+            user_id, device_id, charge_mode, device_code))
 
         # 结账下机
         if not UseRecordService.cal_offline(user_id=user_id,
@@ -162,6 +165,21 @@ def logout(token):
                                             record_id=record_id,
                                             charge_mode=charge_mode):
             return fail(HTTP_OK, u"下机失败！")
+
+            # 判断是否已经在redis中进行记录
+        record_key = get_record_key(user_id, device_id)
+        # 获得用户上线key
+        user_key = get_user_key(user_id)
+        # 获得设备上线key
+        device_key = get_device_key(device_id)
+        # 获得当前设备token
+        token_key = get_token_key(device_code)
+
+        # 从redis中删除上机记录
+        redis.delete(record_key)
+        redis.delete(user_key)
+        redis.delete(device_key)
+        redis.delete(token_key)
 
     except Exception as e:
         log.error("数据解析失败: {}".format(charging))
