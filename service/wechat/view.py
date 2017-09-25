@@ -64,6 +64,21 @@ def menu(name):
     return fail(HTTP_OK, u"url error!")
 
 
+# 判断当前用户是否已经登录
+@bp.route('/check', methods=['GET'])
+def wechat_check():
+    if 'openid' not in session:
+        return fail(HTTP_OK, u"当前用户没有openid!", -1)
+
+    openid = session.get('openid')
+    user = UserService.get_by_openid(openid)
+    if user is None:
+        log.info("当前openid没有注册用户信息: {}".format(openid))
+        return fail(HTTP_OK, u"当前openid没有注册!", 0)
+
+    return success()
+
+
 # 用户登录
 @bp.route('/login', methods=['POST'])
 @wechat_required
@@ -246,3 +261,5 @@ def get_recharge_list():
         return fail(HTTP_OK, u'没有当前用户信息')
 
     return Recharge.search_list(_user_id=user.id)
+
+# 消费记录列表

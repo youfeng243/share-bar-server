@@ -58,7 +58,7 @@ json = {
 
 
 4. 微信端充值接口
-/recharge/<int:account>, methods=['GET']
+/wechat/recharge/<int:account>, methods=['GET']
 返回:
 {
     "success": true,
@@ -67,7 +67,7 @@ json = {
 }
 
 5. 分页查询用户充值信息
-/recharge/list method=POST
+/wechat/recharge/list method=POST
 Content-Type: application/json
 参数
 post = {
@@ -100,4 +100,27 @@ post = {
     },
     "success": true,
     "error": null
+}
+
+6. 判断当前用户是否已经注册或者是否存在openid
+/wechat/check, method=GET
+参数:
+无
+返回:
+已注册用户: {
+    'success': True,
+    'result': 'success',
+    'error': None,
+}
+
+没有openid: {
+    'success': False,
+    'result': -1,
+    'error': xxxx
+}
+
+没有注册: {
+    'success': False,
+    'result': 0,
+    'error': xxxx
 }

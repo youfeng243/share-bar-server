@@ -64,11 +64,11 @@ def success(result=u"success", **kwargs):
 
 
 # 返回失败
-def fail(http_status, error=None):
+def fail(http_status, error=None, result=None):
     resp = {
         'success': False,
         'error': error or ERROR_MSG.get(http_status, "undefined error"),
-        'result': None
+        'result': result
     }
     data = json.dumps(resp)
     return json_resp(data, http_status)
