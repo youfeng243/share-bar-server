@@ -147,7 +147,7 @@ def notify():
     transaction_id = data.transaction_id
 
     # 用户ID信息
-    user_id = data.out_trade_no
+    user_id = int(data.out_trade_no)
 
     wx_pay = WxPay(
         wx_app_id=settings.WECHAT_APP_ID,  # 微信平台appid
@@ -228,7 +228,7 @@ def recharge(account):
             openid=user.openid,  # 付款用户openid
             body=u'Account Recharge',  # 例如：饭卡充值100元
             total_fee=account,  # total_fee 单位是 分， 100 = 1元
-            out_trade_no=user.id,
+            out_trade_no=str(user.id),
         )
     except WxPayError as e:
         log.error("支付失败: openid = {} mobile = {}".format(user.openid, user.mobile))
