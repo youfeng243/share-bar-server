@@ -13,7 +13,8 @@ from flask import Blueprint
 from flask import g
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
-    LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW
+    LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
+    LOGIN_ERROR_USER_IN_USING
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_token_key
 from service.device.model import Device
@@ -40,6 +41,10 @@ def login(device_code):
     # LOGIN_ERROR_NOT_SUFFICIENT_FUNDS = -5
     # # 上线失败 未知错误
     # LOGIN_ERROR_UNKNOW = -6
+    # # 设备已经在使用了
+    # LOGIN_ERROR_DEVICE_IN_USEING = -7
+    # # 当前用户已经在线了
+    # LOGIN_ERROR_USER_IN_USEING = -8
 
     # 获得用户信息
     user = get_current_user(g.openid)
@@ -81,6 +86,17 @@ def login(device_code):
     # 判断是否已经登录了
     record_id = redis.get(record_key)
     if record_id is None:
+
+        # 判断当前设备是否已经在使用了
+        if redis.get(device_key):
+            log.warn("当前设备{}已经在被使用，但是用户ID = {}又在申请".format(device.id, user.id))
+            return fail(HTTP_OK, u"当前设备已经在使用上线了，但是不是当前用户在使用!", LOGIN_ERROR_DEVICE_IN_USING)
+
+        # 判断当前用户是否已经上线了
+        if redis.get(user_key):
+            log.warn("当前用户{}已经在上线，但是又在申请当前设备ID = {}".format(user.id, device.id))
+            return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
+
         log.info("用户还未登录进行登录: user_id = {} device_id = {}".format(user.id, device.id))
         record, is_success = UseRecord.create(user.id,
                                               device.id,
