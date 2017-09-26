@@ -321,7 +321,7 @@ def get_jsapi_signature():
     config = {
         'debug': True,
         'appId': settings.WECHAT_APP_ID,
-        'timestamp': timestamp,
+        'timestamp': str(timestamp),
         'nonceStr': nonceStr,
         'signature': signature,
         'jsApiList': ['scanQRCode']
