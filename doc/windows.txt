@@ -51,9 +51,11 @@ http://weixin.doumihuyu.com/windows/online/status', methods=['GET']
 }
 
 2. 下线接口
-http://weixin.doumihuyu.com/windows/logout/<token>, GET
+http://weixin.doumihuyu.com/windows/logout, POST
 参数:
-token: 服务端返回的登录后token
+json = {
+'token': xxxx
+}
 返回:
 {
     'success': True,

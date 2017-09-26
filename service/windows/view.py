@@ -11,6 +11,7 @@ import json
 
 from flask import Blueprint
 from flask import g
+from flask import request
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
@@ -202,8 +203,16 @@ def keep_alive(token):
 
 
 # 下线
-@bp.route('/logout/<token>', methods=['GET'])
-def logout(token):
+@bp.route('/logout', methods=['POST'])
+def logout():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    token = request.json.get('token')
+    if token is None:
+        return fail(HTTP_OK, u"not have token!!!")
+
     charging = redis.get(token)
     if charging is None:
         return success({
