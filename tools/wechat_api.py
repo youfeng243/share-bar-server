@@ -146,8 +146,9 @@ def wechat_required(func):
 
         # 判断重新刷新token是否已经过期，如果过期则需要重新授权登录
         openid = session.get('openid', None)
-        if openid is None:
-            log.info("session 中没有openid...")
+        refresh_token = session.get('refresh_token', None)
+        if openid is None or refresh_token is None:
+            log.info("session 中没有openid 或者 没有 refresh_token")
             code = request.args.get('code', None)
             if code is None:
                 log.info("url中没有code参数...")
@@ -179,30 +180,37 @@ def wechat_required(func):
 
                 openid = data.get('openid', None)
                 if openid is None:
-                    log.warn("解析openid失败: data = {}".format(data))
+                    log.warn("解析openid失败: data = {}".format(resp.content))
                     return fail(HTTP_OK, u"解析openid失败!")
                 session['openid'] = openid
 
                 # 保存refresh_token
                 refresh_token = data.get('refresh_token', None)
-                if refresh_token is not None:
-                    session['refresh_token'] = refresh_token
+                if refresh_token is None:
+                    log.warn("解析refresh_token失败: data = {}".format(resp.content))
+                    return fail(HTTP_OK, u"解析openid失败!")
+
+                session['refresh_token'] = refresh_token
+                log.info("用户初次使用得到refresh_token = {}".format(refresh_token))
 
                 # 保存access_token
                 access_token = data.get('access_token', None)
                 if access_token is not None:
                     session['access_token'] = access_token
+                    log.info("用户初次使用得到access_token = {}".format(access_token))
 
                 g.openid = openid
                 g.access_token = access_token
-                log.info("获得openid成功: {}".format(openid))
+                g.refresh_token = refresh_token
+                log.info("通过url链接获得openid成功: openid = {} refresh_token = {}".format(openid, refresh_token))
                 return func(*args, **kwargs)
             except Exception as e:
                 log.error("获取用户openid失败:")
                 log.exception(e)
             return fail(HTTP_OK, u"微信授权失败!")
-        log.info("从session中获取openid成功: openid = {}".format(openid))
+        log.info("从session中获取openid成功: openid = {} refresh_token = {}".format(openid, refresh_token))
         g.openid = openid
+        g.refresh_token = refresh_token
         return func(*args, **kwargs)
 
     return decorator
