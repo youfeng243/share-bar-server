@@ -15,7 +15,7 @@ from flask import request
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
-    LOGIN_ERROR_USER_IN_USING
+    LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_token_key
 from service.device.model import Device
@@ -46,6 +46,8 @@ def login(device_code):
     # LOGIN_ERROR_DEVICE_IN_USEING = -7
     # # 当前用户已经在线了
     # LOGIN_ERROR_USER_IN_USEING = -8
+    # # 当前设备不处于空闲状态，不能上机
+    # LOGIN_ERROR_DEVICE_NOT_FREE = -9
 
     # 获得用户信息
     user = get_current_user(g.openid)
@@ -97,6 +99,11 @@ def login(device_code):
         if redis.get(user_key):
             log.warn("当前用户{}已经在上线，但是又在申请当前设备ID = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
+
+        # 判断当前设备是否处于空闲状态
+        if device.state == Device.STATE_FREE:
+            log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
+            return fail(HTTP_OK, u"当前设备不处于空闲状态，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
         log.info("用户还未登录进行登录: user_id = {} device_id = {}".format(user.id, device.id))
         record, is_success = UseRecord.create(user.id,
