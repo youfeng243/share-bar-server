@@ -105,7 +105,7 @@ def login(device_code):
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
-        log.info("用户还未登录进行登录: user_id = {} device_id = {}".format(user.id, device.id))
+        log.info("用户还未上机进行上机: user_id = {} device_id = {}".format(user.id, device.id))
         record, is_success = UseRecord.create(user.id,
                                               device.id,
                                               device.address.province,
