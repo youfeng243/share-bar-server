@@ -147,71 +147,72 @@ def wechat_required(func):
         # 判断重新刷新token是否已经过期，如果过期则需要重新授权登录
         openid = session.get('openid', None)
         refresh_token = session.get('refresh_token', None)
-        if openid is None or refresh_token is None:
-            log.info("session 中没有openid 或者 没有 refresh_token")
-            code = request.args.get('code', None)
-            if code is None:
-                log.info("url中没有code参数...")
+        # 如果两个关键的token都存在 则正常进入下面的流程
+        if openid is not None and refresh_token is not None:
+            g.openid = openid
+            g.refresh_token = refresh_token
+            return func(*args, **kwargs)
 
-                # 授权跳转到登录界面
-                url = get_login_oauth_url()
-                if url is not None:
-                    return redirect(url)
+        log.info("session 中没有openid 或者 没有 refresh_token")
+        code = request.args.get('code', None)
+        if code is None:
+            log.info("url中没有code参数...")
 
-                log.info("当前不是get请求访问到这里: {}".format(request.method))
-                return fail(HTTP_OK, u"微信未授权，请用微信端进行访问!")
+            # 授权跳转到登录界面
+            url = get_login_oauth_url()
+            if url is not None:
+                return redirect(url)
 
-            url = get_token_url(code)
-            if url is None:
-                log.info("获得token链接失败: code = {}".format(code))
-                return fail(HTTP_OK, u"获得微信token失败!")
+            log.info("当前不是get请求访问到这里: {}".format(request.method))
+            return fail(HTTP_OK, u"微信未授权，请用微信端进行访问!")
 
-            try:
-                log.info("开始获取openid, 获得token链接为: url = {}".format(url))
-                resp = requests.get(url, verify=False, timeout=30)
-                if resp.status_code != 200:
-                    log.warn("访问token链接失败: status_code = {} url = {}".format(resp.status_code, url))
-                    return fail(HTTP_OK, u"获取access_token失败!")
+        url = get_token_url(code)
+        if url is None:
+            log.info("获得token链接失败: code = {}".format(code))
+            return fail(HTTP_OK, u"获得微信token失败!")
 
-                data = json.loads(resp.content)
-                if data is None:
-                    log.warn("解析access_token失败: data = {}".format(data))
-                    return fail(HTTP_OK, u"解析access_token失败!")
+        try:
+            log.info("开始获取openid, 获得token链接为: url = {}".format(url))
+            resp = requests.get(url, verify=False, timeout=30)
+            if resp.status_code != 200:
+                log.warn("访问token链接失败: status_code = {} url = {}".format(resp.status_code, url))
+                return fail(HTTP_OK, u"获取access_token失败!")
 
-                openid = data.get('openid', None)
-                if openid is None:
-                    log.warn("解析openid失败: data = {}".format(resp.content))
-                    return fail(HTTP_OK, u"解析openid失败!")
-                session['openid'] = openid
+            data = json.loads(resp.content)
+            if data is None:
+                log.warn("解析access_token失败: data = {}".format(data))
+                return fail(HTTP_OK, u"解析access_token失败!")
 
-                # 保存refresh_token
-                refresh_token = data.get('refresh_token', None)
-                if refresh_token is None:
-                    log.warn("解析refresh_token失败: data = {}".format(resp.content))
-                    return fail(HTTP_OK, u"解析openid失败!")
+            openid = data.get('openid', None)
+            if openid is None:
+                log.warn("解析openid失败: data = {}".format(resp.content))
+                return fail(HTTP_OK, u"解析openid失败!")
+            session['openid'] = openid
 
-                session['refresh_token'] = refresh_token
-                log.info("用户初次使用得到refresh_token = {}".format(refresh_token))
+            # 保存refresh_token
+            refresh_token = data.get('refresh_token', None)
+            if refresh_token is None:
+                log.warn("解析refresh_token失败: data = {}".format(resp.content))
+                return fail(HTTP_OK, u"解析openid失败!")
 
-                # 保存access_token
-                access_token = data.get('access_token', None)
-                if access_token is not None:
-                    session['access_token'] = access_token
-                    log.info("用户初次使用得到access_token = {}".format(access_token))
+            session['refresh_token'] = refresh_token
+            log.info("用户初次使用得到refresh_token = {}".format(refresh_token))
 
-                g.openid = openid
-                g.access_token = access_token
-                g.refresh_token = refresh_token
-                log.info("通过url链接获得openid成功: openid = {} refresh_token = {}".format(openid, refresh_token))
-                return func(*args, **kwargs)
-            except Exception as e:
-                log.error("获取用户openid失败:")
-                log.exception(e)
-            return fail(HTTP_OK, u"微信授权失败!")
-        log.info("从session中获取openid成功: openid = {} refresh_token = {}".format(openid, refresh_token))
-        g.openid = openid
-        g.refresh_token = refresh_token
-        return func(*args, **kwargs)
+            # 保存access_token
+            access_token = data.get('access_token', None)
+            if access_token is not None:
+                session['access_token'] = access_token
+                log.info("用户初次使用得到access_token = {}".format(access_token))
+
+            g.openid = openid
+            g.access_token = access_token
+            g.refresh_token = refresh_token
+            log.info("通过url链接获得openid成功: openid = {} refresh_token = {}".format(openid, refresh_token))
+            return func(*args, **kwargs)
+        except Exception as e:
+            log.error("获取用户openid失败:")
+            log.exception(e)
+        return fail(HTTP_OK, u"微信授权失败!")
 
     return decorator
 
