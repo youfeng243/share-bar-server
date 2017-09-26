@@ -14,7 +14,6 @@ from flask import Blueprint
 from flask import g
 from flask import redirect
 from flask import request
-from flask import session
 from flask import url_for
 
 import settings
@@ -96,8 +95,7 @@ def wechat_login():
         user = UserService.get_user_by_mobile(mobile)
         if user is None:
             # 获得用户的头像与昵称信息
-            access_token = session.get('session')
-            head_img_url, nike_name = get_user_wechat_info(access_token, g.openid)
+            head_img_url, nike_name = get_user_wechat_info(g.refresh_token, g.openid)
             log.info("当前用户获取的信息为: openid = {} head = {} nikename = {}".format(
                 g.openid, head_img_url, nike_name))
             user, is_success = UserService.create(mobile, g.openid,
@@ -122,6 +120,21 @@ def get_user_info():
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')
+
+    # 判断昵称或头像是否已经获取到了
+    if user.head_img_url == '' or user.nike_name == '':
+        # 先判断token是否存在
+        head_img_url, nike_name = get_user_wechat_info(g.refresh_token, g.openid)
+        if head_img_url == '' or nike_name == '':
+            log.error("再次更新用户ID = {} 头像与昵称失败: head_img_url = {} nike_name = {}".format(
+                user.id, head_img_url, nike_name))
+        else:
+            # 存储用户信息
+            user.head_img_url = head_img_url
+            user.nike_name = nike_name
+            if user.save():
+                log.info("重新更新用户昵称与头像成功: user_id = {} head = {} nike = {}".format(
+                    user.id, user.head_img_url, user.nike_name))
 
     return success(user.to_dict())
 

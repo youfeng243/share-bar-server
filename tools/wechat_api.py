@@ -19,6 +19,7 @@ from flask import url_for
 import settings
 from exts.common import fail, log, HTTP_OK
 from exts.database import redis
+from exts.redis_dao import get_openid_key
 from service.user.impl import UserService
 
 
@@ -210,7 +211,7 @@ def wechat_login_required(func):
             refresh_token = data.get('refresh_token', None)
             if refresh_token is None:
                 log.warn("解析refresh_token失败: data = {}".format(resp.content))
-                return fail(HTTP_OK, u"解析openid失败!")
+                return fail(HTTP_OK, u"解析refresh_token失败!")
 
             session['refresh_token'] = refresh_token
             log.info("用户初次使用得到refresh_token = {}".format(refresh_token))
@@ -220,6 +221,13 @@ def wechat_login_required(func):
             if access_token is not None:
                 session['access_token'] = access_token
                 log.info("用户初次使用得到access_token = {}".format(access_token))
+
+            expires_in = data.get("expires_in", None)
+
+            # 存入redis 中
+            if access_token is not None and expires_in is not None:
+                # 添加到缓存
+                redis.setex(get_openid_key(openid), expires_in, access_token)
 
             g.openid = openid
             g.access_token = access_token
@@ -248,12 +256,44 @@ def get_nonce_str(n):
 
 
 # 获得用户头像和昵称信息
-def get_user_wechat_info(access_token, openid):
+def get_user_wechat_info(refresh_token, openid):
     head_img_url = ""
     nick_name = ""
-    if access_token is None or openid is None:
+    if refresh_token is None or openid is None:
         log.warn("access_token or openid = None, 无法获取头像昵称信息...")
         return head_img_url, nick_name
+
+    access_token = redis.get(get_openid_key(openid))
+    if access_token is None:
+        # 重新刷新access_token
+        refresh_url = 'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid={}&grant_type=refresh_token&refresh_token={}'.format(
+            settings.WECHAT_APP_ID, refresh_token)
+        try:
+            resp = requests.get(refresh_url, verify=False, timeout=30)
+            if resp.status_code != 200:
+                log.warn("访问刷新微信access_token信息失败: status_code = {} url = {}".format(resp.status_code, refresh_url))
+                return head_img_url, nick_name
+
+            data = json.loads(resp.content)
+            if data is None:
+                log.warn("解析微信access_token失败: data = {}".format(data))
+                return head_img_url, nick_name
+
+            access_token = data.get('access_token', None)
+            expires_in = data.get('expires_in', None)
+            if access_token is None or expires_in is None:
+                log.warn("解析微信access_token失败: data = {}".format(data))
+                return head_img_url, nick_name
+
+            # 存入redis
+            redis.setex(get_openid_key(openid), expires_in, access_token)
+
+            log.info("重新刷新微信access_token成功: access_token = {} expires_in = {} openid = {}".format(
+                access_token, expires_in, openid))
+        except Exception as e:
+            log.error("访问刷新微信access_token信息失败: ")
+            log.exception(e)
+            return head_img_url, nick_name
 
     url = "https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}&lang=zh_CN". \
         format(access_token, openid)

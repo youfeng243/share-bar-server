@@ -52,3 +52,8 @@ def get_device_key(device_id):
 # 获得token key
 def get_token_key(device_code):
     return "online#token#{}".format(device_code)
+
+
+# 获得openid access_token对应的存储key
+def get_openid_key(openid):
+    return "bar#openid#{}".format(openid)
