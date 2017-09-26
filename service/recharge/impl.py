@@ -49,3 +49,7 @@ class RechargeService(object):
             log.exception(e)
             return None, False
         return recharge, True
+
+    @staticmethod
+    def find_by_transaction_id(transaction_id):
+        return Recharge.query.filter_by(transaction_id=transaction_id).first()

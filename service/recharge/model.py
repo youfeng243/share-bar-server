@@ -20,7 +20,7 @@ class Recharge(ModelBase):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     # 充值流水账号 每一次充值带时间戳的唯一ID
-    transaction_id = db.Column(db.String(64), index=True, nullable=False)
+    transaction_id = db.Column(db.String(64), unique=True, index=True, nullable=False)
 
     # 充值金额
     amount = db.Column(db.Integer, index=True, nullable=False)

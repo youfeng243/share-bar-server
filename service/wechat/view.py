@@ -25,7 +25,6 @@ from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
-from service.user.model import User
 from tools.wechat_api import wechat_login_required, get_user_wechat_info, get_current_user, get_nonce_str, \
     gen_jsapi_signature, \
     wechat_token_required
@@ -180,15 +179,12 @@ def notify():
             return fail(HTTP_OK, '解析订单信息失败!')
 
         # 支付时间
-        pay_time = datetime.strptime(result.time_end, '%Y%m%d%H%M%S')
+        pay_time = datetime.strptime(result.get('time_end', "20170926111841"), '%Y%m%d%H%M%S')
 
-        # 获得用户信息
-        user = User.get(user_id)
-        if user is None:
-            return fail(HTTP_OK, '没有对应的用户信息!')
-
-        user.balance_account += total_fee
-        user.total_account += total_fee
+        # 如果充值记录已经存在则不再存储
+        if RechargeService.find_by_transaction_id(transaction_id) is not None:
+            log.info("当前记录已经存储过，不在进行存储: {}".format(transaction_id))
+            return success()
 
         # 创建充值记录
         obj, is_success = RechargeService.create(user_id, total_fee, transaction_id, pay_time)
