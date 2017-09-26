@@ -197,7 +197,7 @@ def test():
 
 @bp.route('/force/offline', methods=['POST'])
 @login_required
-def test():
+def force_offline():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
