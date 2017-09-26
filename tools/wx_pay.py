@@ -183,7 +183,7 @@ class WxPay(object):
         sign = self.sign(raw)
         return dict(package=package, appId=self.WX_APP_ID,
                     timeStamp=timestamp, nonceStr=nonce_str,
-                    sign=sign, signType="MD5", paySign=sign)
+                    signType="MD5", paySign=sign)
 
     def order_query(self, **data):
         """
