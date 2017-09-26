@@ -12,7 +12,8 @@ import json
 from flask import Blueprint
 from flask import g
 
-from exts.common import fail, HTTP_OK, log, success
+from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
+    LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_token_key
 from service.device.model import Device
@@ -27,33 +28,46 @@ bp = Blueprint('windows', __name__, url_prefix='/windows')
 @bp.route('/login/<device_code>', methods=['GET'])
 @wechat_login_required
 def login(device_code):
+    # # 当前用户没有登录
+    # LOGIN_ERROR_BIND = -1
+    # # 当前用户已经被删除
+    # LOGIN_ERROR_DELETE = -2
+    # # 当前用户被禁止使用
+    # LOGIN_ERROR_FORBID = -3
+    # # 当前设备不存在
+    # LOGIN_ERROR_NOT_FIND = -4
+    # # 用户余额不足
+    # LOGIN_ERROR_NOT_SUFFICIENT_FUNDS = -5
+    # # 上线失败 未知错误
+    # LOGIN_ERROR_UNKNOW = -6
+
     # 获得用户信息
     user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid还未绑定手机号码: openid = {}".format(g.openid))
-        return fail(HTTP_OK, u"用户还未登录!")
+        return fail(HTTP_OK, u"用户还未登录!", LOGIN_ERROR_BIND)
 
     # 如果当前用户 被禁用 则不能上线
     if user.deleted is True:
         log.warn("当前用户已经被删除了，不能上线: user_id = {}".format(user.id))
-        return fail(HTTP_OK, u"当前用户已经被删除了，不能上机")
+        return fail(HTTP_OK, u"当前用户已经被删除了，不能上机", LOGIN_ERROR_DELETE)
 
     # 判断当前用户是否已经被禁用了
     if user.state == 'unused':
         log.warn("当前用户已经被禁用了，不能上线: user_id = {}".format(user.id))
-        return fail(HTTP_OK, u"当前用户已经被禁用了，不能上线")
+        return fail(HTTP_OK, u"当前用户已经被禁用了，不能上线", LOGIN_ERROR_FORBID)
 
     # 获得设备信息
     device = Device.get_device_by_code(device_code=device_code)
     if device is None:
         log.warn("当前设备号没有对应的设备信息: device_code = {}".format(device_code))
-        return fail(HTTP_OK, u"设备信息异常，设备不存在")
+        return fail(HTTP_OK, u"设备信息异常，设备不存在", LOGIN_ERROR_NOT_FIND)
 
     # 判断用户是否余额充足
     if user.balance_account <= 0:
         log.info("用户余额不足，不能上线: user_id = {} device_id = {} account = {}".format(
             user.id, device.id, user.balance_account))
-        return fail(HTTP_OK, u"用户余额不足，不能上线!")
+        return fail(HTTP_OK, u"用户余额不足，不能上线!", LOGIN_ERROR_NOT_SUFFICIENT_FUNDS)
 
     # 判断是否已经在redis中进行记录
     record_key = get_record_key(user.id, device.id)
@@ -76,7 +90,7 @@ def login(device_code):
                                               device.address.location)
         if not is_success:
             log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
-            return fail(HTTP_OK, u"上机记录创建失败!")
+            return fail(HTTP_OK, u"上机记录创建失败!", LOGIN_ERROR_UNKNOW)
 
         # 获得计费结构体
         charging = record.to_charging()

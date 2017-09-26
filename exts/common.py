@@ -22,6 +22,22 @@ HTTP_NOT_FOUND = 404
 HTTP_SERVER_ERROR = 500
 HTTP_NOT_IMPLEMENTED = 501
 
+'''
+登录错误码
+'''
+# 当前用户没有登录
+LOGIN_ERROR_BIND = -1
+# 当前用户已经被删除
+LOGIN_ERROR_DELETE = -2
+# 当前用户被禁止使用
+LOGIN_ERROR_FORBID = -3
+# 当前设备不存在
+LOGIN_ERROR_NOT_FIND = -4
+# 用户余额不足
+LOGIN_ERROR_NOT_SUFFICIENT_FUNDS = -5
+# 上线失败 未知错误
+LOGIN_ERROR_UNKNOW = -6
+
 ERROR_MSG = {
     HTTP_OK: 'OK',
     HTTP_BAD_REQUEST: 'bad request',
