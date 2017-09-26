@@ -43,16 +43,16 @@ class UseRecord(ModelBase):
     cost_money = db.Column(db.Integer, nullable=False, index=True, default=0)
 
     # 下机时间 数据初始化时以创建时间为结束时间
-    end_time = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    end_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     # 花费时间 秒为单位
     cost_time = db.Column(db.Integer, nullable=False, index=True, default=0)
 
     # # 生效时间 创建时间
-    # ctime = db.Column(db.DateTime, default=datetime.now(), index=True, nullable=False)
+    # ctime = db.Column(db.DateTime, default=datetime.now, index=True, nullable=False)
     #
     # # 数据更新时间
-    # utime = db.Column(db.DateTime, default=datetime.now(), index=True, nullable=False)
+    # utime = db.Column(db.DateTime, default=datetime.now, index=True, nullable=False)
 
     @classmethod
     def create(cls, user_id, device_id, province, city, area, location):

@@ -26,7 +26,7 @@ class Recharge(ModelBase):
     amount = db.Column(db.Integer, index=True, nullable=False)
 
     # 付款时间
-    pay_time = db.Column(db.DateTime, default=datetime.now())
+    pay_time = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):
         return '<Recharge {} {}>'.format(self.username, self.dev_name)
