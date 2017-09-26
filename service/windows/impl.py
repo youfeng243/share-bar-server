@@ -38,9 +38,10 @@ class WindowsService(object):
             # 设置设备为空闲状态
             device.state = Device.STATE_FREE
 
-            log.info("本次上机时间: {} 下机时间: {} 当前设备: {}".format(
+            log.info("本次上机时间: {} 下机时间: {} 使用记录ID: {} 当前设备: {}".format(
                 record.ctime.strftime('%Y-%m-%d %H:%M:%S'),
                 record.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+                record_id,
                 device.device_code))
 
             # 计算花费时间

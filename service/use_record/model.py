@@ -48,6 +48,12 @@ class UseRecord(ModelBase):
     # 花费时间 秒为单位
     cost_time = db.Column(db.Integer, nullable=False, index=True, default=0)
 
+    # 生效时间 创建时间
+    ctime = db.Column(db.DateTime, default=datetime.now(), index=True, nullable=False)
+
+    # 数据更新时间
+    utime = db.Column(db.DateTime, default=datetime.now(), index=True, nullable=False)
+
     @classmethod
     def create(cls, user_id, device_id, province, city, area, location):
         use_record = cls(user_id=user_id, device_id=device_id,
