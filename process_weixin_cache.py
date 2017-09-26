@@ -8,6 +8,7 @@
 @time: 2017/9/25 15:28
 """
 import json
+import threading
 import time
 
 import redis
@@ -100,8 +101,8 @@ def update_ticket():
     return False
 
 
-def main():
-    log.info("开始启动缓存刷新进程...")
+def access_token_thread():
+    log.info("开始启动缓存刷新线程...")
     # 30秒轮询一次
     SLEEP_TIME = 30
     while True:
@@ -121,10 +122,34 @@ def main():
                 log.info("获取jsapi_ticket结束...")
 
         except Exception as e:
-            log.error("程序异常:")
+            log.error("缓存程序异常:")
+            log.exception(e)
+        time.sleep(SLEEP_TIME)
+
+
+# 启动计费线程
+def charging_thread():
+    log.info("开始启动计费线程...")
+
+    SLEEP_TIME = 60
+    while True:
+        try:
+            pass
+
+        except Exception as e:
+            log.error("计费线程异常:")
             log.exception(e)
         time.sleep(SLEEP_TIME)
 
 
 if __name__ == '__main__':
-    main()
+    # 刷新微信缓存线程
+    access_token_handler = threading.Thread(target=access_token_thread)
+    access_token_handler.start()
+
+    # 刷新上线扣费线程
+    charging_handler = threading.Thread(target=charging_thread)
+    charging_handler.start()
+
+    access_token_handler.join()
+    charging_handler.join()

@@ -44,6 +44,27 @@ LOGIN_ERROR_USER_IN_USING = -8
 # 当前设备不处于空闲状态，不能上机
 LOGIN_ERROR_DEVICE_NOT_FREE = -9
 
+'''
+redis 缓存公共前缀管理
+'''
+# 锁key前缀
+REDIS_PRE_LOCK_KEY = 'offline#lock#'
+
+# 上线记录关联前缀
+REDIS_PRE_RECORD_KEY = 'online#record#'
+
+# 用户上线前缀
+REDIS_PRE_USER_KEY = 'online#player#'
+
+# 设备上线前缀
+REDIS_PRE_DEVICE_KEY = 'online#device#'
+
+# 上线token前缀
+REDIS_PRE_TOKEN_KEY = 'online#token#'
+
+# 网页token存储缓存前缀
+REDIS_PRE_OPENID_KEY = 'access#openid#'
+
 ERROR_MSG = {
     HTTP_OK: 'OK',
     HTTP_BAD_REQUEST: 'bad request',
