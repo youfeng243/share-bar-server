@@ -20,6 +20,8 @@ from service.user.model import User
 class RechargeService(object):
     @staticmethod
     def create(user_id, amount, transaction_id, pay_time):
+        amount = int(amount)
+        user_id = int(user_id)
         recharge = Recharge(user_id=user_id,
                             amount=amount,
                             transaction_id=transaction_id,
