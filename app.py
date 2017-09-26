@@ -7,6 +7,7 @@
 @file: gun.config.py
 @time: 2017/8/28 20:45
 """
+import json
 
 from flask import Flask
 from flask import request
@@ -80,9 +81,11 @@ def _request_log(resp, *args, **kwargs):
                             url=request.url,
                             )
     )
-    if resp.mimetype == 'application/json':
-        data = resp.get_data()
-        log.info("type = {} data = {}".format(type(data), data))
+    if settings.DEBUG:
+        if resp.mimetype == 'application/json':
+            data = resp.get_data()
+            log.info("response: {}".format(json.dumps(json.loads(data), ensure_ascii=False)))
+            # log.info("type = {} data = {}".format(type(data), data))
     return resp
 
 
