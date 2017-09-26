@@ -152,7 +152,7 @@ def get_user_info():
 # 支付回调
 @bp.route("/notify", methods=['POST', 'GET'])
 def notify():
-    log.info("当前回调携带数据为: data = {}".format(request.data))
+    # log.info("当前回调携带数据为: data = {}".format(request.data))
     data_dict = XMLData.parse(request.data)
     log.info("进入支付响应回调...")
     if data_dict.return_code != 'SUCCESS' or data_dict.result_code != 'SUCCESS':
