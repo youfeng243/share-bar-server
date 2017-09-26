@@ -25,14 +25,14 @@ class ModelBase(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # 生效时间 创建时间
-    ctime = db.Column(db.DateTime, default=datetime.now(), index=True, nullable=False)
+    ctime = db.Column(db.DateTime, default=datetime.now, index=True, nullable=False)
 
     # 数据更新时间
-    utime = db.Column(db.DateTime, default=datetime.now(), index=True, nullable=False)
+    utime = db.Column(db.DateTime, default=datetime.now, index=True, nullable=False)
 
-    def __init__(self):
-        self.ctime = datetime.now()
-        self.utime = datetime.now()
+    # def __init__(self):
+    #     self.ctime = datetime.now()
+    #     self.utime = datetime.now()
 
     def delete(self):
         try:
