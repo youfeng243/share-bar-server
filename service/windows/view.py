@@ -18,8 +18,8 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_token_key
 from service.device.model import Device
-from service.use_record.impl import UseRecordService
 from service.use_record.model import UseRecord
+from service.windows.impl import WindowsService
 from tools.wechat_api import wechat_login_required, get_current_user
 
 bp = Blueprint('windows', __name__, url_prefix='/windows')
@@ -84,8 +84,8 @@ def login(device_code):
     token_key = get_token_key(device_code)
 
     # 判断是否已经登录了
-    record_id = redis.get(record_key)
-    if record_id is None:
+    charging = redis.get(record_key)
+    if charging is None:
 
         # 判断当前设备是否已经在使用了
         if redis.get(device_key):
@@ -117,10 +117,11 @@ def login(device_code):
         # 填充设备机器码
         charging['device_code'] = device_code
 
+        charge_str = json.dumps(charging)
         # 开始上线 把上线信息存储redis
-        redis.set(record_key, json.dumps(charging))
-        redis.set(user_key, record.id)
-        redis.set(device_key, record.id)
+        redis.set(record_key, charge_str)
+        redis.set(user_key, charge_str)
+        redis.set(device_key, charge_str)
         # 根据设备机器码获得记录token
         redis.set(token_key, record_key)
 
@@ -129,6 +130,24 @@ def login(device_code):
         device.save()
 
     return success()
+
+
+@bp.route('/offline', methods=['GET'])
+@wechat_login_required
+def wechat_offline():
+    user = get_current_user(g.openid)
+    if user is None:
+        log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
+        return fail(HTTP_OK, u'用户信息获取失败，无法下机', -1)
+
+    user_key = get_user_key(user.id)
+    charging = redis.get(user_key)
+    if charging is None:
+        return success({
+            'status': 0,
+            'msg': "logout failed! reason: user device is already offline"})
+
+    return WindowsService.logout(charging)
 
 
 # 判断设备是否已经上线登录
@@ -175,42 +194,4 @@ def logout(token):
             'status': 0,
             'msg': "logout failed! reason: user device is already offline"})
 
-    try:
-        charge_dict = json.loads(charging)
-        record_id = charge_dict.get('id')
-        user_id = charge_dict.get('user_id')
-        device_id = charge_dict.get('device_id')
-        charge_mode = charge_dict.get('charge_mode')
-        device_code = charge_dict.get('device_code')
-        log.info("当前下线信息: user_id = {} device_id = {} charge_mode = {} device_code = {}".format(
-            user_id, device_id, charge_mode, device_code))
-
-        # 结账下机
-        if not UseRecordService.cal_offline(user_id=user_id,
-                                            device_id=device_id,
-                                            record_id=record_id,
-                                            charge_mode=charge_mode):
-            return fail(HTTP_OK, u"下机失败！")
-
-            # 判断是否已经在redis中进行记录
-        record_key = get_record_key(user_id, device_id)
-        # 获得用户上线key
-        user_key = get_user_key(user_id)
-        # 获得设备上线key
-        device_key = get_device_key(device_id)
-        # 获得当前设备token
-        token_key = get_token_key(device_code)
-
-        # 从redis中删除上机记录
-        redis.delete(record_key)
-        redis.delete(user_key)
-        redis.delete(device_key)
-        redis.delete(token_key)
-
-    except Exception as e:
-        log.error("数据解析失败: {}".format(charging))
-        log.exception(e)
-        return fail(HTTP_OK, u"数据解析失败!!")
-
-    return success({'status': 1,
-                    'msg': 'logout successed!'})
+    return WindowsService.logout(charging)

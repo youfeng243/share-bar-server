@@ -9,6 +9,17 @@ device_code: 机器mac地址
     'error': None
 }
 
+2. 微信端下机接口
+http://weixin.doumihuyu.com/windows/offline, methods=['GET']
+参数
+无
+返回:
+{
+    'success': True,
+    'result': 'success',
+    'error': None
+}
+
 2. 下线接口
 http://weixin.doumihuyu.com/windows/logout/<token>, GET
 参数:
