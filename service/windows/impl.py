@@ -40,9 +40,13 @@ class WindowsService(object):
 
             # 计算花费时间
             record.cost_time = (record.end_time - record.ctime).seconds // 60
+            log.info("本次上机花费的时间: user_id = {} device_id = {} cost_time = {}".format(
+                user_id, device_id, record.cost_time))
 
             # 计算花费金钱
             record.cost_money = record.cost_time * charge_mode
+            log.info("本次上机花费的金钱: user_id = {} device_id = {} cost_time = {}".format(
+                user_id, device_id, record.cost_money))
 
             # 计算设备获得的金钱数目
             device.income += record.cost_money
@@ -51,6 +55,7 @@ class WindowsService(object):
             user.balance_account -= record.cost_money
             if user.balance_account < 0:
                 user.balance_account = 0
+            log.info("上机后用户所剩余额: user_id = {} balance_account = {}".format(user_id, user.balance_account))
             user.used_account += record.cost_money
 
             db.session.add(user)
