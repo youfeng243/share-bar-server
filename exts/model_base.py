@@ -46,7 +46,7 @@ class ModelBase(db.Model):
         return True
 
     @classmethod
-    def find_list(cls, city, area, start_time, end_time, state, page, size, filters=None, order_by=None):
+    def find_list(cls, province, city, area, start_time, end_time, state, page, size, filters=None, order_by=None):
         # 条件查询
         total = 0
         query = cls.query
@@ -64,13 +64,17 @@ class ModelBase(db.Model):
         if hasattr(cls, 'state') and state is not None:
             query = query.filter(cls.state == state)
 
-        # 根据城市查询
-        if city is not None and hasattr(cls, 'city'):
-            query = query.filter(cls.city == city)
+        # 根据省份查询
+        if province is not None and hasattr(cls, 'province'):
+            query = query.filter(cls.province == province)
 
-            # 在有城市的前提下按区域查询
-            if area is not None and hasattr(cls, 'area'):
-                query = query.filter(cls.area == area)
+            # 根据城市查询
+            if city is not None and hasattr(cls, 'city'):
+                query = query.filter(cls.city == city)
+
+                # 在有城市的前提下按区域查询
+                if area is not None and hasattr(cls, 'area'):
+                    query = query.filter(cls.area == area)
 
         # 根据时间查询
         if start_time is not None and end_time is not None:
@@ -112,6 +116,7 @@ class ModelBase(db.Model):
         size = request.json.get('size')
         city = request.json.get('city')
         area = request.json.get('area')
+        province = request.json.get('province')
         start_time_str = request.json.get('start_time')
         end_time_str = request.json.get('end_time')
         state = request.json.get('state')
@@ -173,7 +178,7 @@ class ModelBase(db.Model):
         if size > 50:
             log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
             size = 50
-        total, item_list = cls.find_list(city, area, start_time,
+        total, item_list = cls.find_list(province, city, area, start_time,
                                          end_time, state, page,
                                          size, filters=filters,
                                          order_by=order_by)
