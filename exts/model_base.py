@@ -30,6 +30,10 @@ class ModelBase(db.Model):
     # 数据更新时间
     utime = db.Column(db.DateTime, default=datetime.now(), index=True, nullable=False)
 
+    def __init__(self):
+        self.ctime = datetime.now()
+        self.utime = datetime.now()
+
     def delete(self):
         try:
             if hasattr(self, 'deleted'):
