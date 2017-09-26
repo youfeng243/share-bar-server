@@ -67,7 +67,9 @@ json = {
 3. 心跳接口
 http://weixin.doumihuyu.com/windows/keepalive/<token>, GET
 参数:
-token: 服务端返回的登录后token
+json = {
+'token': xxxx
+}
 返回:
 {
     'success': True,
@@ -80,7 +82,9 @@ token: 服务端返回的登录后token
 4. 校验是否登录接口
 http://weixin.doumihuyu.com/windows/check/<device_code>, GET
 参数:
+json = {
 device_code: 机器mac地址
+}
 返回:
 {"status": 1, "token": record_key, "msg": "login successed!"}
 {

@@ -168,8 +168,16 @@ def get_online_status():
 
 
 # 判断设备是否已经上线登录
-@bp.route('/check/<device_code>', methods=['GET'])
-def check(device_code):
+@bp.route('/check', methods=['POST'])
+def check():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_code = request.json.get('device_code')
+    if device_code is None:
+        return fail(HTTP_OK, u"not have token!!!")
+
     token_key = get_token_key(device_code)
     record_key = redis.get(token_key)
     if record_key is None:
@@ -182,8 +190,16 @@ def check(device_code):
 
 
 # 心跳
-@bp.route('/keepalive/<token>', methods=['GET'])
-def keep_alive(token):
+@bp.route('/keepalive', methods=['POST'])
+def keep_alive():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    token = request.json.get('token')
+    if token is None:
+        return fail(HTTP_OK, u"not have token!!!")
+
     charging = redis.get(token)
     if charging is None:
         return success({
