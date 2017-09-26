@@ -183,7 +183,7 @@ def check():
 
     device_code = request.json.get('device_code')
     if device_code is None:
-        return fail(HTTP_OK, u"not have token!!!")
+        return fail(HTTP_OK, u"not have device_code!!!")
 
     token_key = get_token_key(device_code)
     record_key = redis.get(token_key)
