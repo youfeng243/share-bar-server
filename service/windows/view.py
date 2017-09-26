@@ -101,7 +101,7 @@ def login(device_code):
             return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
 
         # 判断当前设备是否处于空闲状态
-        if device.state == Device.STATE_FREE:
+        if device.state != Device.STATE_FREE:
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 

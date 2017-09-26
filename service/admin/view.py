@@ -190,3 +190,9 @@ def logout():
 def test():
     log.info("当前属于登录状态...")
     return success(u"测试通过!")
+
+# @bp.route('/force/offline', methods=['POST'])
+# @login_required
+# def test():
+#     log.info("当前属于登录状态...")
+#     return success(u"测试通过!")
