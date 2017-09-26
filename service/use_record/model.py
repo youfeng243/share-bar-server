@@ -99,7 +99,7 @@ class UseRecord(ModelBase):
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'end_time': self.end_time.strftime('%Y-%m-%d %H:%M:%S'),
-            'cost_time': self.cost_time // 60  # 分钟
+            'cost_time': self.cost_time   # 分钟
         }
 
         item = User.get(self.user_id)
