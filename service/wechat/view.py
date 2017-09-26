@@ -25,6 +25,7 @@ from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
+from service.user.model import User
 from tools.wechat_api import wechat_login_required, get_user_wechat_info, get_current_user, get_nonce_str, \
     gen_jsapi_signature, \
     wechat_token_required
@@ -177,6 +178,14 @@ def notify():
 
         # 支付时间
         pay_time = datetime.strptime(result.time_end, '%Y%m%d%H%M%S')
+
+        # 获得用户信息
+        user = User.get(user_id)
+        if user is None:
+            return fail(HTTP_OK, '没有对应的用户信息!')
+
+        user.balance_account += total_fee
+        user.total_account += total_fee
 
         # 创建充值记录
         obj, is_success = RechargeService.create(user_id, total_fee, transaction_id, pay_time)
