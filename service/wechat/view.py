@@ -131,17 +131,19 @@ def get_user_info():
 @bp.route("/notify", methods=['POST', 'GET'])
 def notify():
     log.info("当前回调携带数据为: data = {}".format(request.data))
-    data = XMLData.parse(request.data)
+    data_dict = XMLData.parse(request.data)
     log.info("进入支付响应回调...")
-    if data.return_code != 'SUCCESS' or data.result_code == 'SUCCESS':
-        log.warn("支付失败: {}".format(json.dumps(data, ensure_ascii=False)))
+    if data_dict.return_code != 'SUCCESS' or data_dict.result_code != 'SUCCESS':
+        log.warn("支付失败: {}".format(request.data))
         return fail(HTTP_OK, '支付失败!')
 
+    log.info("开始进行支付记录存储!!")
+
     # 微信订单
-    transaction_id = data.transaction_id
+    transaction_id = data_dict.transaction_id
 
     # 用户ID信息
-    user_id = int(data.attach)
+    user_id = int(data_dict.attach)
 
     wx_pay = WxPay(
         wx_app_id=settings.WECHAT_APP_ID,  # 微信平台appid
