@@ -82,6 +82,8 @@ class WindowsService(object):
                                               device_id=device_id,
                                               record_id=record_id,
                                               charge_mode=charge_mode):
+                log.error("下机扣费失败: user_id = {} device_id = {} charge_mode = {}".format(
+                    user_id, device_id, charge_mode))
                 return fail(HTTP_OK, u"下机失败！")
 
                 # 判断是否已经在redis中进行记录
@@ -103,5 +105,5 @@ class WindowsService(object):
             log.error("数据解析失败: {}".format(charging))
             log.exception(e)
             return fail(HTTP_OK, u"数据解析失败!!")
-
+        log.info("下机成功: user_id = {} device_id = {}".format(user_id, device_id))
         return success({'status': 1, 'msg': 'logout successed!'})
