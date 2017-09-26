@@ -186,6 +186,9 @@ def notify():
 
         # 订单金额
         total_fee = result.get('total_fee', 0)
+        # 如果不为数值 则改为数值
+        if isinstance(total_fee, basestring):
+            total_fee = int(total_fee)
         if total_fee < 0:
             total_fee = 0
 
