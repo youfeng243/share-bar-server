@@ -116,6 +116,9 @@ def login(device_code):
             log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"上机记录创建失败!", LOGIN_ERROR_UNKNOW)
 
+        log.info("当前上机时间: user_id:{} device_id:{} record_id:{} ctime:{}".format(
+            user.id, device.id, record.id, record.ctime.strftime('%Y-%m-%d %H:%M:%S')))
+
         # 获得计费结构体
         charging = record.to_charging()
         # 得到计费方式
