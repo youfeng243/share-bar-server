@@ -7,11 +7,10 @@
 @file: settings.py
 @time: 2017/9/4 20:30
 """
-
 DEBUG = True
 TESTING = True
 MOCK = False
-SECRET_KEY = '%$%&^%$%&^&^**(*&&^%%$^$'
+SECRET_KEY = "4&^^%%$%BJHGFGHHVVBN%$$#^*"
 SQLALCHEMY_DATABASE_URI = 'mysql://root:000000@localhost:3306/share_bar_db?charset=utf8'
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = True
