@@ -150,6 +150,22 @@ def wechat_offline():
     return WindowsService.logout(charging)
 
 
+# 获取用户在线状态
+@bp.route('/online/status', methods=['GET'])
+@wechat_login_required
+def get_online_status():
+    user = get_current_user(g.openid)
+    if user is None:
+        log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
+        return fail(HTTP_OK, u'用户信息获取失败，无法获得上机状态信息', -1)
+    user_key = get_user_key(user.id)
+    charging = redis.get(user_key)
+    if charging is None:
+        return fail(HTTP_OK, u'当前用户没有上机信息', 0)
+
+    return success(json.loads(charging))
+
+
 # 判断设备是否已经上线登录
 @bp.route('/check/<device_code>', methods=['GET'])
 def check(device_code):

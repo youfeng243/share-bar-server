@@ -20,6 +20,36 @@ http://weixin.doumihuyu.com/windows/offline, methods=['GET']
     'error': None
 }
 
+3. 当前用户上机状态
+http://weixin.doumihuyu.com/windows/online/status', methods=['GET']
+参数
+无
+返回:
+没有上机: {
+    'success': False,
+    'result': 0,
+    'error': 当期用户没有上机
+}
+已经上机: {
+    'id': self.id,
+    'user_id': self.user_id,
+    'device_id': self.device_id,
+    # 花费金额数目 后台会进行同步计算 但是周期可能是5分钟计算一次，下机时会重新算一次
+    'cost_money': self.cost_money,
+    # 用户开始上机时间
+    'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+    # 更新时间，主要用户同步计费
+    'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+    # 已经上机花费的时间 后台会进行同步计算 但是周期可能是5分钟计算一次，下机时会重新算一次
+    'cost_time': self.cost_time
+    # 计费方式 多少分钱/每分钟
+    'charge_mode': 5
+    # 用户当前的总额度 用户充值时会动态刷新 及时更新到redis
+    'balance_account': 100
+    # 当前上机的机器码
+    'device_code': xxx-xxx-xxx-xx
+}
+
 2. 下线接口
 http://weixin.doumihuyu.com/windows/logout/<token>, GET
 参数:
