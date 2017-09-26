@@ -32,6 +32,17 @@ from tools.xml_data import XMLData
 
 bp = Blueprint('wechat', __name__, url_prefix='/wechat')
 
+# 微信支付初始化
+notify_url = url_for('wechat.notify', _external=True)
+log.info("支付回调url = {}".format(notify_url))
+wx_pay = WxPay(
+    wx_app_id=settings.WECHAT_APP_ID,  # 微信平台appid
+    wx_mch_id=settings.WECHAT_MCH_ID,  # 微信支付商户号
+    wx_mch_key=settings.WECHAT_PAYMENT_SECRET,
+    # wx_mch_key 微信支付重要密钥，请登录微信支付商户平台，在 账户中心-API安全-设置API密钥设置
+    wx_notify_url=notify_url
+)
+
 
 # 进入自定义菜单
 @bp.route('/menu/<name>', methods=['GET'])
@@ -157,15 +168,6 @@ def notify():
     # 用户ID信息
     user_id = int(data_dict.attach)
 
-    wx_pay = WxPay(
-        wx_app_id=settings.WECHAT_APP_ID,  # 微信平台appid
-        wx_mch_id=settings.WECHAT_MCH_ID,  # 微信支付商户号
-        wx_mch_key=settings.WECHAT_PAYMENT_SECRET,
-        # wx_mch_key 微信支付重要密钥，请登录微信支付商户平台，在 账户中心-API安全-设置API密钥设置
-        wx_notify_url=""
-        # wx_notify_url 接受微信付款消息通知地址（通常比自己把支付成功信号写在js里要安全得多，推荐使用这个来接收微信支付成功通知）
-        # wx_notify_url 开发详见https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
-    )
     try:
         log.info("当前查询订单: user_id = {} transaction_id = {}".format(user_id, transaction_id))
         result = wx_pay.order_query(transaction_id=transaction_id)
@@ -225,17 +227,6 @@ def recharge(account):
         log.warn("充值金额不正确: account = {}".format(account))
         return fail(HTTP_OK, u"充值金额数目不正确，需要正整数!")
 
-    notify_url = url_for('wechat.notify', _external=True)
-    log.info("支付回调url = {}".format(notify_url))
-    wx_pay = WxPay(
-        wx_app_id=settings.WECHAT_APP_ID,  # 微信平台appid
-        wx_mch_id=settings.WECHAT_MCH_ID,  # 微信支付商户号
-        wx_mch_key=settings.WECHAT_PAYMENT_SECRET,
-        # wx_mch_key 微信支付重要密钥，请登录微信支付商户平台，在 账户中心-API安全-设置API密钥设置
-        wx_notify_url=notify_url
-        # wx_notify_url 接受微信付款消息通知地址（通常比自己把支付成功信号写在js里要安全得多，推荐使用这个来接收微信支付成功通知）
-        # wx_notify_url 开发详见https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_7
-    )
     try:
         log.info("当前支付用户ID = {}".format(user.id))
         pay_data = wx_pay.js_pay_api(
