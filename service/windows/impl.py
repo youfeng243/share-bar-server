@@ -38,6 +38,11 @@ class WindowsService(object):
             # 设置设备为空闲状态
             device.state = Device.STATE_FREE
 
+            log.info("本次上机时间: {} 下机时间: {} 当前设备: {}".format(
+                record.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+                record.end_time.strftime('%Y-%m-%d %H:%M:%S'),
+                device.device_code))
+
             # 计算花费时间
             record.cost_time = (record.end_time - record.ctime).seconds // 60
             log.info("本次上机花费的时间: user_id = {} device_id = {} cost_time = {}".format(
@@ -45,7 +50,7 @@ class WindowsService(object):
 
             # 计算花费金钱
             record.cost_money = record.cost_time * charge_mode
-            log.info("本次上机花费的金钱: user_id = {} device_id = {} cost_time = {}".format(
+            log.info("本次上机花费的金钱: user_id = {} device_id = {} cost_money = {}".format(
                 user_id, device_id, record.cost_money))
 
             # 计算设备获得的金钱数目
