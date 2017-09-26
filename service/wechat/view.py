@@ -14,7 +14,6 @@ from flask import Blueprint
 from flask import g
 from flask import redirect
 from flask import request
-from flask import url_for
 
 import settings
 from exts.common import log, fail, HTTP_OK, success
@@ -33,7 +32,7 @@ from tools.xml_data import XMLData
 bp = Blueprint('wechat', __name__, url_prefix='/wechat')
 
 # 微信支付初始化
-notify_url = url_for('wechat.notify', _external=True)
+notify_url = 'http://weixin.doumihuyu.com/wechat/notify'
 log.info("支付回调url = {}".format(notify_url))
 wx_pay = WxPay(
     wx_app_id=settings.WECHAT_APP_ID,  # 微信平台appid
