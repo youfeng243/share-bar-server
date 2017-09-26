@@ -81,7 +81,8 @@ def _request_log(resp, *args, **kwargs):
                             )
     )
     if resp.mimetype == 'application/json':
-        log.info(resp.get_data())
+        data = resp.get_data()
+        log.info("type = {} data = {}".format(type(data), data))
     return resp
 
 
