@@ -18,21 +18,17 @@ from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_tok
 from service.device.model import Device
 from service.use_record.impl import UseRecordService
 from service.use_record.model import UseRecord
-from service.user.impl import UserService
-from tools.wechat_api import wechat_required
+from tools.wechat_api import wechat_login_required, get_current_user
 
 bp = Blueprint('windows', __name__, url_prefix='/windows')
 
 
 # 扫描上线登录 需要确保微信端已经登录
 @bp.route('/login/<device_code>', methods=['GET'])
-@wechat_required
+@wechat_login_required
 def login(device_code):
-    if g.openid is None:
-        return fail(HTTP_OK, u"请使用微信端进行操作!")
-
     # 获得用户信息
-    user = UserService.get_by_openid(g.openid)
+    user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid还未绑定手机号码: openid = {}".format(g.openid))
         return fail(HTTP_OK, u"用户还未登录!")

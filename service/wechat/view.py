@@ -25,7 +25,9 @@ from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
-from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, get_nonce_str, gen_jsapi_signature
+from tools.wechat_api import wechat_login_required, get_user_wechat_info, get_current_user, get_nonce_str, \
+    gen_jsapi_signature, \
+    wechat_token_required
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
 
@@ -34,15 +36,10 @@ bp = Blueprint('wechat', __name__, url_prefix='/wechat')
 
 # 进入自定义菜单
 @bp.route('/menu/<name>', methods=['GET'])
-@wechat_required
+@wechat_login_required
 def menu(name):
-    # 如果没授权 不允许访问
-    if g.openid is None:
-        log.info("还未获得openid: name = {}".format(name))
-        return "Login Failed"
-
     # 如果没有注册，则先进入注册流程
-    user = UserService.get_by_openid(g.openid)
+    user = get_current_user(g.openid)
     if user is None:
         log.info("账户还没注册, 需要进入登录流程..")
         return redirect('/login')
@@ -68,14 +65,11 @@ def menu(name):
 
 # 判断当前用户是否已经登录
 @bp.route('/check', methods=['GET'])
+@wechat_token_required
 def wechat_check():
-    if 'openid' not in session:
-        return fail(HTTP_OK, u"当前用户没有openid!", -1)
-
-    openid = session.get('openid')
-    user = UserService.get_by_openid(openid)
+    user = get_current_user(g.openid)
     if user is None:
-        log.info("当前openid没有注册用户信息: {}".format(openid))
+        log.info("当前openid没有注册用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u"当前openid没有注册!", 0)
 
     return success()
@@ -83,11 +77,8 @@ def wechat_check():
 
 # 用户登录
 @bp.route('/login', methods=['POST'])
-@wechat_required
+@wechat_login_required
 def wechat_login():
-    if g.openid is None:
-        return fail(HTTP_OK, u'请使用微信客户端访问')
-
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
@@ -125,9 +116,9 @@ def wechat_login():
 
 # 获取当前用户信息接口
 @bp.route('/user', methods=['GET'])
-@wechat_required
+@wechat_login_required
 def get_user_info():
-    user = get_current_user()
+    user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')
@@ -202,9 +193,9 @@ def notify():
 
 # 充值接口
 @bp.route("/recharge/<int:account>", methods=['GET'])
-@wechat_required
+@wechat_login_required
 def recharge(account):
-    user = get_current_user()
+    user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')
@@ -243,7 +234,7 @@ def recharge(account):
 
 # 获得充值列表
 @bp.route("/recharge/list", methods=['POST'])
-@wechat_required
+@wechat_login_required
 def get_recharge_list():
     '''
     page: 当前页码
@@ -259,7 +250,7 @@ def get_recharge_list():
     #     "user_id": 100
     # }
 
-    user = get_current_user()
+    user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')
@@ -269,9 +260,9 @@ def get_recharge_list():
 
 # 消费记录列表
 @bp.route("/expense/list", methods=['POST'])
-@wechat_required
+@wechat_login_required
 def get_expense_list():
-    user = get_current_user()
+    user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')
@@ -281,9 +272,9 @@ def get_expense_list():
 
 # 获得wx.config
 @bp.route("/jsapi/signature", methods=['POST'])
-@wechat_required
+@wechat_login_required
 def get_jsapi_signature():
-    user = get_current_user()
+    user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')

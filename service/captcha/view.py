@@ -5,14 +5,14 @@ from flask import Blueprint, request
 
 from exts.common import fail, success, log, HTTP_OK
 from exts.sms import mobile_reach_ratelimit, request_sms
-from tools.wechat_api import wechat_required
+from tools.wechat_api import wechat_login_required
 
 bp = Blueprint('captcha', __name__, url_prefix="/wechat")
 
 
 # 请求手机验证码，进行用户注册
 @bp.route('/captcha', methods=['POST'])
-@wechat_required
+@wechat_login_required
 def request_code():
     if not request.is_json:
         log.warn("参数错误...")

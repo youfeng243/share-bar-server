@@ -139,8 +139,25 @@ def get_refresh_token(openid):
     return None
 
 
+# 微信鉴权
+def wechat_token_required(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        # 判断重新刷新token是否已经过期，如果过期则需要重新授权登录
+        openid = session.get('openid', None)
+        refresh_token = session.get('refresh_token', None)
+        # 如果两个关键的token都存在 则正常进入下面的流程
+        if openid is not None and refresh_token is not None:
+            g.openid = openid
+            g.refresh_token = refresh_token
+            return func(*args, **kwargs)
+        return fail(HTTP_OK, u"当前用户没有openid!", -1)
+
+    return decorator
+
+
 # 微信登录
-def wechat_required(func):
+def wechat_login_required(func):
     @wraps(func)
     def decorator(*args, **kwargs):
 
@@ -261,8 +278,7 @@ def get_user_wechat_info(access_token, openid):
 
 
 # 获得当前用户
-def get_current_user():
-    openid = session.get('openid', None)
+def get_current_user(openid):
     if openid is None:
         return None
 
