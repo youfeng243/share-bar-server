@@ -155,7 +155,7 @@ def wechat_offline():
             'status': 0,
             'msg': "logout failed! reason: user device is already offline"})
 
-    return WindowsService.logout(charging)
+    return WindowsService.do_logout(charging)
 
 
 # 获取用户在线状态
@@ -242,4 +242,4 @@ def logout():
             'status': 0,
             'msg': "logout failed! reason: user device is already offline"})
 
-    return WindowsService.logout(charging)
+    return WindowsService.do_logout(charging)

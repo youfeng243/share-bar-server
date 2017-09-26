@@ -218,7 +218,7 @@ def force_offline():
                 'status': 0,
                 'msg': "logout failed! reason: user device is already offline"})
         log.info("通过user_id下机: user_id = {}".format(user_id))
-        return WindowsService.logout(charging)
+        return WindowsService.do_logout(charging)
 
     if device_code is not None:
         token_key = get_token_key(device_code)
@@ -230,7 +230,7 @@ def force_offline():
                     'status': 0,
                     'msg': "logout failed! reason: user device is already offline"})
             log.info("通过device_code下机: device_code = {}".format(device_code))
-            return WindowsService.logout(charging)
+            return WindowsService.do_logout(charging)
 
     if device_id is not None:
         device_key = get_device_key(device_id)
@@ -240,6 +240,6 @@ def force_offline():
                 'status': 0,
                 'msg': "logout failed! reason: user device is already offline"})
         log.info("通过device_id下机: device_id = {}".format(device_id))
-        return WindowsService.logout(charging)
+        return WindowsService.do_logout(charging)
 
     return success(u'当前参数没有使任何机器或用户下机')

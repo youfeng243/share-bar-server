@@ -31,6 +31,12 @@ class Redis(object):
         #     self._client.set(key, value)
 
 
+# 下机锁
+def get_offline_lock_key(lock):
+    lock_key = "offline#lock#{}".format(lock)
+    return lock_key
+
+
 # 获得用户上线使用记录key
 def get_record_key(user_id, device_id):
     record_key = "online#record#{user_id}#{device_id}".format(user_id=user_id, device_id=device_id)

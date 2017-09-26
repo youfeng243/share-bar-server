@@ -12,7 +12,7 @@ from datetime import datetime
 
 from exts.common import log, fail, HTTP_OK, success
 from exts.database import redis, db
-from exts.redis_dao import get_record_key, get_device_key, get_token_key
+from exts.redis_dao import get_record_key, get_device_key, get_token_key, get_offline_lock_key
 from exts.redis_dao import get_user_key
 from service.device.model import Device
 from service.use_record.model import UseRecord
@@ -76,7 +76,9 @@ class WindowsService(object):
         return True
 
     @staticmethod
-    def logout(charging):
+    def do_logout(charging):
+
+        offline_lock_key = None
         try:
             charge_dict = json.loads(charging)
             record_id = charge_dict.get('id')
@@ -87,6 +89,20 @@ class WindowsService(object):
             log.info("当前下线信息: user_id = {} device_id = {} charge_mode = {} device_code = {}".format(
                 user_id, device_id, charge_mode, device_code))
 
+            # 判断是否已经在redis中进行记录
+            record_key = get_record_key(user_id, device_id)
+
+            # 获得下机锁
+            offline_lock_key = get_offline_lock_key(record_key)
+
+            if redis.get(offline_lock_key) is not None:
+                log.warn("当前已经在下机，其他下机请求被忽略: record_key = {}".format(record_key))
+                return success({'status': 1, 'msg': 'logout successed!'})
+
+            # 加上下机锁
+            redis.set(offline_lock_key, 'lock')
+            log.info("当前获得下机锁: {}".format(offline_lock_key))
+
             # 结账下机
             if not WindowsService.cal_offline(user_id=user_id,
                                               device_id=device_id,
@@ -96,8 +112,6 @@ class WindowsService(object):
                     user_id, device_id, charge_mode))
                 return fail(HTTP_OK, u"下机失败！")
 
-                # 判断是否已经在redis中进行记录
-            record_key = get_record_key(user_id, device_id)
             # 获得用户上线key
             user_key = get_user_key(user_id)
             # 获得设备上线key
@@ -115,5 +129,11 @@ class WindowsService(object):
             log.error("数据解析失败: {}".format(charging))
             log.exception(e)
             return fail(HTTP_OK, u"数据解析失败!!")
+        finally:
+            # 这里需要加锁
+            if offline_lock_key is not None:
+                redis.delete(offline_lock_key)
+                log.info("下机解锁成功: {}".format(offline_lock_key))
+
         log.info("下机成功: user_id = {} device_id = {}".format(user_id, device_id))
         return success({'status': 1, 'msg': 'logout successed!'})
