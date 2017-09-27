@@ -48,7 +48,7 @@ def get_role(role_info):
         log.error("角色名称信息无法转换为 int 类型: role_info = {}".format(role_info))
         log.exception(e)
 
-    return success(None)
+    return success(u'没有搜索到任何结果!')
 
 
 # 获得角色列表
