@@ -16,10 +16,10 @@ from service.user.model import User
 
 class UserService(object):
     @staticmethod
-    def create(mobile, openid, nike_name="", head_img_url=""):
+    def create(mobile, openid, nick_name="", head_img_url=""):
         user = User(mobile=mobile,
                     openid=openid,
-                    nike_name=nike_name,
+                    nick_name=nick_name,
                     head_img_url=head_img_url)
 
         try:

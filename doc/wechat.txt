@@ -36,7 +36,7 @@ json = {
     "result": {
             'id': self.id,
             //用户昵称
-            'nike_name': self.nike_name,
+            'nick_name': self.nick_name,
             //用户头像url
             'head_img_url': self.head_img_url,
             //手机号码

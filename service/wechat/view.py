@@ -106,12 +106,12 @@ def wechat_login():
         user = UserService.get_user_by_mobile(mobile)
         if user is None:
             # 获得用户的头像与昵称信息
-            head_img_url, nike_name = get_user_wechat_info(g.refresh_token, g.openid)
+            head_img_url, nick_name = get_user_wechat_info(g.refresh_token, g.openid)
             log.info("当前用户获取的信息为: openid = {} head = {} nikename = {}".format(
-                g.openid, head_img_url, nike_name))
+                g.openid, head_img_url, nick_name))
             user, is_success = UserService.create(mobile, g.openid,
                                                   head_img_url=head_img_url,
-                                                  nike_name=nike_name)
+                                                  nick_name=nick_name)
         elif user.openid != g.openid:
             user.openid = g.openid
             if not user.save():
@@ -133,19 +133,19 @@ def get_user_info():
         return fail(HTTP_OK, u'没有当前用户信息')
 
     # 判断昵称或头像是否已经获取到了
-    if user.head_img_url == '' or user.nike_name == '':
+    if user.head_img_url == '' or user.nick_name == '':
         # 先判断token是否存在
-        head_img_url, nike_name = get_user_wechat_info(g.refresh_token, g.openid)
-        if head_img_url == '' or nike_name == '':
-            log.error("再次更新用户ID = {} 头像与昵称失败: head_img_url = {} nike_name = {}".format(
-                user.id, head_img_url, nike_name))
+        head_img_url, nick_name = get_user_wechat_info(g.refresh_token, g.openid)
+        if head_img_url == '' or nick_name == '':
+            log.error("再次更新用户ID = {} 头像与昵称失败: head_img_url = {} nick_name = {}".format(
+                user.id, head_img_url, nick_name))
         else:
             # 存储用户信息
             user.head_img_url = head_img_url
-            user.nike_name = nike_name
+            user.nick_name = nick_name
             if user.save():
                 log.info("重新更新用户昵称与头像成功: user_id = {} head = {} nike = {}".format(
-                    user.id, user.head_img_url, user.nike_name))
+                    user.id, user.head_img_url, user.nick_name))
 
     return success(user.to_dict())
 

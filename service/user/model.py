@@ -26,7 +26,7 @@ class User(ModelBase):
     openid = db.Column(db.String(512), index=True, nullable=True)
 
     # 用户昵称 通过微信端获取
-    nike_name = db.Column(db.String(63), default="")
+    nick_name = db.Column(db.String(63), default="")
 
     # 微信头像链接
     head_img_url = db.Column(db.String(256), default="")
@@ -62,7 +62,7 @@ class User(ModelBase):
     def to_dict(self):
         return {
             'id': self.id,
-            'nike_name': self.nike_name,
+            'nick_name': self.nick_name,
             'head_img_url': self.head_img_url,
             'mobile': self.mobile,
             'total_account': self.total_account,
