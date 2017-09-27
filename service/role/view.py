@@ -37,7 +37,7 @@ def get_role(role_info):
 
     role = Role.get_by_name(role_info)
     if role is not None:
-        return success(role.to_dict())
+        return success([role.to_dict()])
 
     try:
         a_id = int(role_info)
@@ -48,7 +48,7 @@ def get_role(role_info):
         log.error("角色名称信息无法转换为 int 类型: role_info = {}".format(role_info))
         log.exception(e)
 
-    return success(u'没有搜索到任何结果!')
+    return success([])
 
 
 # 获得角色列表
