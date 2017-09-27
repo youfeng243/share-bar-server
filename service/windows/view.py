@@ -8,6 +8,7 @@
 @time: 2017/9/20 14:13
 """
 import json
+from datetime import datetime
 
 from flask import Blueprint
 from flask import g
@@ -175,7 +176,9 @@ def get_online_status():
     if charging is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
 
-    return success(json.loads(charging))
+    charge_dict = json.loads(charging)
+    charge_dict['cur_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return success(charge_dict)
 
 
 # 判断设备是否已经上线登录
