@@ -58,26 +58,52 @@ def login(device_code):
     user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid还未绑定手机号码: openid = {}".format(g.openid))
-        return fail(HTTP_OK, u"用户还未登录!", LOGIN_ERROR_BIND)
+        if scan_from != 'playing':
+            login_url = url_for("wechat.menu", name="login")
+            log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
+            return redirect(login_url)
+
+        return fail(HTTP_OK, u"用户还绑定手机号码登录!", LOGIN_ERROR_BIND)
 
     # 如果当前用户 被禁用 则不能上线
     if user.deleted is True:
+        if scan_from != 'playing':
+            login_url = url_for("wechat.menu", name="login")
+            log.info("扫描不是来自上机界面按钮且当前用户已经被删除了, 需要跳转登录页面: url = {}".format(login_url))
+            return redirect(login_url)
+
         log.warn("当前用户已经被删除了，不能上线: user_id = {}".format(user.id))
         return fail(HTTP_OK, u"当前用户已经被删除了，不能上机", LOGIN_ERROR_DELETE)
 
     # 判断当前用户是否已经被禁用了
     if user.state == 'unused':
+        if scan_from != 'playing':
+            login_url = url_for("wechat.menu", name="login")
+            log.info("扫描不是来自上机界面按钮且当前用户已经被禁用了, 需要跳转登录页面: url = {}".format(login_url))
+            return redirect(login_url)
+
         log.warn("当前用户已经被禁用了，不能上线: user_id = {}".format(user.id))
         return fail(HTTP_OK, u"当前用户已经被禁用了，不能上线", LOGIN_ERROR_FORBID)
 
     # 获得设备信息
     device = Device.get_device_by_code(device_code=device_code)
     if device is None:
+        if scan_from != 'playing':
+            play_url = url_for("wechat.menu", name="playing")
+            log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
+            return redirect(play_url)
+
         log.warn("当前设备号没有对应的设备信息: device_code = {}".format(device_code))
         return fail(HTTP_OK, u"设备信息异常，设备不存在", LOGIN_ERROR_NOT_FIND)
 
     # 判断用户是否余额充足
     if user.balance_account <= 0:
+
+        if scan_from != 'playing':
+            account_url = url_for("wechat.menu", name="account")
+            log.info("扫描不是来自上机界面按钮且当前用户已经被禁用了, 需要跳转用户页面: url = {}".format(account_url))
+            return redirect(account_url)
+
         log.info("用户余额不足，不能上线: user_id = {} device_id = {} account = {}".format(
             user.id, device.id, user.balance_account))
         return fail(HTTP_OK, u"用户余额不足，不能上线!", LOGIN_ERROR_NOT_SUFFICIENT_FUNDS)
@@ -97,16 +123,34 @@ def login(device_code):
 
         # 判断当前设备是否已经在使用了
         if redis.get(device_key):
+
+            if scan_from != 'playing':
+                play_url = url_for("wechat.menu", name="playing")
+                log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
+                return redirect(play_url)
+
             log.warn("当前设备{}已经在被使用，但是用户ID = {}又在申请".format(device.id, user.id))
             return fail(HTTP_OK, u"当前设备已经在使用上线了，但是不是当前用户在使用!", LOGIN_ERROR_DEVICE_IN_USING)
 
         # 判断当前用户是否已经上线了
         if redis.get(user_key):
+
+            if scan_from != 'playing':
+                play_url = url_for("wechat.menu", name="playing")
+                log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
+                return redirect(play_url)
+
             log.warn("当前用户{}已经在上线，但是又在申请当前设备ID = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
 
         # 判断当前设备是否处于空闲状态
         if device.state != Device.STATE_FREE:
+
+            if scan_from != 'playing':
+                play_url = url_for("wechat.menu", name="playing")
+                log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
+                return redirect(play_url)
+
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
@@ -118,6 +162,12 @@ def login(device_code):
                                               device.address.area,
                                               device.address.location)
         if not is_success:
+
+            if scan_from != 'playing':
+                play_url = url_for("wechat.menu", name="playing")
+                log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
+                return redirect(play_url)
+
             log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"上机记录创建失败!", LOGIN_ERROR_UNKNOW)
 
