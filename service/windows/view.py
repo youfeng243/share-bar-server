@@ -24,14 +24,14 @@ from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_tok
 from service.device.model import Device
 from service.use_record.model import UseRecord
 from service.windows.impl import WindowsService
-from tools.wechat_api import wechat_login_required, get_current_user
+from tools.wechat_api import wechat_required, get_current_user
 
 bp = Blueprint('windows', __name__, url_prefix='/windows')
 
 
 # 扫描上线登录 需要确保微信端已经登录
 @bp.route('/login/<device_code>', methods=['GET'])
-@wechat_login_required
+@wechat_required
 def login(device_code):
     # # 当前用户没有登录
     # LOGIN_ERROR_BIND = -1
@@ -197,7 +197,7 @@ def login(device_code):
 
 
 @bp.route('/offline', methods=['GET'])
-@wechat_login_required
+@wechat_required
 def wechat_offline():
     user = get_current_user(g.openid)
     if user is None:
@@ -216,7 +216,7 @@ def wechat_offline():
 
 # 获取用户在线状态
 @bp.route('/online/status', methods=['GET'])
-@wechat_login_required
+@wechat_required
 def get_online_status():
     user = get_current_user(g.openid)
     if user is None:

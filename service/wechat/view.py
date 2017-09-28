@@ -24,7 +24,7 @@ from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
 from service.wechat.impl import WechatService
-from tools.wechat_api import wechat_login_required, get_user_wechat_info, get_current_user, get_nonce_str, \
+from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, get_nonce_str, \
     gen_jsapi_signature, \
     wechat_token_required
 from tools.wx_pay import WxPay, WxPayError
@@ -46,7 +46,7 @@ wx_pay = WxPay(
 
 # 进入自定义菜单
 @bp.route('/menu/<name>', methods=['GET'])
-@wechat_login_required
+@wechat_required
 def menu(name):
     # 如果没有注册，则先进入注册流程
     user = get_current_user(g.openid)
@@ -87,7 +87,7 @@ def wechat_check():
 
 # 用户登录
 @bp.route('/login', methods=['POST'])
-@wechat_login_required
+@wechat_required
 def wechat_login():
     if not request.is_json:
         log.warn("参数错误...")
@@ -125,7 +125,7 @@ def wechat_login():
 
 # 获取当前用户信息接口
 @bp.route('/user', methods=['GET'])
-@wechat_login_required
+@wechat_required
 def get_user_info():
     user = get_current_user(g.openid)
     if user is None:
@@ -222,7 +222,7 @@ def notify():
 
 # 充值接口
 @bp.route("/recharge/<int:account>", methods=['GET'])
-@wechat_login_required
+@wechat_required
 def recharge(account):
     user = get_current_user(g.openid)
     if user is None:
@@ -252,7 +252,7 @@ def recharge(account):
 
 # 获得充值列表
 @bp.route("/recharge/list", methods=['POST'])
-@wechat_login_required
+@wechat_required
 def get_recharge_list():
     '''
     page: 当前页码
@@ -278,7 +278,7 @@ def get_recharge_list():
 
 # 消费记录列表
 @bp.route("/expense/list", methods=['POST'])
-@wechat_login_required
+@wechat_required
 def get_expense_list():
     user = get_current_user(g.openid)
     if user is None:
@@ -290,7 +290,7 @@ def get_expense_list():
 
 # 获得wx.config
 @bp.route("/jsapi/signature", methods=['POST'])
-@wechat_login_required
+@wechat_required
 def get_jsapi_signature():
     user = get_current_user(g.openid)
     if user is None:

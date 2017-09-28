@@ -158,7 +158,7 @@ def wechat_token_required(func):
 
 
 # 微信登录
-def wechat_login_required(func):
+def wechat_required(func):
     @wraps(func)
     def decorator(*args, **kwargs):
 
