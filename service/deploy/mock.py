@@ -15,8 +15,6 @@ import sys
 
 import requests
 
-from app import create_app
-
 sys.path.append("..")
 sys.path.append("../..")
 from exts.common import log
@@ -52,6 +50,35 @@ def gen_deploy():
             print r.status_code
             print json.loads(r.text)['error']
             print json.dumps(json.loads(r.text)['result'], ensure_ascii=False)
+
+    log.info("创建部署记录数据完成...")
+
+
+def gen_real_deploy():
+    session = requests.Session()
+    r = session.post('http://weixin.doumihuyu.com/admin/sign_in', json={
+        'username': 'youfeng',
+        'password': '123456'
+    })
+    print r.status_code
+    print json.loads(r.text, encoding='utf-8')['error']
+    print json.loads(r.text, encoding='utf-8')['result']
+    province = '广东省'
+    city = '深圳市'
+    area = '南山区'
+    location = '芒果网大厦'
+
+    json_data = {
+        'province': province,
+        'city': city,
+        'area': area,
+        'location': location,
+        'device_code': '11-22-33-44-55-66-77-88'
+    }
+    r = session.post('http://weixin.doumihuyu.com/admin/deploy', json=json_data)
+    print r.status_code
+    print json.loads(r.text)['error']
+    print json.dumps(json.loads(r.text)['result'], ensure_ascii=False)
 
     log.info("创建部署记录数据完成...")
 
@@ -99,5 +126,6 @@ def gen_deploy_test(application):
 
 
 if __name__ == '__main__':
-    application = create_app('share-bar-server')
-    gen_deploy_test(application)
+    gen_real_deploy()
+    # application = create_app('share-bar-server')
+    # gen_deploy_test(application)
