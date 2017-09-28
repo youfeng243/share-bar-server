@@ -14,7 +14,7 @@ from flask import g
 from flask import redirect
 from flask import request
 from flask import url_for
-from flask.ext.login import login_required
+from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
