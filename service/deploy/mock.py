@@ -54,7 +54,7 @@ def gen_deploy():
     log.info("创建部署记录数据完成...")
 
 
-def gen_real_deploy():
+def gen_real_deploy(code):
     session = requests.Session()
     r = session.post('http://weixin.doumihuyu.com/admin/sign_in', json={
         'username': 'youfeng',
@@ -73,7 +73,7 @@ def gen_real_deploy():
         'city': city,
         'area': area,
         'location': location,
-        'device_code': '11-22-33-44-55-66-77-88'
+        'device_code': code,  # '11-22-33-44-55-66-77-88'
     }
     r = session.post('http://weixin.doumihuyu.com/admin/deploy', json=json_data)
     print r.status_code
@@ -126,6 +126,9 @@ def gen_deploy_test(application):
 
 
 if __name__ == '__main__':
-    gen_real_deploy()
+    gen_real_deploy('11-22-33-44-55-66-77-88')
+    gen_real_deploy('11-22-33-44-55-66-77-87')
+    gen_real_deploy('11-22-33-44-55-66-77-86')
+    gen_real_deploy('11-22-33-44-55-66-77-85')
     # application = create_app('share-bar-server')
     # gen_deploy_test(application)
