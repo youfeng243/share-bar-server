@@ -157,6 +157,20 @@ def wechat_token_required(func):
     return decorator
 
 
+# 绑定手机号码
+def bind_required(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        is_bind = session.get('is_bind', None)
+        if is_bind:
+            return func(*args, **kwargs)
+
+        log.info("当前用户需要绑定登录: openid = {}".format(g.openid))
+        return redirect('/login')
+
+    return decorator
+
+
 # 微信登录
 def wechat_required(func):
     @wraps(func)

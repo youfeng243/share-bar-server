@@ -14,6 +14,7 @@ from flask import Blueprint
 from flask import g
 from flask import redirect
 from flask import request
+from flask import session
 
 import settings
 from exts.common import log, fail, HTTP_OK, success
@@ -26,7 +27,7 @@ from service.user.impl import UserService
 from service.wechat.impl import WechatService
 from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, get_nonce_str, \
     gen_jsapi_signature, \
-    wechat_token_required
+    wechat_token_required, bind_required
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
 
@@ -47,6 +48,8 @@ wx_pay = WxPay(
 # 进入自定义菜单
 @bp.route('/menu/<name>', methods=['GET'])
 @wechat_required
+# 需要绑定手机号 才能够进入菜单系统
+@bind_required
 def menu(name):
     # 如果没有注册，则先进入注册流程
     user = get_current_user(g.openid)
@@ -73,7 +76,7 @@ def menu(name):
     return fail(HTTP_OK, u"url error!")
 
 
-# 判断当前用户是否已经登录
+# 判断当前用户是否微信端授权
 @bp.route('/check', methods=['GET'])
 @wechat_token_required
 def wechat_check():
@@ -117,7 +120,7 @@ def wechat_login():
             if not user.save():
                 log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
                 return fail(HTTP_OK, u"user 存储错误!")
-
+        session['is_bind'] = True
         return success(user.to_dict())
 
     return fail(HTTP_OK, u'验证码错误')
@@ -126,6 +129,7 @@ def wechat_login():
 # 获取当前用户信息接口
 @bp.route('/user', methods=['GET'])
 @wechat_required
+@bind_required
 def get_user_info():
     user = get_current_user(g.openid)
     if user is None:
@@ -223,6 +227,7 @@ def notify():
 # 充值接口
 @bp.route("/recharge/<int:account>", methods=['GET'])
 @wechat_required
+@bind_required
 def recharge(account):
     user = get_current_user(g.openid)
     if user is None:
@@ -253,6 +258,7 @@ def recharge(account):
 # 获得充值列表
 @bp.route("/recharge/list", methods=['POST'])
 @wechat_required
+@bind_required
 def get_recharge_list():
     '''
     page: 当前页码
@@ -279,6 +285,7 @@ def get_recharge_list():
 # 消费记录列表
 @bp.route("/expense/list", methods=['POST'])
 @wechat_required
+@bind_required
 def get_expense_list():
     user = get_current_user(g.openid)
     if user is None:
@@ -291,6 +298,7 @@ def get_expense_list():
 # 获得wx.config
 @bp.route("/jsapi/signature", methods=['POST'])
 @wechat_required
+@bind_required
 def get_jsapi_signature():
     user = get_current_user(g.openid)
     if user is None:
