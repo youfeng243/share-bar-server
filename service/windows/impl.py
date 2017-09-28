@@ -143,3 +143,14 @@ class WindowsService(object):
 
         log.info("下机成功: user_id = {} device_id = {}".format(user_id, device_id))
         return success({'status': 1, 'msg': 'logout successed!'})
+
+    @staticmethod
+    def get_current_time_charging(charging_str):
+        try:
+            charge_dict = json.loads(charging_str)
+            charge_dict['cur_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            return charge_dict
+        except Exception as e:
+            log.error("json转换失败: charging = {}".format(charging_str))
+            log.exception(e)
+        return {'error': '计费json数据格式转换失败', 'status': -1}

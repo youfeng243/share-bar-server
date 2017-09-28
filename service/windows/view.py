@@ -8,7 +8,6 @@
 @time: 2017/9/20 14:13
 """
 import json
-from datetime import datetime
 
 from flask import Blueprint
 from flask import g
@@ -187,9 +186,9 @@ def get_online_status():
     if charging is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
 
-    charge_dict = json.loads(charging)
-    charge_dict['cur_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    return success(charge_dict)
+    # charge_dict = json.loads(charging)
+    # charge_dict['cur_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    return success(WindowsService.get_current_time_charging(charging))
 
 
 # 判断设备是否已经上线登录
@@ -231,16 +230,16 @@ def keep_alive():
             "status": 0,
             "msg": "keepalive failed!reason:token invalid"})
 
-    try:
-        return success({
-            "status": 1,
-            "msg": "keepalive success",
-            "data": json.loads(charging)})
-    except Exception as e:
-        log.error("json 加载失败: {}".format(charging))
-        log.exception(e)
-
-    return fail(HTTP_OK, u"json 数据解析失败!")
+    # try:
+    return success({
+        "status": 1,
+        "msg": "keepalive success",
+        "data": WindowsService.get_current_time_charging(charging)})
+    # except Exception as e:
+    #     log.error("json 加载失败: {}".format(charging))
+    #     log.exception(e)
+    #
+    # return fail(HTTP_OK, u"json 数据解析失败!")
 
 
 # 下线
