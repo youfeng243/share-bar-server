@@ -45,7 +45,12 @@ class WindowsService(object):
                 device.device_code))
 
             # 计算花费时间
-            record.cost_time = (record.end_time - record.ctime).seconds // 60
+            seconds = (record.end_time - record.ctime).seconds
+            # 如果大于半分钟就以一分钟的价格扣钱
+            if 30 <= seconds < 60:
+                seconds = 60
+
+            record.cost_time = seconds // 60
             log.info("本次上机花费的时间: user_id = {} device_id = {} cost_time = {}".format(
                 user_id, device_id, record.cost_time))
 
