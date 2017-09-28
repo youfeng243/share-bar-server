@@ -12,7 +12,9 @@ from datetime import datetime
 
 from flask import Blueprint
 from flask import g
+from flask import redirect
 from flask import request
+from flask import url_for
 from flask.ext.login import login_required
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
@@ -50,6 +52,8 @@ def login(device_code):
     # LOGIN_ERROR_USER_IN_USEING = -8
     # # 当前设备不处于空闲状态，不能上机
     # LOGIN_ERROR_DEVICE_NOT_FREE = -9
+
+    scan_from = request.args.get('from')
 
     # 获得用户信息
     user = get_current_user(g.openid)
@@ -142,6 +146,13 @@ def login(device_code):
         device.state = Device.STATE_BUSY
         device.save()
 
+    # 如果不是来自游戏仓按钮
+    if scan_from != 'playing':
+        play_url = url_for("wechat.menu", name="playing")
+        log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
+        return redirect(play_url)
+
+    log.info("来自微信端游戏仓界面扫描: user_id = {} device_id = {}".format(user.id, device.id))
     return success()
 
 
