@@ -53,13 +53,18 @@ def login(device_code):
     # LOGIN_ERROR_DEVICE_NOT_FREE = -9
 
     scan_from = request.args.get('from')
+    # 登录链接
+    login_url = url_for("wechat.menu", name="login")
+    # 游戏链接
+    play_url = url_for("wechat.menu", name="playing")
+    # 账户链接
+    account_url = url_for("wechat.menu", name="account")
 
     # 获得用户信息
     user = get_current_user(g.openid)
     if user is None:
         log.warn("当前openid还未绑定手机号码: openid = {}".format(g.openid))
         if scan_from != 'playing':
-            login_url = url_for("wechat.menu", name="login")
             log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
             return redirect(login_url)
 
@@ -68,7 +73,6 @@ def login(device_code):
     # 如果当前用户 被禁用 则不能上线
     if user.deleted is True:
         if scan_from != 'playing':
-            login_url = url_for("wechat.menu", name="login")
             log.info("扫描不是来自上机界面按钮且当前用户已经被删除了, 需要跳转登录页面: url = {}".format(login_url))
             return redirect(login_url)
 
@@ -78,7 +82,6 @@ def login(device_code):
     # 判断当前用户是否已经被禁用了
     if user.state == 'unused':
         if scan_from != 'playing':
-            login_url = url_for("wechat.menu", name="login")
             log.info("扫描不是来自上机界面按钮且当前用户已经被禁用了, 需要跳转登录页面: url = {}".format(login_url))
             return redirect(login_url)
 
@@ -89,7 +92,6 @@ def login(device_code):
     device = Device.get_device_by_code(device_code=device_code)
     if device is None:
         if scan_from != 'playing':
-            play_url = url_for("wechat.menu", name="playing")
             log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
             return redirect(play_url)
 
@@ -98,9 +100,7 @@ def login(device_code):
 
     # 判断用户是否余额充足
     if user.balance_account <= 0:
-
         if scan_from != 'playing':
-            account_url = url_for("wechat.menu", name="account")
             log.info("扫描不是来自上机界面按钮且当前用户已经被禁用了, 需要跳转用户页面: url = {}".format(account_url))
             return redirect(account_url)
 
@@ -123,9 +123,7 @@ def login(device_code):
 
         # 判断当前设备是否已经在使用了
         if redis.get(device_key):
-
             if scan_from != 'playing':
-                play_url = url_for("wechat.menu", name="playing")
                 log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
                 return redirect(play_url)
 
@@ -134,9 +132,7 @@ def login(device_code):
 
         # 判断当前用户是否已经上线了
         if redis.get(user_key):
-
             if scan_from != 'playing':
-                play_url = url_for("wechat.menu", name="playing")
                 log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
                 return redirect(play_url)
 
@@ -145,9 +141,7 @@ def login(device_code):
 
         # 判断当前设备是否处于空闲状态
         if device.state != Device.STATE_FREE:
-
             if scan_from != 'playing':
-                play_url = url_for("wechat.menu", name="playing")
                 log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
                 return redirect(play_url)
 
@@ -162,9 +156,7 @@ def login(device_code):
                                               device.address.area,
                                               device.address.location)
         if not is_success:
-
             if scan_from != 'playing':
-                play_url = url_for("wechat.menu", name="playing")
                 log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
                 return redirect(play_url)
 
@@ -197,7 +189,6 @@ def login(device_code):
 
     # 如果不是来自游戏仓按钮
     if scan_from != 'playing':
-        play_url = url_for("wechat.menu", name="playing")
         log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
         return redirect(play_url)
 
