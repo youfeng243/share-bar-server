@@ -25,7 +25,7 @@ def request_sms(mobile):
 
     data = {'mobilePhoneNumber': mobile}
     log.info('requestSms: %s', mobile)
-    headers = lean_cloud_client.gen_headers()
+    headers = lean_cloud_client.gen_headers(_sign=False)
     log.info('headers: %s', headers)
     if not settings.LEANCLOUD_PUSH_ENABLED:
         log.warn('没有打开短信验证码功能!!!!')
@@ -65,7 +65,7 @@ def validate_captcha(mobile, captcha):
     try:
         resp = requests.post(url,
                              params={'mobilePhoneNumber': mobile},
-                             headers=lean_cloud_client.gen_headers(),
+                             headers=lean_cloud_client.gen_headers(_sign=False),
                              )
         data = resp.json()
         rt = data.get('code', None)
