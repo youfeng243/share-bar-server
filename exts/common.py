@@ -83,7 +83,7 @@ ERROR_MSG = {
 
 # 短信验证码相关
 DEFAULT_MOBILE_EXPIRED = 60  # 1 minute
-LEANCLOUD_HOST = 'https://api.leancloud.cn'
+LEANCLOUD_HOST = 'https://leancloud.cn'
 REQUEST_SMS_CODE_URL = ''.join([LEANCLOUD_HOST, '/1.1/requestSmsCode'])
 VERIFY_SMS_CODE = ''.join([LEANCLOUD_HOST, '/1.1/verifySmsCode/{captcha}'])
 
