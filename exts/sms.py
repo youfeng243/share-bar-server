@@ -58,7 +58,7 @@ def validate_captcha(mobile, captcha):
         return False
 
     # 判断是否已经设置了 短信验证码关键信息
-    if settings.LEANCLOUD_ID or not settings.LEANCLOUD_KEY:
+    if settings.LEANCLOUD_ID is None or settings.LEANCLOUD_KEY is None:
         raise RuntimeError('没有设定 leancloud id/key')
 
     url = VERIFY_SMS_CODE.format(captcha=captcha)
