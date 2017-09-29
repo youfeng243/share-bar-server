@@ -166,7 +166,7 @@ def bind_required(func):
             return func(*args, **kwargs)
 
         log.info("当前用户需要绑定登录: openid = {}".format(g.openid))
-        return redirect('/login')
+        return redirect('#/login')
 
     return decorator
 

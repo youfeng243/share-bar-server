@@ -55,22 +55,22 @@ def menu(name):
     user = get_current_user(g.openid)
     if user is None:
         log.info("账户还没注册, 需要进入登录流程..")
-        return redirect('/login')
+        return redirect('#/login')
 
     # 判断是否需要重新登录
     if name == 'login':
         log.info("当前用户需要重新登录: openid = {}".format(g.openid))
-        return redirect('/login')
+        return redirect('#/login')
 
     # 进入账户中心
     if name == 'account':
         log.info("跳转到/account页面...")
-        return redirect('/account')
+        return redirect('#/account')
 
     # 进入游戏仓
     if name == 'playing':
         log.info("跳转到/playing页面...")
-        return redirect('/playing')
+        return redirect('#/playing')
 
     log.info("无法处理请求: name = {}".format(name))
     return fail(HTTP_OK, u"url error!")
