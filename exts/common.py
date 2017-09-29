@@ -71,6 +71,11 @@ WECHAT_ACCESS_TOKEN_KEY = "global:access_token"
 # 在redis中的key
 WECHAT_JSAPI_TICKET_KEY = "global:jsapi_ticket"
 
+'''
+前端相对路径URL
+'''
+
+
 ERROR_MSG = {
     HTTP_OK: 'OK',
     HTTP_BAD_REQUEST: 'bad request',
