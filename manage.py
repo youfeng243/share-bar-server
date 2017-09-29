@@ -7,7 +7,7 @@ from setuptools import find_packages
 
 import settings
 from app import create_app
-from exts.database import db
+from exts.database import db, redis
 from service.address.mock import gen_address
 from service.admin.mock import gen_admin
 from service.admin.model import Admin
@@ -87,6 +87,8 @@ def dropdb():
         _import_models()
         db.drop_all()
         db.session.commit()
+        # 删除redis所有数据
+        redis.flushdb()
         print '数据库删除完成...'
 
 
