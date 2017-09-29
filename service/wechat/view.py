@@ -324,7 +324,7 @@ def get_jsapi_signature():
     nonceStr = get_nonce_str(31)
     signature = gen_jsapi_signature(timestamp, nonceStr, jsapi_ticket, url)
     config = {
-        'debug': True,
+        'debug': settings.DEBUG,
         'appId': settings.WECHAT_APP_ID,
         'timestamp': str(timestamp),
         'nonceStr': nonceStr,
