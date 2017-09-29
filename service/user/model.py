@@ -23,7 +23,7 @@ class User(ModelBase):
     STATE_VALUES = ('unused', 'using')
 
     # 用户微信唯一ID
-    openid = db.Column(db.String(512), index=True, nullable=True)
+    openid = db.Column(db.String(512), index=True, unique=True, nullable=True)
 
     # 用户昵称 通过微信端获取
     nick_name = db.Column(db.String(63), default="")
