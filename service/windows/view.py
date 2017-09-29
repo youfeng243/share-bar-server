@@ -102,7 +102,7 @@ def login(device_code):
     # 判断用户是否余额充足
     if user.balance_account <= 0:
         if scan_from != 'playing':
-            log.info("扫描不是来自上机界面按钮且当前用户已经被禁用了, 需要跳转用户页面: url = {}".format(account_url))
+            log.info("扫描不是来自上机界面按钮且当前用户余额不足, 需要跳转用户页面: url = {}".format(account_url))
             return redirect(account_url)
 
         log.info("用户余额不足，不能上线: user_id = {} device_id = {} account = {}".format(
