@@ -99,8 +99,8 @@ def login(device_code):
         log.warn("当前设备号没有对应的设备信息: device_code = {}".format(device_code))
         return fail(HTTP_OK, u"设备信息异常，设备不存在", LOGIN_ERROR_NOT_FIND)
 
-    # 判断用户是否余额充足
-    if user.balance_account <= 0:
+    # 判断用户是否余额充足 如果小于一分钟不能上机
+    if user.balance_account < device.charge_mode:
         if scan_from != 'playing':
             log.info("扫描不是来自上机界面按钮且当前用户余额不足, 需要跳转用户页面: url = {}".format(account_url))
             return redirect(account_url)
