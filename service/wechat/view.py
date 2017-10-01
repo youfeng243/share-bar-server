@@ -25,8 +25,7 @@ from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
 from service.wechat.impl import WechatService
-from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, get_nonce_str, \
-    gen_jsapi_signature, \
+from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, \
     wechat_token_required, bind_required
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
@@ -321,7 +320,7 @@ def get_jsapi_signature():
 
     import time
     timestamp = int(time.time())
-    nonceStr = get_nonce_str(31)
+    nonceStr = wx_pay.nonce_str(31)
     signature = gen_jsapi_signature(timestamp, nonceStr, jsapi_ticket, url)
     config = {
         'debug': settings.DEBUG,

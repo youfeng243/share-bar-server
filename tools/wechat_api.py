@@ -4,7 +4,6 @@ import copy
 import hashlib
 import json
 import random
-import string
 from functools import wraps
 from urllib import urlencode
 from urlparse import ParseResult
@@ -72,21 +71,21 @@ def check_signature(func):
 
 
 # 获得微信鉴权url
-def get_oauth_url(endpoint, state):
-    args = copy.deepcopy(request.args.to_dict())
-    args.update(request.view_args)
-    url = url_for(endpoint, _external=True, **args)
-    log.info("当前鉴权后回调url为: {}".format(url))
-    qs = urlencode({
-        'appid': settings.WECHAT_APP_ID,
-        'redirect_uri': url,
-        'scope': 'snsapi_userinfo',
-        'state': state,
-    })
-
-    return ParseResult('https', 'open.weixin.qq.com',
-                       '/connect/oauth2/authorize', '',
-                       query=qs, fragment='wechat_redirect').geturl()
+# def get_oauth_url(endpoint, state):
+#     args = copy.deepcopy(request.args.to_dict())
+#     args.update(request.view_args)
+#     url = url_for(endpoint, _external=True, **args)
+#     log.info("当前鉴权后回调url为: {}".format(url))
+#     qs = urlencode({
+#         'appid': settings.WECHAT_APP_ID,
+#         'redirect_uri': url,
+#         'scope': 'snsapi_userinfo',
+#         'state': state,
+#     })
+#
+#     return ParseResult('https', 'open.weixin.qq.com',
+#                        '/connect/oauth2/authorize', '',
+#                        query=qs, fragment='wechat_redirect').geturl()
 
 
 # 获得跳转到登录链接的鉴权url
@@ -117,27 +116,21 @@ def get_token_url(code):
         'code': code,
         'grant_type': 'authorization_code',
     })
-    try:
-        o = ParseResult('https', 'api.weixin.qq.com',
-                        '/sns/oauth2/access_token', '',
-                        query=qs, fragment='wechat_redirect')
-        return o.geturl()
-    except Exception as e:
-        log.error("解析参数失败:")
-        log.exception(e)
-    return None
+    return ParseResult('https', 'api.weixin.qq.com',
+                       '/sns/oauth2/access_token', '',
+                       query=qs, fragment='wechat_redirect').geturl()
 
 
 # 获取刷新token
-def get_refresh_token(openid):
-    'box:wechat:open:access-token'
-
-    key = 'bar:wechat:refresh:token:{}'.format(openid)
-    refresh_token = redis.get(key)
-    if refresh_token is not None:
-        return refresh_token
-
-    return None
+# def get_refresh_token(openid):
+#     'box:wechat:open:access-token'
+#
+#     key = 'bar:wechat:refresh:token:{}'.format(openid)
+#     refresh_token = redis.get(key)
+#     if refresh_token is not None:
+#         return refresh_token
+#
+#     return None
 
 
 # 微信鉴权
@@ -256,18 +249,18 @@ def wechat_required(func):
     return decorator
 
 
-def signature_mch_info(params):
-    args = params.items()
-    result = sorted(args, cmp=lambda x, y: cmp(x[0], y[0]))
-    result = ['%s=%s' % (key, value) for key, value in result if value != '']
-    to_hash = '%s&key=%s' % ('&'.join(result), settings.WECHAT_PAYMENT_SECRET)
-    hashed = hashlib.md5(to_hash).hexdigest()
-    return hashed.upper()
+# def signature_mch_info(params):
+#     args = params.items()
+#     result = sorted(args, cmp=lambda x, y: cmp(x[0], y[0]))
+#     result = ['%s=%s' % (key, value) for key, value in result if value != '']
+#     to_hash = '%s&key=%s' % ('&'.join(result), settings.WECHAT_PAYMENT_SECRET)
+#     hashed = hashlib.md5(to_hash).hexdigest()
+#     return hashed.upper()
 
 
-def get_nonce_str(n):
-    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n))
-
+# def get_nonce_str(n):
+#     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n))
+#
 
 # 获得用户头像和昵称信息
 def get_user_wechat_info(refresh_token, openid):
