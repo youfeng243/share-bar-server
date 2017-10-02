@@ -15,7 +15,7 @@ import redis
 import requests
 
 import settings
-from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY
+from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_USER_KEY
 from logger import Logger
 
 log = Logger('process_weixin_cache.log').get_logger()
@@ -135,7 +135,12 @@ def charging_thread():
     SLEEP_TIME = 60
     while True:
         try:
-            pass
+            # 找出所有用户
+            user_list_key = redis_client.keys(pattern=REDIS_PRE_USER_KEY + '*')
+            # log.info(user_list_key)
+
+            # 给当前线上用户进行计费
+
 
         except Exception as e:
             log.error("计费线程异常:")
