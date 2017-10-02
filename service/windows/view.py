@@ -237,7 +237,7 @@ def get_online_status():
 
 # 判断设备是否已经上线登录
 @bp.route('/check', methods=['POST'])
-def check():
+def check_connect():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
