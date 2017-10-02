@@ -200,7 +200,7 @@ def login(device_code):
 @bp.route('/offline', methods=['GET'])
 @wechat_required
 @bind_required
-def wechat_offline():
+def wechat_logout():
     user = get_current_user(g.openid)
     if user is None:
         log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
@@ -288,7 +288,7 @@ def keep_alive():
 
 # 下线
 @bp.route('/logout', methods=['POST'])
-def logout():
+def windows_logout():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
@@ -307,9 +307,9 @@ def logout():
 
 
 # 强制下机
-@bp.route('/force/offline', methods=['POST'])
+@bp.route('/force/logout', methods=['POST'])
 @login_required
-def force_offline():
+def admin_logout():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
