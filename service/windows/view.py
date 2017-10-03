@@ -20,7 +20,7 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE
 from exts.database import redis
-from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_token_key
+from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_device_code_key
 from service.device.model import Device
 from service.use_record.model import UseRecord
 from service.windows.impl import WindowsService
@@ -116,7 +116,7 @@ def login(device_code):
     # 获得设备上线key
     device_key = get_device_key(device.id)
     # 获得当前设备token
-    token_key = get_token_key(device_code)
+    device_code_key = get_device_code_key(device_code)
 
     # 判断是否已经登录了
     charging = redis.get(record_key)
@@ -179,10 +179,10 @@ def login(device_code):
         charge_str = json.dumps(charging)
         # 开始上线 把上线信息存储redis
         redis.set(record_key, charge_str)
-        redis.set(user_key, charge_str)
-        redis.set(device_key, charge_str)
+        redis.set(user_key, record_key)
+        redis.set(device_key, record_key)
         # 根据设备机器码获得记录token
-        redis.set(token_key, record_key)
+        redis.set(device_code_key, record_key)
 
         # 设置设备当前使用状态
         device.state = Device.STATE_BUSY
@@ -207,7 +207,13 @@ def wechat_logout():
         return fail(HTTP_OK, u'用户信息获取失败，无法下机', -1)
 
     user_key = get_user_key(user.id)
-    charging = redis.get(user_key)
+    record_key = redis.get(user_key)
+    if record_key is None:
+        return success({
+            'status': 0,
+            'msg': "logout failed! reason: user device is already offline"})
+
+    charging = redis.get(record_key)
     if charging is None:
         return success({
             'status': 0,
@@ -226,7 +232,11 @@ def get_online_status():
         log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
         return fail(HTTP_OK, u'用户信息获取失败，无法获得上机状态信息', -1)
     user_key = get_user_key(user.id)
-    charging = redis.get(user_key)
+    record_key = redis.get(user_key)
+    if record_key is None:
+        return fail(HTTP_OK, u'当前用户没有上机信息', 0)
+
+    charging = redis.get(record_key)
     if charging is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
 
@@ -246,8 +256,8 @@ def check_connect():
     if device_code is None:
         return fail(HTTP_OK, u"not have device_code!!!")
 
-    token_key = get_token_key(device_code)
-    record_key = redis.get(token_key)
+    device_code_key = get_device_code_key(device_code)
+    record_key = redis.get(device_code_key)
     if record_key is None:
         return success({
             'status': 0,
@@ -264,11 +274,11 @@ def keep_alive():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
 
-    token = request.json.get('token')
-    if token is None:
+    record_key = request.json.get('token')
+    if record_key is None:
         return fail(HTTP_OK, u"not have token!!!")
 
-    charging = redis.get(token)
+    charging = redis.get(record_key)
     if charging is None:
         return success({
             "status": 0,
@@ -324,7 +334,13 @@ def admin_logout():
 
     if user_id is not None:
         user_key = get_user_key(user_id)
-        charging = redis.get(user_key)
+        record_key = redis.get(user_key)
+        if record_key is None:
+            return success({
+                'status': 0,
+                'msg': "logout failed! reason: user device is already offline"})
+
+        charging = redis.get(record_key)
         if charging is None:
             return success({
                 'status': 0,
@@ -333,8 +349,8 @@ def admin_logout():
         return WindowsService.do_logout(charging)
 
     if device_code is not None:
-        token_key = get_token_key(device_code)
-        record_key = redis.get(token_key)
+        device_code_key = get_device_code_key(device_code)
+        record_key = redis.get(device_code_key)
         if record_key is not None:
             charging = redis.get(record_key)
             if charging is None:
@@ -346,7 +362,14 @@ def admin_logout():
 
     if device_id is not None:
         device_key = get_device_key(device_id)
-        charging = redis.get(device_key)
+
+        record_key = redis.get(device_key)
+        if record_key is None:
+            return success({
+                'status': 0,
+                'msg': "logout failed! reason: user device is already offline"})
+
+        charging = redis.get(record_key)
         if charging is None:
             return success({
                 'status': 0,

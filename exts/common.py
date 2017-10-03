@@ -60,7 +60,7 @@ REDIS_PRE_USER_KEY = 'online#player#'
 REDIS_PRE_DEVICE_KEY = 'online#device#'
 
 # 上线token前缀
-REDIS_PRE_TOKEN_KEY = 'online#token#'
+REDIS_PRE_DEVICE_CODE_KEY = 'online#device_code#'
 
 # 网页token存储缓存前缀
 REDIS_PRE_OPENID_KEY = 'access#openid#'

@@ -13,7 +13,7 @@ from datetime import datetime
 from exts.charge_manage import Lock
 from exts.common import log, fail, HTTP_OK, success
 from exts.database import redis, db
-from exts.redis_dao import get_record_key, get_device_key, get_token_key
+from exts.redis_dao import get_record_key, get_device_key, get_device_code_key
 from exts.redis_dao import get_user_key
 from service.device.model import Device
 from service.use_record.model import UseRecord
@@ -142,13 +142,13 @@ class WindowsService(object):
             # 获得设备上线key
             device_key = get_device_key(device_id)
             # 获得当前设备token
-            token_key = get_token_key(device_code)
+            device_code_key = get_device_code_key(device_code)
 
             # 从redis中删除上机记录
             redis.delete(record_key)
             redis.delete(user_key)
             redis.delete(device_key)
-            redis.delete(token_key)
+            redis.delete(device_code_key)
 
         except Exception as e:
             log.error("数据解析失败: {}".format(charging))

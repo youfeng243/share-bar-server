@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import redis as r_
 
 from exts.common import log, REDIS_PRE_LOCK_KEY, REDIS_PRE_RECORD_KEY, REDIS_PRE_USER_KEY, REDIS_PRE_DEVICE_KEY, \
-    REDIS_PRE_TOKEN_KEY, REDIS_PRE_OPENID_KEY
+    REDIS_PRE_DEVICE_CODE_KEY, REDIS_PRE_OPENID_KEY
 
 
 class Redis(object):
@@ -59,8 +59,8 @@ def get_device_key(device_id):
 
 
 # 获得token key
-def get_token_key(device_code):
-    return "{}{}".format(REDIS_PRE_TOKEN_KEY, device_code)
+def get_device_code_key(device_code):
+    return "{}{}".format(REDIS_PRE_DEVICE_CODE_KEY, device_code)
 
 
 # 获得openid access_token对应的存储key

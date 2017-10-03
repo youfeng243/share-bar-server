@@ -12,7 +12,7 @@ import json
 from exts.charge_manage import Lock
 from exts.common import log
 from exts.database import redis
-from exts.redis_dao import get_user_key, get_record_key, get_device_key
+from exts.redis_dao import get_user_key
 
 
 class WechatService(object):
@@ -53,7 +53,12 @@ class WechatService(object):
 
         try:
             lock.acquire()
-            charge_str = redis.get(user_key)
+            record_key = redis.get(user_key)
+            if record_key is None:
+                log.info("当前用户没有在线，不需要同步在线数据: user_id = {}".format(user_id))
+                return
+
+            charge_str = redis.get(record_key)
             if charge_str is None:
                 log.info("当前用户没有在线，不需要同步在线数据: user_id = {}".format(user_id))
                 return
@@ -64,13 +69,7 @@ class WechatService(object):
                     log.error("解析json数据失败: {}".format(charge_str))
                     return
 
-                device_id = charge_dict.get('device_id')
                 balance_account = charge_dict.get('balance_account')
-
-                if not isinstance(device_id, int):
-                    log.error("device_id 数据类型不正确: {}".format(device_id))
-                    return
-
                 if not isinstance(balance_account, int):
                     log.error("balance_account 数据类型不正确: {}".format(balance_account))
                     return
@@ -78,35 +77,7 @@ class WechatService(object):
                 charge_dict['balance_account'] = balance_account + total_fee
                 redis.set(user_key, json.dumps(charge_dict))
 
-                # 修改组合的数据信息
-                record_key = get_record_key(user_id, device_id)
-                charge_str = redis.get(record_key)
-                if charge_str is None:
-                    log.info("当前用户没有在线，不需要同步在线数据: user_id = {}".format(user_id))
-                    return
-
-                charge_dict = json.loads(charge_str)
-                if charge_dict is None:
-                    log.error("解析json数据失败: {}".format(charge_str))
-                    return
-
-                charge_dict['balance_account'] = balance_account + total_fee
-                redis.set(record_key, json.dumps(charge_dict))
-
-                device_key = get_device_key(device_id)
-                charge_str = redis.get(device_key)
-                if charge_str is None:
-                    log.info("当前用户没有在线，不需要同步在线数据: user_id = {}".format(user_id))
-                    return
-
-                charge_dict = json.loads(charge_str)
-                if charge_dict is None:
-                    log.error("解析json数据失败: {}".format(charge_str))
-                    return
-
-                charge_dict['balance_account'] = balance_account + total_fee
-                redis.set(device_key, json.dumps(charge_dict))
-                log.info("同步修改redis中用户上机信息成功! user_id = {} account = {}".format(user_id, balance_account + total_fee))
+                log.info("同步修改redis中用户余额信息成功! user_id = {} account = {}".format(user_id, balance_account + total_fee))
             except Exception as e:
                 log.error("解析json数据失败: {}".format(charge_str))
                 log.exception(e)
