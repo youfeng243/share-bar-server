@@ -55,12 +55,12 @@ class WechatService(object):
             lock.acquire()
             record_key = redis.get(user_key)
             if record_key is None:
-                log.info("当前用户没有在线，不需要同步在线数据: user_id = {}".format(user_id))
+                log.info("当前用户没有在线 record_key = None, 不需要同步在线数据: user_id = {}".format(user_id))
                 return
 
             charge_str = redis.get(record_key)
             if charge_str is None:
-                log.info("当前用户没有在线，不需要同步在线数据: user_id = {}".format(user_id))
+                log.info("当前用户没有在线 charging = None, 不需要同步在线数据: user_id = {}".format(user_id))
                 return
 
             try:
@@ -75,7 +75,7 @@ class WechatService(object):
                     return
 
                 charge_dict['balance_account'] = balance_account + total_fee
-                redis.set(user_key, json.dumps(charge_dict))
+                redis.set(record_key, json.dumps(charge_dict))
 
                 log.info("同步修改redis中用户余额信息成功! user_id = {} account = {}".format(user_id, balance_account + total_fee))
             except Exception as e:
