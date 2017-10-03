@@ -16,16 +16,17 @@ import requests
 
 import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY
-from exts.redis_dao import get_user_key
+from exts.redis_dao import get_record_key, get_keep_alive_key
 from logger import Logger
+from service.windows.impl import WindowsService
 
 log = Logger('process_redis_cache.log').get_logger()
 
 try:
     redis_client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=32)
-except Exception as e:
+except Exception as ex:
     log.error("启动redis失败..")
-    log.exception(e)
+    log.exception(ex)
     exit(0)
 
 # 最后剩余阈值
@@ -129,7 +130,7 @@ def access_token_thread():
         time.sleep(SLEEP_TIME)
 
 
-def charging(record_key_list):
+def do_charging(record_key_list):
     if not isinstance(record_key_list, list):
         log.error("当前传入参数不正确: type = {}".format(type(record_key_list)))
         return
@@ -173,12 +174,35 @@ def charging(record_key_list):
                 log.error("没有关键信息 user_id: charge_str = {}".format(charge_str))
                 continue
 
-            # 获得加锁key
-            user_key = get_user_key(user_id)
+            device_id = charge_dict.get('device_id')
+            if device_id is None:
+                log.error("没有关键信息 device_id: charge_str = {}".format(charge_str))
+                continue
+
+            record_key = get_record_key(user_id, device_id)
 
             # 判断是否已经有5分钟没有收到心跳
+            keep_alive_key = get_keep_alive_key(record_key)
+            last_timestamp = redis_client.get(keep_alive_key)
+            if last_timestamp is None:
+                log.error("当前上线用户没有最后存活时间: user_id = {} device_id = {}".format(
+                    user_id, device_id))
+                continue
 
+            # 获得当前时间戳
+            now_timestamp = int(time.time())
 
+            # 如果当前丢失心跳的时间超过阈值，则默认离线，需要下机
+            if now_timestamp - last_timestamp >= settings.MAX_LOST_HEART_TIME:
+                # 下机
+                log.info("当前用户与机器没有收到任何心跳信息，强制下机: record_key = {}".format(record_key))
+                # 先获得上机信息
+                # charging = redis_client.get(record_key)
+                WindowsService.do_offline(charge_str)
+                log.info("强制下机完成: record_key = {}".format(record_key))
+                continue
+
+            # todo 如果用户余额不足上机了，则强制下机
 
         except Exception as e:
             log.error("当前存入的计费数据格式不正确: charge_str = {}".format(charge_str))
@@ -198,7 +222,7 @@ def charging_thread():
             record_key_list = redis_client.keys(pattern=REDIS_PRE_RECORD_KEY + '*')
 
             # 给当前线上用户进行计费
-            charging(record_key_list)
+            do_charging(record_key_list)
 
             log.info("扣费操作耗时: {} s".format(time.time() - start_time))
 

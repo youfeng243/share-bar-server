@@ -13,7 +13,7 @@ from datetime import datetime
 from exts.charge_manage import Lock
 from exts.common import log, fail, HTTP_OK, success
 from exts.database import redis, db
-from exts.redis_dao import get_record_key, get_device_key, get_device_code_key
+from exts.redis_dao import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
 from exts.redis_dao import get_user_key
 from service.device.model import Device
 from service.use_record.model import UseRecord
@@ -104,6 +104,9 @@ class WindowsService(object):
         # 获得当前设备token
         device_code_key = get_device_code_key(device.device_code)
 
+        # 获得keep_alive_key 更新最新存活时间
+        keep_alive_key = get_keep_alive_key(record_key)
+
         log.info("当前上机时间: user_id:{} device_id:{} record_id:{} ctime:{}".format(
             user.id, device.id, record.id, record.ctime.strftime('%Y-%m-%d %H:%M:%S')))
 
@@ -142,12 +145,16 @@ class WindowsService(object):
         lock = Lock(user_key, redis)
         try:
             lock.acquire()
+
             # 开始上线 把上线信息存储redis
             redis.set(record_key, charge_str)
             redis.set(user_key, record_key)
             redis.set(device_key, record_key)
             # 根据设备机器码获得记录token
             redis.set(device_code_key, record_key)
+            # 设置最新存活时间
+            import time
+            redis.set(keep_alive_key, int(time.time()))
 
             # 设置设备当前使用状态
             device.state = Device.STATE_BUSY
@@ -218,12 +225,15 @@ class WindowsService(object):
             device_key = get_device_key(device_id)
             # 获得当前设备token
             device_code_key = get_device_code_key(device_code)
+            # 获得keep_alive_key 更新最新存活时间
+            keep_alive_key = get_keep_alive_key(record_key)
 
             # 从redis中删除上机记录
             redis.delete(record_key)
             redis.delete(user_key)
             redis.delete(device_key)
             redis.delete(device_code_key)
+            redis.delete(keep_alive_key)
 
         except Exception as e:
             log.error("数据解析失败: {}".format(charging))

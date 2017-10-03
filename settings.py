@@ -27,3 +27,6 @@ LEANCLOUD_KEY = '4CaExa2BOpO5t5USckWade8i'
 # sms 短信开关，是否使用
 LEANCLOUD_PUSH_ENABLED = True
 SMS_DEBUG_CODE = '123456'
+
+# 未收到心跳最长时间，超过该时间则强制下机
+MAX_LOST_HEART_TIME = 300

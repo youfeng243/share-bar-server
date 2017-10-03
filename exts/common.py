@@ -62,6 +62,9 @@ REDIS_PRE_DEVICE_KEY = 'online#device#'
 # 上线token前缀
 REDIS_PRE_DEVICE_CODE_KEY = 'online#device_code#'
 
+# 上线保持连接key前缀
+REDIS_PRE_KEEP_ALIVE_KEY = 'keepalive#'
+
 # 网页token存储缓存前缀
 REDIS_PRE_OPENID_KEY = 'access#openid#'
 

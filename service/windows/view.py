@@ -7,6 +7,7 @@
 @file: view.py
 @time: 2017/9/20 14:13
 """
+import time
 
 from flask import Blueprint
 from flask import g
@@ -19,7 +20,7 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE
 from exts.database import redis
-from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_device_code_key
+from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_device_code_key, get_keep_alive_key
 from service.device.model import Device
 from service.windows.impl import WindowsService
 from tools.wechat_api import wechat_required, get_current_user, bind_required
@@ -257,6 +258,12 @@ def keep_alive():
         return success({
             "status": 0,
             "msg": "keepalive failed!reason:token invalid"})
+
+    # 获得keep_alive_key 更新最新存活时间
+    keep_alive_key = get_keep_alive_key(record_key)
+
+    # 设置最新存活时间
+    redis.set(keep_alive_key, int(time.time()))
 
     # try:
     return success({
