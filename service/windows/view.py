@@ -7,7 +7,6 @@
 @file: view.py
 @time: 2017/9/20 14:13
 """
-import json
 
 from flask import Blueprint
 from flask import g
@@ -22,7 +21,6 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_device_code_key
 from service.device.model import Device
-from service.use_record.model import UseRecord
 from service.windows.impl import WindowsService
 from tools.wechat_api import wechat_required, get_current_user, bind_required
 
@@ -33,7 +31,7 @@ bp = Blueprint('windows', __name__, url_prefix='/windows')
 @bp.route('/login/<device_code>', methods=['GET'])
 @wechat_required
 @bind_required
-def login(device_code):
+def qr_code_online(device_code):
     # # 当前用户没有登录
     # LOGIN_ERROR_BIND = -1
     # # 当前用户已经被删除
@@ -115,8 +113,8 @@ def login(device_code):
     user_key = get_user_key(user.id)
     # 获得设备上线key
     device_key = get_device_key(device.id)
-    # 获得当前设备token
-    device_code_key = get_device_code_key(device_code)
+    # # 获得当前设备token
+    # device_code_key = get_device_code_key(device_code)
 
     # 判断是否已经登录了
     charging = redis.get(record_key)
@@ -149,44 +147,20 @@ def login(device_code):
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
-        log.info("用户还未上机进行上机: user_id = {} device_id = {}".format(user.id, device.id))
-        record, is_success = UseRecord.create(user.id,
-                                              device.id,
-                                              device.address.province,
-                                              device.address.city,
-                                              device.address.area,
-                                              device.address.location)
-        if not is_success:
+        log.info("用户还未上机可以进行上机: user_id = {} device_id = {}".format(user.id, device.id))
+        # record, is_success = UseRecord.create(user.id,
+        #                                       device.id,
+        #                                       device.address.province,
+        #                                       device.address.city,
+        #                                       device.address.area,
+        #                                       device.address.location)
+        if not WindowsService.do_online(user, device):
             if scan_from != 'playing':
                 log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
                 return redirect(play_url)
 
             log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
-            return fail(HTTP_OK, u"上机记录创建失败!", LOGIN_ERROR_UNKNOW)
-
-        log.info("当前上机时间: user_id:{} device_id:{} record_id:{} ctime:{}".format(
-            user.id, device.id, record.id, record.ctime.strftime('%Y-%m-%d %H:%M:%S')))
-
-        # 获得计费结构体
-        charging = record.to_charging()
-        # 得到计费方式
-        charging['charge_mode'] = device.charge_mode
-        # 得到当前用户总额
-        charging['balance_account'] = user.balance_account
-        # 填充设备机器码
-        charging['device_code'] = device_code
-
-        charge_str = json.dumps(charging)
-        # 开始上线 把上线信息存储redis
-        redis.set(record_key, charge_str)
-        redis.set(user_key, record_key)
-        redis.set(device_key, record_key)
-        # 根据设备机器码获得记录token
-        redis.set(device_code_key, record_key)
-
-        # 设置设备当前使用状态
-        device.state = Device.STATE_BUSY
-        device.save()
+            return fail(HTTP_OK, u"上机异常!!", LOGIN_ERROR_UNKNOW)
 
     # 如果不是来自游戏仓按钮
     if scan_from != 'playing':
@@ -200,7 +174,7 @@ def login(device_code):
 @bp.route('/offline', methods=['GET'])
 @wechat_required
 @bind_required
-def wechat_logout():
+def wechat_offline():
     user = get_current_user(g.openid)
     if user is None:
         log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
@@ -219,7 +193,7 @@ def wechat_logout():
             'status': 0,
             'msg': "logout failed! reason: user device is already offline"})
 
-    return WindowsService.do_logout(charging)
+    return WindowsService.do_offline(charging)
 
 
 # 获取用户在线状态
@@ -298,7 +272,7 @@ def keep_alive():
 
 # Windows端下线，使用的是 user_id#device_id
 @bp.route('/logout', methods=['POST'])
-def windows_logout():
+def windows_offline():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
@@ -313,13 +287,13 @@ def windows_logout():
             'status': 0,
             'msg': "logout failed! reason: user device is already offline"})
 
-    return WindowsService.do_logout(charging)
+    return WindowsService.do_offline(charging)
 
 
 # 强制下机
 @bp.route('/force/logout', methods=['POST'])
 @login_required
-def admin_logout():
+def admin_offline():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
@@ -346,7 +320,7 @@ def admin_logout():
                 'status': 0,
                 'msg': "logout failed! reason: user device is already offline"})
         log.info("通过user_id下机: user_id = {}".format(user_id))
-        return WindowsService.do_logout(charging)
+        return WindowsService.do_offline(charging)
 
     if device_code is not None:
         device_code_key = get_device_code_key(device_code)
@@ -358,7 +332,7 @@ def admin_logout():
                     'status': 0,
                     'msg': "logout failed! reason: user device is already offline"})
             log.info("通过device_code下机: device_code = {}".format(device_code))
-            return WindowsService.do_logout(charging)
+            return WindowsService.do_offline(charging)
 
     if device_id is not None:
         device_key = get_device_key(device_id)
@@ -375,6 +349,6 @@ def admin_logout():
                 'status': 0,
                 'msg': "logout failed! reason: user device is already offline"})
         log.info("通过device_id下机: device_id = {}".format(device_id))
-        return WindowsService.do_logout(charging)
+        return WindowsService.do_offline(charging)
 
     return success(u'当前参数没有使任何机器或用户下机')

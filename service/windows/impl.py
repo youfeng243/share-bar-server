@@ -82,8 +82,83 @@ class WindowsService(object):
 
         return True
 
+    # 上线操作
     @staticmethod
-    def do_logout(charging):
+    def do_online(user, device):
+        log.info("用户还未上机可以进行上机: user_id = {} device_id = {}".format(user.id, device.id))
+        record, is_success = UseRecord.create(user.id,
+                                              device.id,
+                                              device.address.province,
+                                              device.address.city,
+                                              device.address.area,
+                                              device.address.location)
+        if not is_success:
+            return False
+
+        # 判断是否已经在redis中进行记录
+        record_key = get_record_key(user.id, device.id)
+        # 获得用户上线key
+        user_key = get_user_key(user.id)
+        # 获得设备上线key
+        device_key = get_device_key(device.id)
+        # 获得当前设备token
+        device_code_key = get_device_code_key(device.device_code)
+
+        log.info("当前上机时间: user_id:{} device_id:{} record_id:{} ctime:{}".format(
+            user.id, device.id, record.id, record.ctime.strftime('%Y-%m-%d %H:%M:%S')))
+
+        # 获得计费结构体
+        charging = record.to_charging()
+        # 得到计费方式
+        charging['charge_mode'] = device.charge_mode
+        # 得到当前用户总额
+        charging['balance_account'] = user.balance_account
+        # 填充设备机器码
+        charging['device_code'] = device.device_code
+
+        # charging = {
+        #     'id': self.id,
+        #     'user_id': self.user_id,
+        #     'device_id': self.device_id,
+        #     # 花费金额数目
+        #     'cost_money': self.cost_money,
+        #     # 上机时间
+        #     'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+        #     # 更新时间，主要用户同步计费
+        #     'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+        #     # 已经上机时间
+        #     'cost_time': self.cost_time,
+        #     # 计费方式 目前默认 5分钱/分钟
+        #     'charge_mode': 5,
+        #     # 当前用户余额
+        #     'balance_account': 10000,
+        #     # 设备机器码
+        #     'device_code': 'xx-xx-xx-xx-xx-xx',
+        # }
+
+        charge_str = json.dumps(charging)
+
+        # 操作redis 需要加锁
+        lock = Lock(user_key, redis)
+        try:
+            lock.acquire()
+            # 开始上线 把上线信息存储redis
+            redis.set(record_key, charge_str)
+            redis.set(user_key, record_key)
+            redis.set(device_key, record_key)
+            # 根据设备机器码获得记录token
+            redis.set(device_code_key, record_key)
+
+            # 设置设备当前使用状态
+            device.state = Device.STATE_BUSY
+            device.save()
+        finally:
+            lock.release()
+
+        return True
+
+    @staticmethod
+    def do_offline(charging):
 
         # offline_lock_key = None
         lock = None

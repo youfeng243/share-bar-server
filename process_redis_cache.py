@@ -16,6 +16,7 @@ import requests
 
 import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY
+from exts.redis_dao import get_user_key
 from logger import Logger
 
 log = Logger('process_redis_cache.log').get_logger()
@@ -128,6 +129,63 @@ def access_token_thread():
         time.sleep(SLEEP_TIME)
 
 
+def charging(record_key_list):
+    if not isinstance(record_key_list, list):
+        log.error("当前传入参数不正确: type = {}".format(type(record_key_list)))
+        return
+
+    if len(record_key_list) <= 0:
+        log.info("当前没有上线用户，不需要计费...")
+        return
+
+    # 开始针对用户进行扣费
+    for record_key in record_key_list:
+
+        charge_str = redis_client.get(record_key)
+        if charge_str is None:
+            log.info("当前用户已经下线，不需要再计费: record_key = {}".format(record_key))
+            continue
+
+        # charge_dict = {
+        #     'id': self.id,
+        #     'user_id': self.user_id,
+        #     'device_id': self.device_id,
+        #     # 花费金额数目
+        #     'cost_money': self.cost_money,
+        #     # 上机时间
+        #     'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+        #     # 更新时间，主要用户同步计费
+        #     'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+        #     # 已经上机时间
+        #     'cost_time': self.cost_time,
+        #     # 计费方式 目前默认 5分钱/分钟
+        #     'charge_mode': 5,
+        #     # 当前用户余额
+        #     'balance_account': 10000,
+        #     # 设备机器码
+        #     'device_code': 'xx-xx-xx-xx-xx-xx',
+        # }
+        try:
+            charge_dict = json.loads(charge_str)
+
+            user_id = charge_dict.get('user_id')
+            if user_id is None:
+                log.error("没有关键信息 user_id: charge_str = {}".format(charge_str))
+                continue
+
+            # 获得加锁key
+            user_key = get_user_key(user_id)
+
+            # 判断是否已经有5分钟没有收到心跳
+
+
+
+        except Exception as e:
+            log.error("当前存入的计费数据格式不正确: charge_str = {}".format(charge_str))
+            log.exception(e)
+            continue
+
+
 # 启动计费线程
 def charging_thread():
     log.info("开始启动计费线程...")
@@ -135,12 +193,14 @@ def charging_thread():
     SLEEP_TIME = 60
     while True:
         try:
+            start_time = time.time()
             # 找出所有用户
-            user_list_key = redis_client.keys(pattern=REDIS_PRE_RECORD_KEY + '*')
-            # log.info(user_list_key)
+            record_key_list = redis_client.keys(pattern=REDIS_PRE_RECORD_KEY + '*')
 
             # 给当前线上用户进行计费
+            charging(record_key_list)
 
+            log.info("扣费操作耗时: {} s".format(time.time() - start_time))
 
         except Exception as e:
             log.error("计费线程异常:")
