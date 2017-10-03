@@ -46,10 +46,10 @@ class Admin(UserMixin, ModelBase):
     # 密码
     hashed_password = db.Column(db.String(256), nullable=False)
 
-    # 姓名 todo 同一个人可以是多种管理员？ 待与PM确认。。
+    # 姓名
     name = db.Column(db.String(64), nullable=False)
 
-    # 角色 外键 todo 创建外键失败
+    # 角色 外键
     # role_id = db.Column(db.Integer, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
