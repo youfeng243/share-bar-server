@@ -40,7 +40,7 @@ def create_app(name=None):
     db.init_app(app)
 
     # redis 初始化
-    redis.init_app(app)
+    # redis.init_app(app)
 
     # 管理员登录管理
     setup_admin_login(app)
