@@ -147,25 +147,6 @@ def do_charging(record_key_list):
             log.info("当前用户已经下线，不需要再计费: record_key = {}".format(record_key))
             continue
 
-        # charge_dict = {
-        #     'id': self.id,
-        #     'user_id': self.user_id,
-        #     'device_id': self.device_id,
-        #     # 花费金额数目
-        #     'cost_money': self.cost_money,
-        #     # 上机时间
-        #     'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
-        #     # 更新时间，主要用户同步计费
-        #     'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
-        #     # 已经上机时间
-        #     'cost_time': self.cost_time,
-        #     # 计费方式 目前默认 5分钱/分钟
-        #     'charge_mode': 5,
-        #     # 当前用户余额
-        #     'balance_account': 10000,
-        #     # 设备机器码
-        #     'device_code': 'xx-xx-xx-xx-xx-xx',
-        # }
         try:
             charge_dict = json.loads(charge_str)
 
@@ -195,14 +176,62 @@ def do_charging(record_key_list):
             # 如果当前丢失心跳的时间超过阈值，则默认离线，需要下机
             if now_timestamp - last_timestamp >= settings.MAX_LOST_HEART_TIME:
                 # 下机
-                log.info("当前用户与机器没有收到任何心跳信息，强制下机: record_key = {}".format(record_key))
+                log.info("当前用户与机器没有收到任何心跳信息，强制下机: record_key = {} last_timestamp = {}".format(
+                    record_key, last_timestamp))
                 # 先获得上机信息
                 # charging = redis_client.get(record_key)
                 WindowsService.do_offline(charge_str)
-                log.info("强制下机完成: record_key = {}".format(record_key))
+                log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
                 continue
 
-            # todo 如果用户余额不足上机了，则强制下机
+            # charge_dict = {
+            #     'id': self.id,
+            #     'user_id': self.user_id,
+            #     'device_id': self.device_id,
+            #     # 花费金额数目
+            #     'cost_money': self.cost_money,
+            #     # 上机时间
+            #     'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            #     # 更新时间，主要用户同步计费
+            #     'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            #     # 已经上机时间
+            #     'cost_time': self.cost_time,
+            #     # 计费方式 目前默认 5分钱/分钟
+            #     'charge_mode': 5,
+            #     # 当前用户余额
+            #     'balance_account': 10000,
+            #     # 设备机器码
+            #     'device_code': 'xx-xx-xx-xx-xx-xx',
+            # }
+            # 如果用户余额不足上机了，则强制下机
+            ctime = charge_dict.get('ctime')
+            if ctime is None:
+                log.error("没有关键信息 ctime: charge_str = {}".format(charge_str))
+                continue
+
+            charge_mode = charge_dict.get('charge_mode')
+            if charge_mode is None:
+                log.error("没有关键信息 charge_mode: charge_str = {}".format(charge_str))
+                continue
+
+            balance_account = charge_dict.get('balance_account')
+            if balance_account is None:
+                log.error("没有关键信息 balance_account: charge_str = {}".format(charge_str))
+                continue
+
+            start_time = time.mktime(time.strptime(ctime, "%Y-%m-%d %H:%M:%S"))
+            cost_time = now_timestamp - start_time
+            cost_money = cost_time * int(charge_mode)
+            # 如果使用的费用超额半分钟的费用，则强制下机
+            if cost_money - balance_account >= 45 * charge_mode:
+                log.info("当前用户余额不足，强制下机: record_key = {} balance_account = {} "
+                         "cost_time = {}s cost_money = {} start_time = {} now_time = {}".
+                         format(record_key, balance_account, cost_time, cost_money, start_time, now_timestamp))
+                # 先获得上机信息
+                # charging = redis_client.get(record_key)
+                WindowsService.do_offline(charge_str)
+                log.info("当前用户余额不足, 强制下机完成: record_key = {}".format(record_key))
+                continue
 
         except Exception as e:
             log.error("当前存入的计费数据格式不正确: charge_str = {}".format(charge_str))
