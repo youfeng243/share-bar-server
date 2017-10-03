@@ -11,44 +11,8 @@
 # 分布式锁
 import time
 
+from exts.common import log
 
-# def sync(key, lock_time=4):
-#     def decorator(func):
-#         def _decorator(*args, **kwargs):
-#             # 加锁的redis 键
-#             lock_key = 'sync#' + key
-#
-#             ret = func(*args, **kwargs)
-#
-#             return ret
-#
-#         return _decorator
-#
-#     return decorator
-
-
-# LOCK_TIMEOUT = 3
-# lock = 0
-# lock_timeout = 0
-# lock_key = 'lock.foo'
-#
-# # 获取锁
-# while lock != 1:
-#     now = int(time.time())
-#     lock_timeout = now + LOCK_TIMEOUT + 1
-#     lock = redis_client.setnx(lock_key, lock_timeout)
-#     if lock == 1 or (now > int(redis_client.get(lock_key))) and now > int(redis_client.getset(lock_key, lock_timeout)):
-#         break
-#     else:
-#         time.sleep(0.001)
-#
-# # 已获得锁
-# do_job()
-#
-# # 释放锁
-# now = int(time.time())
-# if now < lock_timeout:
-#     redis_client.delete(lock_key)
 
 class Lock(object):
     def __init__(self, key, redis_client, lock_timeout=3):
@@ -57,10 +21,12 @@ class Lock(object):
         self.lock_flag = 0
         self.lock_key = 'lock#' + key
         self.lock_time = self.lock_timeout + 1
+        self.start_lock_time = 0
 
     # 加锁
     def acquire(self):
-
+        log.info("开始加锁: {}".format(self.lock_key))
+        self.start_lock_time = int(time.time())
         # 获取锁
         while self.lock_flag != 1:
             now = int(time.time())
@@ -78,6 +44,8 @@ class Lock(object):
 
         if now < self.lock_time:
             self.redis_client.delete(self.lock_key)
+        log.info("解锁完成: {}".format(self.lock_key))
+        log.info("加锁耗时: {}".format(int(time.time()) - self.start_lock_time))
 
 
 # 后台计费管理
