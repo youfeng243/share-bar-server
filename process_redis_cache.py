@@ -171,6 +171,7 @@ def do_charging(record_key_list):
                 continue
 
             # 获得当前时间戳
+            last_timestamp = int(last_timestamp)
             now_timestamp = int(time.time())
 
             # 如果当前丢失心跳的时间超过阈值，则默认离线，需要下机
