@@ -13,9 +13,11 @@ import time
 
 import redis
 import requests
+from flask import Flask
 
 import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY
+from exts.database import db
 from exts.redis_dao import get_record_key, get_keep_alive_key
 from logger import Logger
 from service.windows.impl import WindowsService
@@ -30,7 +32,17 @@ except Exception as ex:
     exit(0)
 
 # 最后剩余阈值
-LAST_TIME = 300
+WEIXIN_CACHE_LAST_TIME = 300
+
+app = Flask(__name__)
+
+# 从settings中加载配置信息
+app.config.from_object('settings')
+
+app.debug = settings.DEBUG
+
+# 数据库初始化
+db.init_app(app)
 
 
 def update_access_token():
@@ -112,14 +124,14 @@ def access_token_thread():
         try:
             ttl = redis_client.ttl(WECHAT_ACCESS_TOKEN_KEY)
             log.info("当前key存活时间: key = {} ttl = {}".format(WECHAT_ACCESS_TOKEN_KEY, ttl))
-            if ttl <= LAST_TIME:
+            if ttl <= WEIXIN_CACHE_LAST_TIME:
                 log.info("开始获取token...")
                 update_access_token()
                 log.info("获取token结束...")
 
             ttl = redis_client.ttl(WECHAT_JSAPI_TICKET_KEY)
             log.info("当前key存活时间: key = {} ttl = {}".format(WECHAT_JSAPI_TICKET_KEY, ttl))
-            if ttl <= LAST_TIME:
+            if ttl <= WEIXIN_CACHE_LAST_TIME:
                 log.info("开始获取jsapi_ticket...")
                 update_ticket()
                 log.info("获取jsapi_ticket结束...")
