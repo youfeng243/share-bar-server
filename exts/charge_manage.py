@@ -39,7 +39,7 @@ class Lock(object):
             time.sleep(0.001)
 
     # 解锁
-    def unlock(self):
+    def release(self):
         now = int(time.time())
 
         if now < self.lock_time:

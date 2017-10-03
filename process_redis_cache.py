@@ -15,7 +15,7 @@ import redis
 import requests
 
 import settings
-from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_USER_KEY
+from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY
 from logger import Logger
 
 log = Logger('process_redis_cache.log').get_logger()
@@ -136,7 +136,7 @@ def charging_thread():
     while True:
         try:
             # 找出所有用户
-            user_list_key = redis_client.keys(pattern=REDIS_PRE_USER_KEY + '*')
+            user_list_key = redis_client.keys(pattern=REDIS_PRE_RECORD_KEY + '*')
             # log.info(user_list_key)
 
             # 给当前线上用户进行计费

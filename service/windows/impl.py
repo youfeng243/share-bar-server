@@ -157,7 +157,7 @@ class WindowsService(object):
         finally:
             # 解锁
             if lock is not None:
-                lock.unlock()
+                lock.release()
                 log.info("下机完成: lock_key = {}".format(lock.lock_key))
         # finally:
         #     # 这里需要加锁

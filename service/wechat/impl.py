@@ -82,4 +82,4 @@ class WechatService(object):
                 log.error("解析json数据失败: {}".format(charge_str))
                 log.exception(e)
         finally:
-            lock.unlock()
+            lock.release()
