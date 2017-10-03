@@ -44,6 +44,7 @@ class Lock(object):
 
         if now < self.lock_time:
             self.redis_client.delete(self.lock_key)
+            log.info("删除加锁key成功: lock_key = {}".format(self.lock_key))
         log.info("解锁完成: {}".format(self.lock_key))
         log.info("加锁耗时: {}".format(time.time() - self.start_lock_time))
         log.info("加锁超时时长: {}".format(self.lock_timeout + 1))

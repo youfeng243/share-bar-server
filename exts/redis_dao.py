@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import redis as r_
 
-from exts.common import log, REDIS_PRE_LOCK_KEY, REDIS_PRE_RECORD_KEY, REDIS_PRE_USER_KEY, REDIS_PRE_DEVICE_KEY, \
+from exts.common import log, REDIS_PRE_RECORD_KEY, REDIS_PRE_USER_KEY, REDIS_PRE_DEVICE_KEY, \
     REDIS_PRE_DEVICE_CODE_KEY, REDIS_PRE_OPENID_KEY
 
 
@@ -32,10 +32,10 @@ class Redis(object):
         #     self._client.set(key, value)
 
 
-# 下机锁
-def get_offline_lock_key(lock):
-    lock_key = "{}{}".format(REDIS_PRE_LOCK_KEY, lock)
-    return lock_key
+# # 下机锁
+# def get_offline_lock_key(lock):
+#     lock_key = "{}{}".format(REDIS_PRE_LOCK_KEY, lock)
+#     return lock_key
 
 
 # 获得用户上线使用记录key
