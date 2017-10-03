@@ -286,7 +286,7 @@ def keep_alive():
     # return fail(HTTP_OK, u"json 数据解析失败!")
 
 
-# 下线
+# Windows端下线，使用的是 user_id#device_id
 @bp.route('/logout', methods=['POST'])
 def windows_logout():
     if not request.is_json:
