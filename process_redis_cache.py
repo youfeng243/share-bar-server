@@ -18,7 +18,7 @@ import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_USER_KEY
 from logger import Logger
 
-log = Logger('process_weixin_cache.log').get_logger()
+log = Logger('process_redis_cache.log').get_logger()
 
 try:
     redis_client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=32)

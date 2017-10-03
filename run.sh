@@ -18,7 +18,7 @@ start() {
     .venv/bin/gunicorn -c ${config} wsgi:application
 
     # 启动access_token进程
-    nohup .venv/bin/python process_weixin_cache.py > /dev/null 2>&1 &
+    nohup .venv/bin/python process_redis_cache.py > /dev/null 2>&1 &
 
     echo "${project} start success..."
 }
@@ -33,7 +33,7 @@ stop() {
     ps -ef | grep -v grep | grep 'wsgi:application' | awk '{print $2}' | xargs kill -9
     rm -rf ${project}.pid
 
-    ps -ef | grep -v grep | grep 'process_weixin_cache' | grep python | awk '{print $2}' | xargs kill -9
+    ps -ef | grep -v grep | grep 'process_redis_cache' | grep python | awk '{print $2}' | xargs kill -9
 
 	echo "${project} stop success..."
 	return 1
