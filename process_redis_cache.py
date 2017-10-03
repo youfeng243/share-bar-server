@@ -13,16 +13,12 @@ import time
 
 import redis
 import requests
-from flask import Flask
 
 import settings
-from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY
-from exts.database import db
+from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log
 from exts.redis_dao import get_record_key, get_keep_alive_key
-from logger import Logger
-from service.windows.impl import WindowsService
 
-log = Logger('process_redis_cache.log').get_logger()
+# log = Logger('process_redis_cache.log').get_logger()
 
 try:
     redis_client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=32)
@@ -33,16 +29,6 @@ except Exception as ex:
 
 # 最后剩余阈值
 WEIXIN_CACHE_LAST_TIME = 300
-
-app = Flask(__name__)
-
-# 从settings中加载配置信息
-app.config.from_object('settings')
-
-app.debug = settings.DEBUG
-
-# 数据库初始化
-db.init_app(app)
 
 
 def update_access_token():
@@ -142,6 +128,18 @@ def access_token_thread():
         time.sleep(SLEEP_TIME)
 
 
+# 发送下机命令
+def do_offline(record_key):
+    url = 'http://localhost:8080/windows/logout'
+    try:
+        r = requests.post(url, json={'token': record_key}, timeout=10)
+        log.info("当前处理状态status_code = {}".format(r.status_code))
+        log.info("当前处理返回信息: {}".format(r.content))
+    except Exception as e:
+        log.error("发送下机指令异常: ")
+        log.exception(e)
+
+
 def do_charging(record_key_list):
     if not isinstance(record_key_list, list):
         log.error("当前传入参数不正确: type = {}".format(type(record_key_list)))
@@ -193,7 +191,7 @@ def do_charging(record_key_list):
                     record_key, last_timestamp))
                 # 先获得上机信息
                 # charging = redis_client.get(record_key)
-                WindowsService.do_offline(charge_str)
+                do_offline(record_key)
                 log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
                 continue
 
@@ -242,7 +240,7 @@ def do_charging(record_key_list):
                          format(record_key, balance_account, cost_time, cost_money, start_time, now_timestamp))
                 # 先获得上机信息
                 # charging = redis_client.get(record_key)
-                WindowsService.do_offline(charge_str)
+                do_offline(record_key)
                 log.info("当前用户余额不足, 强制下机完成: record_key = {}".format(record_key))
                 continue
 
