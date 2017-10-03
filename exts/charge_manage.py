@@ -26,7 +26,7 @@ class Lock(object):
     # 加锁
     def acquire(self):
         log.info("开始加锁: {}".format(self.lock_key))
-        self.start_lock_time = int(time.time())
+        self.start_lock_time = time.time()
         # 获取锁
         while self.lock_flag != 1:
             now = int(time.time())
@@ -45,7 +45,7 @@ class Lock(object):
         if now < self.lock_time:
             self.redis_client.delete(self.lock_key)
         log.info("解锁完成: {}".format(self.lock_key))
-        log.info("加锁耗时: {}".format(int(time.time()) - self.start_lock_time))
+        log.info("加锁耗时: {}".format(time.time() - self.start_lock_time))
 
 
 # 后台计费管理
