@@ -37,6 +37,7 @@ class Lock(object):
                 break
 
             time.sleep(0.001)
+        log.info("获取锁成功: {}".format(self.lock_key))
 
     # 解锁
     def release(self):
