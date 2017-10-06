@@ -237,7 +237,6 @@ def wechat_required(func):
                 redis.setex(get_openid_key(openid), expires_in, access_token)
 
             g.openid = openid
-            g.access_token = access_token
             g.refresh_token = refresh_token
             log.info("通过url链接获得openid成功: openid = {} refresh_token = {}".format(openid, refresh_token))
             return func(*args, **kwargs)
