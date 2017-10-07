@@ -226,7 +226,7 @@ def wechat_required(func):
             # 保存access_token
             access_token = data.get('access_token', None)
             if access_token is not None:
-                session['access_token'] = access_token
+                # session['access_token'] = access_token
                 log.info("用户初次使用得到access_token = {}".format(access_token))
 
             expires_in = data.get("expires_in", None)
