@@ -131,20 +131,39 @@ def wechat_login():
     # 校验手机验证码
     if validate_captcha(mobile, code):
         user = UserService.get_user_by_mobile(mobile)
-        if user is None:
-            # 获得用户的头像与昵称信息
-            head_img_url, nick_name = get_user_wechat_info(g.refresh_token, g.openid)
-            log.info("当前用户获取的信息为: openid = {} head = {} nick_name = {}".format(
-                g.openid, head_img_url, nick_name))
-            user, is_success = UserService.create(mobile, g.openid,
-                                                  head_img_url=head_img_url,
-                                                  nick_name=nick_name)
-        # 判断是否更换了微信登录，目前不支持已绑定微信以外的微信账号登录 20171007 张雅晴
-        elif user.openid != g.openid:
-            # user.openid = g.openid
-            # if not user.save():
-            #     log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
+
+        # 校验完成正确
+        if user is not None and user.openid == g.openid:
+            session['is_bind'] = True
+            return success(user.to_dict())
+
+        if user is not None and user.openid != g.openid:
+            log.info("当前手机号码已绑定其他微信，不能登录: openid = {} mobile = {}".format(
+                g.openid, mobile))
             return fail(HTTP_OK, u"当前手机号码已绑定其他微信，不能登录!")
+
+        # 如果能够通过openid找到对应的用户信息则说明当前openid已经绑定过了，不能登录
+        user = UserService.get_by_openid(g.openid)
+        if user is not None:
+            log.info("当前微信已绑定其他手机号，不能登录: openid = {} mobile = {}".format(
+                g.openid, mobile))
+            return fail(HTTP_OK, u"当前微信已绑定其他手机号，不能登录!")
+
+        # 如果手机号与微信号都没有任何记录，则需要建立账号
+
+        # 获得用户的头像与昵称信息
+        head_img_url, nick_name = get_user_wechat_info(g.refresh_token, g.openid)
+        log.info("当前用户获取的信息为: openid = {} head = {} nick_name = {}".format(
+            g.openid, head_img_url, nick_name))
+        user, is_success = UserService.create(mobile, g.openid,
+                                              head_img_url=head_img_url,
+                                              nick_name=nick_name)
+        # # 判断是否更换了微信登录，目前不支持已绑定微信以外的微信账号登录 20171007 张雅晴
+        # elif user.openid != g.openid:
+        #     # user.openid = g.openid
+        #     # if not user.save():
+        #     #     log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
+        #     return fail(HTTP_OK, u"当前手机号码已绑定其他微信，不能登录!")
 
         session['is_bind'] = True
         return success(user.to_dict())
