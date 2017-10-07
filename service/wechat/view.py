@@ -114,11 +114,13 @@ def wechat_login():
             user, is_success = UserService.create(mobile, g.openid,
                                                   head_img_url=head_img_url,
                                                   nick_name=nick_name)
+        # 判断是否更换了微信登录，目前不支持已绑定微信以外的微信账号登录 20171007 张雅晴
         elif user.openid != g.openid:
-            user.openid = g.openid
-            if not user.save():
-                log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
-                return fail(HTTP_OK, u"user 存储错误!")
+            # user.openid = g.openid
+            # if not user.save():
+            #     log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
+            return fail(HTTP_OK, u"当前手机号码已绑定其他微信，不能登录!")
+
         session['is_bind'] = True
         return success(user.to_dict())
 
