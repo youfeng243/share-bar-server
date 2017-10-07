@@ -19,7 +19,7 @@ from flask import session
 import settings
 from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY
 from exts.database import redis
-from exts.sms import validate_captcha
+from exts.sms import validate_captcha, mobile_reach_ratelimit, request_sms
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
@@ -85,6 +85,31 @@ def wechat_check():
         return fail(HTTP_OK, u"当前openid没有注册!", 0)
 
     return success()
+
+
+# 请求手机验证码，进行用户注册
+@bp.route('/captcha', methods=['POST'])
+@wechat_required
+def request_code():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    mobile = request.json.get('mobile', None)
+    if mobile is None:
+        return fail(HTTP_OK, u'手机号不能未空')
+
+    if len(mobile) != 11:
+        return fail(HTTP_OK, u'手机号不合法')
+
+    if mobile_reach_ratelimit(mobile):
+        return fail(HTTP_OK, u'验证码已发送')
+
+    # 通过手机号请求验证码
+    if request_sms(mobile):
+        return success()
+
+    return fail(HTTP_OK, u"发送验证码请求失败!")
 
 
 # 用户登录
