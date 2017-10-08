@@ -143,7 +143,9 @@ def wechat_login():
 
     # 校验完成正确
     if user is not None and user.openid == g.openid:
-        session['u_id'] = encode_user_id(user.id)
+        u_id = encode_user_id(user.id)
+        session['u_id'] = u_id
+        log.info("当前绑定的user_id cookie = {}".format(u_id))
         return success(user.to_dict())
 
     if user is not None and user.openid != g.openid:
@@ -178,7 +180,9 @@ def wechat_login():
     #     #     log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
     #     return fail(HTTP_OK, u"当前手机号码已绑定其他微信，不能登录!")
 
-    session['u_id'] = encode_user_id(user.id)
+    u_id = encode_user_id(user.id)
+    session['u_id'] = u_id
+    log.info("当前绑定的user_id cookie = {}".format(u_id))
     return success(user.to_dict())
 
 
