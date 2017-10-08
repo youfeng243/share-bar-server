@@ -25,8 +25,7 @@ from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
 from service.wechat.impl import WechatService
-from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, \
-    wechat_token_required, bind_required
+from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, bind_required
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
 
@@ -77,11 +76,18 @@ def menu(name):
 
 # 判断当前用户是否微信端授权
 @bp.route('/check', methods=['GET'])
-@wechat_token_required
+# @wechat_token_required
 def wechat_check():
-    user = get_current_user(g.openid)
+    openid = session.get('openid', None)
+    refresh_token = session.get('refresh_token', None)
+    # 如果两个关键的token都存在 则正常进入下面的流程
+    if openid is None or refresh_token is None:
+        log.warn("当前用户没有openid 或者没有refresh_token..")
+        return fail(HTTP_OK, u"当前用户没有openid!", -1)
+
+    user = get_current_user(openid)
     if user is None:
-        log.info("当前openid没有注册用户信息: {}".format(g.openid))
+        log.info("当前openid没有注册用户信息: {}".format(openid))
         return fail(HTTP_OK, u"当前openid没有注册!", 0)
 
     return success()
