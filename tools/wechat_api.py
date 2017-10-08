@@ -339,3 +339,11 @@ def get_current_user(user_id):
         return None
 
     return UserService.get_by_id(user_id)
+
+
+# 通过openid获取用户信息
+def get_current_user_by_openid(openid):
+    if openid is None:
+        return None
+
+    return UserService.get_by_openid(openid)

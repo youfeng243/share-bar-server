@@ -25,7 +25,8 @@ from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
 from service.wechat.impl import WechatService
-from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, bind_required
+from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, bind_required, \
+    get_current_user_by_openid
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
 
@@ -85,7 +86,7 @@ def wechat_check():
         log.warn("当前用户没有openid 或者没有refresh_token..")
         return fail(HTTP_OK, u"当前用户没有openid!", -1)
 
-    user = get_current_user(openid)
+    user = get_current_user_by_openid(openid)
     if user is None:
         log.info("当前openid没有注册用户信息: {}".format(openid))
         return fail(HTTP_OK, u"当前openid没有注册!", 0)
