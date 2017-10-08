@@ -11,6 +11,8 @@
 import json
 
 from flask import Response
+from flask.ext.login.utils import _cookie_digest
+from werkzeug.security import safe_str_cmp
 
 from logger import Logger
 
@@ -78,7 +80,6 @@ WECHAT_JSAPI_TICKET_KEY = "global:jsapi_ticket"
 前端相对路径URL
 '''
 
-
 ERROR_MSG = {
     HTTP_OK: 'OK',
     HTTP_BAD_REQUEST: 'bad request',
@@ -129,3 +130,35 @@ def fail(http_status, error=None, result=None):
     }
     data = json.dumps(resp)
     return json_resp(data, http_status)
+
+
+def encode_user_id(user_id):
+    '''
+    This will encode a ``unicode`` value into a cookie, and sign that cookie
+    with the app's secret key.
+
+    :param user_id: The value to encode, as `unicode`.
+    :type user_id: unicode
+    '''
+    return u'{0}|{1}'.format(str(user_id), _cookie_digest(str(user_id)))
+
+
+def decode_user_id(cookie):
+    '''
+    This decodes a cookie given by `encode_cookie`. If verification of the
+    cookie fails, ``None`` will be implicitly returned.
+
+    :param cookie: An encoded cookie.
+    :type cookie: str
+    '''
+    try:
+        payload, digest = cookie.rsplit(u'|', 1)
+        if hasattr(digest, 'decode'):
+            digest = digest.decode('ascii')  # pragma: no cover
+    except ValueError:
+        return None
+
+    if safe_str_cmp(_cookie_digest(payload), digest):
+        return payload
+
+    return None

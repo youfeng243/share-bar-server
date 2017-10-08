@@ -35,6 +35,11 @@ class UserService(object):
             return None, False
         return user, True
 
+    # 根据用户ID 获得用户信息
+    @staticmethod
+    def get_by_id(user_id):
+        return User.get(user_id)
+
     # 根据微信ID 获取用户信息
     @staticmethod
     def get_by_openid(openid):

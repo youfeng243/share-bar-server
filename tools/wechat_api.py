@@ -16,7 +16,7 @@ from flask import session
 from flask import url_for
 
 import settings
-from exts.common import fail, log, HTTP_OK
+from exts.common import fail, log, HTTP_OK, decode_user_id
 from exts.database import redis
 from exts.redis_dao import get_openid_key
 from service.user.impl import UserService
@@ -154,12 +154,22 @@ def get_token_url(code):
 def bind_required(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        is_bind = session.get('is_bind', None)
-        if is_bind:
-            return func(*args, **kwargs)
+        user_id_cookie = session.get('u_id')
+        if user_id_cookie is None:
+            log.warn("当前session中没有u_id 信息，需要登录...")
+            return redirect('#/login')
 
-        log.info("当前用户需要绑定登录: openid = {}".format(g.openid))
-        return redirect('#/login')
+        user_id = decode_user_id(user_id_cookie)
+        if user_id is None:
+            log.warn("当前用户信息被篡改，需要重新登录: user_id_cookie = {}".format(user_id_cookie))
+            return redirect('#/login')
+
+        g.user_id = int(user_id)
+        log.info("当前访问用户ID为: user_id = {}".format(g.user_id))
+        return func(*args, **kwargs)
+
+        # log.info("当前用户需要绑定登录: openid = {}".format(g.openid))
+        # return redirect('#/login')
 
     return decorator
 
@@ -324,8 +334,8 @@ def get_user_wechat_info(refresh_token, openid):
 
 
 # 获得当前用户
-def get_current_user(openid):
-    if openid is None:
+def get_current_user(user_id):
+    if user_id is None:
         return None
 
-    return UserService.get_by_openid(openid)
+    return UserService.get_by_id(user_id)

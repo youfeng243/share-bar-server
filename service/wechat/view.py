@@ -17,7 +17,7 @@ from flask import request
 from flask import session
 
 import settings
-from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY
+from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY, encode_user_id
 from exts.database import redis
 from exts.sms import validate_captcha, mobile_reach_ratelimit, request_sms
 from service.recharge.impl import RechargeService
@@ -49,11 +49,11 @@ wx_pay = WxPay(
 # 需要绑定手机号 才能够进入菜单系统
 @bind_required
 def menu(name):
-    # 如果没有注册，则先进入注册流程
-    user = get_current_user(g.openid)
-    if user is None:
-        log.info("账户还没注册, 需要进入登录流程..")
-        return redirect('#/login')
+    # # 如果没有注册，则先进入注册流程
+    # user = get_current_user(g.openid)
+    # if user is None:
+    #     log.info("账户还没注册, 需要进入登录流程..")
+    #     return redirect('#/login')
 
     # 判断是否需要重新登录
     if name == 'login':
@@ -142,7 +142,7 @@ def wechat_login():
 
     # 校验完成正确
     if user is not None and user.openid == g.openid:
-        session['is_bind'] = True
+        session['u_id'] = encode_user_id(user.id)
         return success(user.to_dict())
 
     if user is not None and user.openid != g.openid:
@@ -177,7 +177,7 @@ def wechat_login():
     #     #     log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
     #     return fail(HTTP_OK, u"当前手机号码已绑定其他微信，不能登录!")
 
-    session['is_bind'] = True
+    session['u_id'] = encode_user_id(user.id)
     return success(user.to_dict())
 
 
@@ -186,7 +186,7 @@ def wechat_login():
 @wechat_required
 @bind_required
 def get_user_info():
-    user = get_current_user(g.openid)
+    user = get_current_user(g.user_id)
     if user is None:
         log.warn("当前openid没有获得用户信息: {}".format(g.openid))
         return fail(HTTP_OK, u'没有当前用户信息')
@@ -284,25 +284,25 @@ def notify():
 @wechat_required
 @bind_required
 def recharge(account):
-    user = get_current_user(g.openid)
-    if user is None:
-        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-        return fail(HTTP_OK, u'没有当前用户信息')
+    # user = get_current_user(g.openid)
+    # if user is None:
+    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+    #     return fail(HTTP_OK, u'没有当前用户信息')
 
     if account <= 0:
         log.warn("充值金额不正确: account = {}".format(account))
         return fail(HTTP_OK, u"充值金额数目不正确，需要正整数!")
 
     try:
-        log.info("当前支付用户ID = {}".format(user.id))
+        log.info("当前支付用户ID = {}".format(g.user_id))
         pay_data = wx_pay.js_pay_api(
-            openid=user.openid,  # 付款用户openid
+            openid=g.openid,  # 付款用户openid
             body=u'Account Recharge',  # 例如：饭卡充值100元
             total_fee=account,  # total_fee 单位是 分， 100 = 1元
-            attach=str(user.id),
+            attach=str(g.user_id),
         )
     except WxPayError as e:
-        log.error("支付失败: openid = {} mobile = {}".format(user.openid, user.mobile))
+        log.error("支付失败: openid = {} user_id = {}".format(g.openid, g.user_id))
         log.exception(e)
         return fail(HTTP_OK, e.message)
 
@@ -329,12 +329,12 @@ def get_recharge_list():
     #     "user_id": 100
     # }
 
-    user = get_current_user(g.openid)
-    if user is None:
-        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-        return fail(HTTP_OK, u'没有当前用户信息')
+    # user = get_current_user(g.openid)
+    # if user is None:
+    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+    #     return fail(HTTP_OK, u'没有当前用户信息')
 
-    return Recharge.search_list(_user_id=user.id)
+    return Recharge.search_list(_user_id=g.user_id)
 
 
 # 消费记录列表
@@ -342,12 +342,12 @@ def get_recharge_list():
 @wechat_required
 @bind_required
 def get_expense_list():
-    user = get_current_user(g.openid)
-    if user is None:
-        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-        return fail(HTTP_OK, u'没有当前用户信息')
+    # user = get_current_user(g.openid)
+    # if user is None:
+    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+    #     return fail(HTTP_OK, u'没有当前用户信息')
 
-    return UseRecord.search_list(_user_id=user.id)
+    return UseRecord.search_list(_user_id=g.user_id)
 
 
 # 获得wx.config
@@ -355,10 +355,10 @@ def get_expense_list():
 @wechat_required
 @bind_required
 def get_jsapi_signature():
-    user = get_current_user(g.openid)
-    if user is None:
-        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-        return fail(HTTP_OK, u'没有当前用户信息')
+    # user = get_current_user(g.openid)
+    # if user is None:
+    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+    #     return fail(HTTP_OK, u'没有当前用户信息')
 
     if not request.is_json:
         log.warn("参数错误...")

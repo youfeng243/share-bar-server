@@ -61,7 +61,7 @@ def qr_code_online(device_code):
     account_url = url_for("wechat.menu", name="account")
 
     # 获得用户信息
-    user = get_current_user(g.openid)
+    user = get_current_user(g.user_id)
     if user is None:
         log.warn("当前openid还未绑定手机号码: openid = {}".format(g.openid))
         if scan_from != 'playing':
@@ -176,12 +176,12 @@ def qr_code_online(device_code):
 @wechat_required
 @bind_required
 def wechat_offline():
-    user = get_current_user(g.openid)
-    if user is None:
-        log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
-        return fail(HTTP_OK, u'用户信息获取失败，无法下机', -1)
+    # user = get_current_user(g.openid)
+    # if user is None:
+    #     log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
+    #     return fail(HTTP_OK, u'用户信息获取失败，无法下机', -1)
 
-    user_key = get_user_key(user.id)
+    user_key = get_user_key(g.user_id)
     record_key = redis.get(user_key)
     if record_key is None:
         return success({
@@ -202,11 +202,11 @@ def wechat_offline():
 @wechat_required
 @bind_required
 def get_online_status():
-    user = get_current_user(g.openid)
-    if user is None:
-        log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
-        return fail(HTTP_OK, u'用户信息获取失败，无法获得上机状态信息', -1)
-    user_key = get_user_key(user.id)
+    # user = get_current_user(g.openid)
+    # if user is None:
+    #     log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
+    #     return fail(HTTP_OK, u'用户信息获取失败，无法获得上机状态信息', -1)
+    user_key = get_user_key(g.user_id)
     record_key = redis.get(user_key)
     if record_key is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
