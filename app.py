@@ -70,10 +70,19 @@ def register_bp(app):
     app.register_blueprint(windows_bp)
 
 
+def _get_remote_addr():
+    address = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if address is not None:
+        # An 'X-Forwarded-For' header includes a comma separated list of the
+        # addresses, the first address being the actual remote address.
+        address = address.encode('utf-8').split(b',')[0].strip()
+    return address
+
+
 def _request_log(resp, *args, **kwargs):
     log.info(
         '{addr} request: [{status}] {method}, '
-        'url: {url}'.format(addr=request.remote_addr,
+        'url: {url}'.format(addr=_get_remote_addr(),
                             status=resp.status,
                             method=request.method,
                             url=request.url,
