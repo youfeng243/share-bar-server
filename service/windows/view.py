@@ -30,7 +30,6 @@ bp = Blueprint('windows', __name__, url_prefix='/windows')
 
 # 扫描上线登录 需要确保微信端已经登录
 @bp.route('/login/<device_code>', methods=['GET'])
-@wechat_required
 @bind_required
 def qr_code_online(device_code):
     # # 当前用户没有登录
@@ -63,7 +62,7 @@ def qr_code_online(device_code):
     # 获得用户信息
     user = get_current_user(g.user_id)
     if user is None:
-        log.warn("当前openid还未绑定手机号码: openid = {}".format(g.openid))
+        log.warn("当前user_id还未绑定手机号码: user_id = {}".format(g.user_id))
         if scan_from != 'playing':
             log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
             return redirect(login_url)
@@ -173,13 +172,8 @@ def qr_code_online(device_code):
 
 
 @bp.route('/offline', methods=['GET'])
-@wechat_required
 @bind_required
 def wechat_offline():
-    # user = get_current_user(g.openid)
-    # if user is None:
-    #     log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
-    #     return fail(HTTP_OK, u'用户信息获取失败，无法下机', -1)
 
     user_key = get_user_key(g.user_id)
     record_key = redis.get(user_key)
@@ -199,13 +193,9 @@ def wechat_offline():
 
 # 获取用户在线状态
 @bp.route('/online/status', methods=['GET'])
-@wechat_required
 @bind_required
 def get_online_status():
-    # user = get_current_user(g.openid)
-    # if user is None:
-    #     log.error("用户信息获取失败，无法下机: openid = {}".format(g.openid))
-    #     return fail(HTTP_OK, u'用户信息获取失败，无法获得上机状态信息', -1)
+
     user_key = get_user_key(g.user_id)
     record_key = redis.get(user_key)
     if record_key is None:

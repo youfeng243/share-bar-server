@@ -25,7 +25,8 @@ from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
 from service.wechat.impl import WechatService
-from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, bind_required, \
+from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, \
+    bind_required, \
     get_current_user_by_openid
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
@@ -46,19 +47,12 @@ wx_pay = WxPay(
 
 # 进入自定义菜单
 @bp.route('/menu/<name>', methods=['GET'])
-@wechat_required
 # 需要绑定手机号 才能够进入菜单系统
 @bind_required
 def menu(name):
-    # # 如果没有注册，则先进入注册流程
-    # user = get_current_user(g.openid)
-    # if user is None:
-    #     log.info("账户还没注册, 需要进入登录流程..")
-    #     return redirect('#/login')
-
     # 判断是否需要重新登录
     if name == 'login':
-        log.info("当前用户需要重新登录: openid = {}".format(g.openid))
+        log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
         return redirect('#/login')
 
     # 进入账户中心
@@ -77,7 +71,6 @@ def menu(name):
 
 # 判断当前用户是否微信端授权
 @bp.route('/check', methods=['GET'])
-# @wechat_token_required
 def wechat_check():
     openid = session.get('openid', None)
     refresh_token = session.get('refresh_token', None)
@@ -173,13 +166,6 @@ def wechat_login():
         log.error("创建用户信息异常: openid = {}".format(g.openid))
         return fail(HTTP_OK, u"创建新用户失败!")
 
-    # # 判断是否更换了微信登录，目前不支持已绑定微信以外的微信账号登录 20171007 张雅晴
-    # elif user.openid != g.openid:
-    #     # user.openid = g.openid
-    #     # if not user.save():
-    #     #     log.warn("user mobile = {} openid = {} 存储错误!".format(mobile, g.openid))
-    #     return fail(HTTP_OK, u"当前手机号码已绑定其他微信，不能登录!")
-
     u_id = encode_user_id(user.id)
     session['u_id'] = u_id
     log.info("当前绑定的user_id cookie = {}".format(u_id))
@@ -188,18 +174,17 @@ def wechat_login():
 
 # 获取当前用户信息接口
 @bp.route('/user', methods=['GET'])
-@wechat_required
 @bind_required
 def get_user_info():
     user = get_current_user(g.user_id)
     if user is None:
-        log.warn("当前openid没有获得用户信息: {}".format(g.openid))
+        log.warn("当前user_id没有获得用户信息: {}".format(g.user_id))
         return fail(HTTP_OK, u'没有当前用户信息')
 
     # 判断昵称或头像是否已经获取到了
     if user.head_img_url == '' or user.nick_name == '':
         # 先判断token是否存在
-        head_img_url, nick_name = get_user_wechat_info(g.refresh_token, g.openid)
+        head_img_url, nick_name = get_user_wechat_info(g.refresh_token, user.openid)
         if head_img_url == '' or nick_name == '':
             log.error("再次更新用户ID = {} 头像与昵称失败: head_img_url = {} nick_name = {}".format(
                 user.id, head_img_url, nick_name))
@@ -289,11 +274,6 @@ def notify():
 @wechat_required
 @bind_required
 def recharge(account):
-    # user = get_current_user(g.openid)
-    # if user is None:
-    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-    #     return fail(HTTP_OK, u'没有当前用户信息')
-
     if account <= 0:
         log.warn("充值金额不正确: account = {}".format(account))
         return fail(HTTP_OK, u"充值金额数目不正确，需要正整数!")
@@ -317,7 +297,6 @@ def recharge(account):
 
 # 获得充值列表
 @bp.route("/recharge/list", methods=['POST'])
-@wechat_required
 @bind_required
 def get_recharge_list():
     '''
@@ -327,44 +306,21 @@ def get_recharge_list():
     end_time: 查询的结束时间段 时间段必须大于或者等于start_time
     :return:
     '''
-    # {
-    #     "page": 1,
-    #
-    #     "size": 10,
-    #     "user_id": 100
-    # }
-
-    # user = get_current_user(g.openid)
-    # if user is None:
-    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-    #     return fail(HTTP_OK, u'没有当前用户信息')
 
     return Recharge.search_list(_user_id=g.user_id)
 
 
 # 消费记录列表
 @bp.route("/expense/list", methods=['POST'])
-@wechat_required
 @bind_required
 def get_expense_list():
-    # user = get_current_user(g.openid)
-    # if user is None:
-    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-    #     return fail(HTTP_OK, u'没有当前用户信息')
-
     return UseRecord.search_list(_user_id=g.user_id)
 
 
 # 获得wx.config
 @bp.route("/jsapi/signature", methods=['POST'])
-@wechat_required
 @bind_required
 def get_jsapi_signature():
-    # user = get_current_user(g.openid)
-    # if user is None:
-    #     log.warn("当前openid没有获得用户信息: {}".format(g.openid))
-    #     return fail(HTTP_OK, u'没有当前用户信息')
-
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
@@ -376,7 +332,7 @@ def get_jsapi_signature():
 
     jsapi_ticket = redis.get(WECHAT_JSAPI_TICKET_KEY)
     if jsapi_ticket is None:
-        log.warn("没有jsapi_ticket: openid = {}".format(g.openid))
+        log.warn("没有jsapi_ticket: user_id = {}".format(g.user_id))
         return fail(HTTP_OK, u'没有jsapi_ticket')
 
     import time
@@ -392,5 +348,5 @@ def get_jsapi_signature():
         'jsApiList': ['scanQRCode']
     }
 
-    log.info("当前openid获取的wx.config = {}".format(json.dumps(config, ensure_ascii=False)))
+    log.info("当前user_id获取的wx.config = {}".format(json.dumps(config, ensure_ascii=False)))
     return success(config)

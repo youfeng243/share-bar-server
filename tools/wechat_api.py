@@ -121,35 +121,6 @@ def get_token_url(code):
                        query=qs, fragment='wechat_redirect').geturl()
 
 
-# 获取刷新token
-# def get_refresh_token(openid):
-#     'box:wechat:open:access-token'
-#
-#     key = 'bar:wechat:refresh:token:{}'.format(openid)
-#     refresh_token = redis.get(key)
-#     if refresh_token is not None:
-#         return refresh_token
-#
-#     return None
-
-
-# # 微信鉴权
-# def wechat_token_required(func):
-#     @wraps(func)
-#     def decorator(*args, **kwargs):
-#         # 判断重新刷新token是否已经过期，如果过期则需要重新授权登录
-#         openid = session.get('openid', None)
-#         refresh_token = session.get('refresh_token', None)
-#         # 如果两个关键的token都存在 则正常进入下面的流程
-#         if openid is not None and refresh_token is not None:
-#             g.openid = openid
-#             g.refresh_token = refresh_token
-#             return func(*args, **kwargs)
-#         return fail(HTTP_OK, u"当前用户没有openid!", -1)
-#
-#     return decorator
-
-
 # 绑定手机号码
 def bind_required(func):
     @wraps(func)
@@ -167,9 +138,6 @@ def bind_required(func):
         g.user_id = int(user_id)
         log.info("当前访问用户ID为: user_id = {}".format(g.user_id))
         return func(*args, **kwargs)
-
-        # log.info("当前用户需要绑定登录: openid = {}".format(g.openid))
-        # return redirect('#/login')
 
     return decorator
 
