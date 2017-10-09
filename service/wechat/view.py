@@ -17,7 +17,7 @@ from flask import request
 from flask import session
 
 import settings
-from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY, encode_user_id
+from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY, encode_user_id, decode_user_id
 from exts.database import redis
 from exts.sms import validate_captcha, mobile_reach_ratelimit, request_sms
 from service.recharge.impl import RechargeService
@@ -52,6 +52,17 @@ wx_pay = WxPay(
 # 一定需要登录了才能够进入账户系统
 # @bind_required
 def menu(name):
+    # 判断当前用户是否已经绑定
+    user_id_cookie = session.get('u_id')
+    if user_id_cookie is None:
+        log.warn("当前session中没有u_id 信息，需要登录...")
+        return redirect('#/login')
+
+    user_id = decode_user_id(user_id_cookie)
+    if user_id is None:
+        log.warn("当前用户信息被篡改，需要重新登录: user_id_cookie = {}".format(user_id_cookie))
+        return redirect('#/login')
+
     # 判断是否需要重新登录
     # if name == 'login':
     #     # log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
