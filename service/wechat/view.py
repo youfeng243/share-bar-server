@@ -48,11 +48,11 @@ wx_pay = WxPay(
 # 进入自定义菜单
 @bp.route('/menu/<name>', methods=['GET'])
 # 需要绑定手机号 才能够进入菜单系统
-@bind_required
+# @bind_required
 def menu(name):
     # 判断是否需要重新登录
     if name == 'login':
-        log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
+        # log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
         return redirect('#/login')
 
     # 进入账户中心
@@ -65,8 +65,8 @@ def menu(name):
         log.info("跳转到/playing页面...")
         return redirect('#/playing')
 
-    log.info("无法处理请求: name = {}".format(name))
-    return fail(HTTP_OK, u"url error!")
+    log.info("无法处理请求: name = {} 跳转到登录界面".format(name))
+    return redirect('#/login')
 
 
 # 判断当前用户是否微信端授权
