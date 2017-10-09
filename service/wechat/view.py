@@ -51,9 +51,9 @@ wx_pay = WxPay(
 # @bind_required
 def menu(name):
     # 判断是否需要重新登录
-    if name == 'login':
-        # log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
-        return redirect('#/login')
+    # if name == 'login':
+    #     # log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
+    #     return redirect('#/login')
 
     # 进入账户中心
     if name == 'account':
