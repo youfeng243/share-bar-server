@@ -50,7 +50,7 @@ wx_pay = WxPay(
 # 需要绑定手机号 才能够进入菜单系统
 @wechat_required
 # 一定需要登录了才能够进入账户系统
-@bind_required
+# @bind_required
 def menu(name):
     # 判断是否需要重新登录
     # if name == 'login':
