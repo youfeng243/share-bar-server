@@ -13,24 +13,25 @@ from flask import Blueprint
 from flask import g
 from flask import redirect
 from flask import request
+from flask import session
 from flask import url_for
 from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
-    LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE
+    LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_device_code_key, get_keep_alive_key
 from service.device.model import Device
 from service.windows.impl import WindowsService
-from tools.wechat_api import wechat_required, get_current_user, bind_required
+from tools.wechat_api import get_current_user, bind_required
 
 bp = Blueprint('windows', __name__, url_prefix='/windows')
 
 
 # 扫描上线登录 需要确保微信端已经登录
 @bp.route('/login/<device_code>', methods=['GET'])
-@bind_required
+# @bind_required
 def qr_code_online(device_code):
     # # 当前用户没有登录
     # LOGIN_ERROR_BIND = -1
@@ -59,10 +60,26 @@ def qr_code_online(device_code):
     # 账户链接
     account_url = url_for("wechat.menu", name="account")
 
+    user_id_cookie = session.get('u_id')
+    if user_id_cookie is None:
+        log.warn("当前session中没有u_id 信息，需要登录...")
+        if scan_from != 'playing':
+            log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
+            return redirect(login_url)
+        return fail(HTTP_OK, u'当前用户没有登录', -1)
+
+    user_id = decode_user_id(user_id_cookie)
+    if user_id is None:
+        log.warn("当前用户信息被篡改，需要重新登录: user_id_cookie = {}".format(user_id_cookie))
+        if scan_from != 'playing':
+            log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
+            return redirect(login_url)
+        return fail(HTTP_OK, u'当前用户登录信息被篡改, 不能登录', -1)
+
     # 获得用户信息
-    user = get_current_user(g.user_id)
+    user = get_current_user(user_id)
     if user is None:
-        log.warn("当前user_id还未绑定手机号码: user_id = {}".format(g.user_id))
+        log.warn("当前user_id还未绑定手机号码: user_id = {}".format(user_id))
         if scan_from != 'playing':
             log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
             return redirect(login_url)
@@ -174,7 +191,6 @@ def qr_code_online(device_code):
 @bp.route('/offline', methods=['GET'])
 @bind_required
 def wechat_offline():
-
     user_key = get_user_key(g.user_id)
     record_key = redis.get(user_key)
     if record_key is None:
@@ -195,7 +211,6 @@ def wechat_offline():
 @bp.route('/online/status', methods=['GET'])
 @bind_required
 def get_online_status():
-
     user_key = get_user_key(g.user_id)
     record_key = redis.get(user_key)
     if record_key is None:
