@@ -110,8 +110,12 @@ def request_code():
 
     mobile = request.json.get('mobile', None)
     if mobile is None:
-        return fail(HTTP_OK, u'手机号不能未空')
+        return fail(HTTP_OK, u'手机号不能为空')
 
+    if not isinstance(mobile, basestring):
+        return fail(HTTP_OK, u'手机号不合法')
+
+    mobile = mobile.strip()
     if len(mobile) != 11:
         return fail(HTTP_OK, u'手机号不合法')
 
@@ -152,6 +156,9 @@ def wechat_login():
 
     if code.strip() == '':
         return fail(HTTP_OK, u'请输入验证码')
+
+    mobile = mobile.strip()
+    code = code.strip()
 
     # 如果验证码错误
     if not validate_captcha(mobile, code):
