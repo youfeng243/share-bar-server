@@ -24,13 +24,13 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 @bp.before_request
 def before_request():
-    g.user = current_user
+    g.admin = current_user
 
 
 # 登录
 @bp.route('/sign_in', methods=['POST'])
 def login():
-    if g.user is not None and g.user.is_authenticated:
+    if g.admin is not None and g.admin.is_authenticated:
         return success(u"账户已经登录!")
 
     if not request.is_json:
@@ -98,6 +98,10 @@ def update():
 
     state = request.json.get('state', None)
     if state is not None:
+
+        if g.admin.id == a_id:
+            return fail(HTTP_OK, u"不能修改自身状态信息")
+
         if state in Admin.STATE_VALUES:
             admin.state = state
         else:
