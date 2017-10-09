@@ -89,7 +89,7 @@ def wechat_check():
 
 # 请求手机验证码，进行用户注册
 @bp.route('/captcha', methods=['POST'])
-@wechat_required
+# @wechat_required
 def request_code():
     if not request.is_json:
         log.warn("参数错误...")
