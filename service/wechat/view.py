@@ -137,8 +137,14 @@ def wechat_login():
     if mobile is None:
         return fail(HTTP_OK, u'请输入手机号')
 
+    if isinstance(mobile, basestring) and mobile.strip() == '':
+        return fail(HTTP_OK, u'手机号不能为空')
+
     code = request.json.get('code', None)
     if code is None:
+        return fail(HTTP_OK, u'请输入验证码')
+
+    if isinstance(code, basestring) and code.strip() == '':
         return fail(HTTP_OK, u'请输入验证码')
 
     # 如果验证码错误
