@@ -9,6 +9,7 @@ import settings
 from exts.common import log, REQUEST_SMS_CODE_URL, VERIFY_SMS_CODE, DEFAULT_MOBILE_EXPIRED
 from exts.database import redis
 from exts.leancloud import LeanCloud
+from exts.redis_dao import get_captcha_redis_key
 
 lean_cloud_client = LeanCloud(settings.LEANCLOUD_ID, settings.LEANCLOUD_KEY)
 
@@ -83,7 +84,7 @@ def mobile_reach_ratelimit(mobile):
         log.info("调试模式下，可以无限次请求验证码!")
         return False
 
-    key = 'bar:ratelimit:mobile:captcha:%s' % mobile
+    key = get_captcha_redis_key(mobile)
     value = redis.get(key)
     log.info('redis[%s]: %s', key, value)
     if value is not None:

@@ -70,3 +70,8 @@ def get_openid_key(openid):
 
 def get_keep_alive_key(record_key):
     return "{}{}".format(REDIS_PRE_KEEP_ALIVE_KEY, record_key)
+
+
+# 获得存储在redis中的手机信息
+def get_captcha_redis_key(mobile):
+    return 'bar:ratelimit:mobile:captcha:{}'.format(mobile)
