@@ -63,6 +63,10 @@ def menu(name):
         log.warn("当前用户信息被篡改，需要重新登录: user_id_cookie = {}".format(user_id_cookie))
         return redirect('#/login')
 
+    if UserService.get_by_id(user_id) is None:
+        log.warn("数据库中没有当前用户信息，需要登录: user_id = {}".format(user_id))
+        return redirect('#/login')
+
     # 判断是否需要重新登录
     # if name == 'login':
     #     # log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
