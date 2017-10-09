@@ -231,12 +231,12 @@ def do_charging(record_key_list):
                 continue
 
             start_time = time.mktime(time.strptime(ctime, "%Y-%m-%d %H:%M:%S"))
-            cost_time = now_timestamp - start_time
+            cost_time = (now_timestamp - start_time) / 60
             cost_money = cost_time * int(charge_mode)
             # 如果使用的费用超额半分钟的费用，则强制下机
-            if cost_money - balance_account >= 45 * charge_mode:
+            if cost_money - balance_account >= 0.75 * int(charge_mode):
                 log.info("当前用户余额不足，强制下机: record_key = {} balance_account = {} "
-                         "cost_time = {}s cost_money = {} start_time = {} now_time = {}".
+                         "cost_time = {}分钟 cost_money = {} start_time = {} now_time = {}".
                          format(record_key, balance_account, cost_time, cost_money, start_time, now_timestamp))
                 # 先获得上机信息
                 # charging = redis_client.get(record_key)
