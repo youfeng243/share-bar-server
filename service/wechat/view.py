@@ -48,7 +48,7 @@ wx_pay = WxPay(
 # 进入自定义菜单
 @bp.route('/menu/<name>', methods=['GET'])
 # 需要绑定手机号 才能够进入菜单系统
-# @bind_required
+@wechat_required
 def menu(name):
     # 判断是否需要重新登录
     # if name == 'login':
@@ -89,7 +89,7 @@ def wechat_check():
 
 # 请求手机验证码，进行用户注册
 @bp.route('/captcha', methods=['POST'])
-# @wechat_required
+@wechat_required
 def request_code():
     if not request.is_json:
         log.warn("参数错误...")
