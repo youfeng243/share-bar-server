@@ -117,10 +117,13 @@ def request_code():
         return fail(HTTP_OK, u'手机号不能为空')
 
     if not isinstance(mobile, basestring):
+        log.warn("当前手机号: mobile = {}".format(mobile))
+        log.warn("当前手机号的类型: mobile type = {}".format(type(mobile)))
         return fail(HTTP_OK, u'手机号不合法')
 
     mobile = mobile.strip()
     if len(mobile) != 11:
+        log.warn("当前手机号: mobile = {}".format(mobile))
         return fail(HTTP_OK, u'手机号不合法')
 
     if mobile_reach_ratelimit(mobile):
