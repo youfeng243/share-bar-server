@@ -128,12 +128,12 @@ def bind_required(func):
         user_id_cookie = session.get('u_id')
         if user_id_cookie is None:
             log.warn("当前session中没有u_id 信息，需要登录...")
-            return redirect('#/login')
+            return fail(HTTP_OK, u'当前用户没有登录', -1)
 
         user_id = decode_user_id(user_id_cookie)
         if user_id is None:
             log.warn("当前用户信息被篡改，需要重新登录: user_id_cookie = {}".format(user_id_cookie))
-            return redirect('#/login')
+            return fail(HTTP_OK, u'当前用户登录信息被篡改, 不能登录', -1)
 
         g.user_id = int(user_id)
         log.info("当前访问用户ID为: user_id = {}".format(g.user_id))
