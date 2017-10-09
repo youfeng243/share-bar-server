@@ -66,7 +66,7 @@ def qr_code_online(device_code):
         if scan_from != 'playing':
             log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
             return redirect(login_url)
-        return fail(HTTP_OK, u'当前用户没有登录', -1)
+        return fail(HTTP_OK, u'当前用户没有登录', LOGIN_ERROR_BIND)
 
     user_id = decode_user_id(user_id_cookie)
     if user_id is None:
@@ -74,7 +74,7 @@ def qr_code_online(device_code):
         if scan_from != 'playing':
             log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
             return redirect(login_url)
-        return fail(HTTP_OK, u'当前用户登录信息被篡改, 不能登录', -1)
+        return fail(HTTP_OK, u'当前用户登录信息被篡改, 不能登录', LOGIN_ERROR_BIND)
 
     # 获得用户信息
     user = get_current_user(user_id)
