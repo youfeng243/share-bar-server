@@ -20,18 +20,14 @@ def sms_default_callback(session, resp):
 
 # 短信验证码服务
 def request_sms(mobile):
-    if settings.DEBUG:
-        log.info("当前处于调试状态，不进行短信验证码验证...")
+    if not settings.LEANCLOUD_ENABLED:
+        log.info("当前处于调试状态，没有打开短信验证码功能, 不发送短信验证码请求...")
         return True
 
     data = {'mobilePhoneNumber': mobile}
     log.info('requestSms: %s', mobile)
     headers = lean_cloud_client.gen_headers(_sign=False)
     log.info('headers: %s', headers)
-    if not settings.LEANCLOUD_PUSH_ENABLED:
-        log.warn('没有打开短信验证码功能!!!!')
-        return False
-
     session = FuturesSession()
     try:
         session.post(
@@ -51,11 +47,11 @@ def request_sms(mobile):
 
 # 这里是校验手机验证码
 def validate_captcha(mobile, captcha):
-    if settings.DEBUG or settings.TESTING:
-        if captcha == settings.SMS_DEBUG_CODE:
+    if not settings.LEANCLOUD_ENABLED:
+        if captcha == settings.LEANCLOUD_DEBUG_SMS_CODE:
             return True
         log.info("调试模式验证码校验失败: 发送过来的验证码 = {} 需要校验的调试验证码 = {}".format(
-            captcha, settings.SMS_DEBUG_CODE))
+            captcha, settings.LEANCLOUD_DEBUG_SMS_CODE))
         return False
 
     # 判断是否已经设置了 短信验证码关键信息
@@ -80,7 +76,7 @@ def validate_captcha(mobile, captcha):
 
 # 记录当前手机号码已经发过一次验证码，存入redis 一分钟后过期
 def mobile_reach_ratelimit(mobile):
-    if settings.DEBUG:
+    if not settings.LEANCLOUD_ENABLED:
         log.info("调试模式下，可以无限次请求验证码!")
         return False
 

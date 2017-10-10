@@ -8,7 +8,6 @@
 @time: 2017/9/4 20:30
 """
 DEBUG = False
-TESTING = False
 MOCK = False
 SECRET_KEY = "4&^^%%$%BJHGFGHHVVBN%$$#^"
 SQLALCHEMY_DATABASE_URI = 'mysql://root:000000@localhost:3306/share_bar_db?charset=utf8'
@@ -27,8 +26,8 @@ WECHAT_MCH_ID = "1488747842"
 LEANCLOUD_ID = 'F8LeTHzNlAoev077YP0iTD1f-gzGzoHsz'
 LEANCLOUD_KEY = '4CaExa2BOpO5t5USckWade8i'
 # sms 短信开关，是否使用
-LEANCLOUD_PUSH_ENABLED = True
-SMS_DEBUG_CODE = '123456'
+LEANCLOUD_ENABLED = True
+LEANCLOUD_DEBUG_SMS_CODE = '123456'
 
 # 未收到心跳最长时间，超过该时间则强制下机
 MAX_LOST_HEART_TIME = 300

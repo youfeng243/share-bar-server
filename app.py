@@ -88,7 +88,6 @@ def _request_log(resp, *args, **kwargs):
                             url=request.url,
                             )
     )
-    # if settings.DEBUG:
     # 不是debug模式下也需要打印数据信息
     if resp.mimetype == 'application/json':
         data = resp.get_data()
