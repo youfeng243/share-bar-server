@@ -7,7 +7,7 @@
 @file: settings.py
 @time: 2017/9/4 20:30
 """
-DEBUG = False
+DEBUG = True
 TESTING = False
 MOCK = False
 SECRET_KEY = "4&^^%%$%BJHGFGHHVVBN%$$#^"
