@@ -13,6 +13,7 @@ from flask import g
 from flask import redirect
 from flask import request
 from flask import session
+from flask import url_for
 
 import settings
 from exts.common import fail, log, HTTP_OK, decode_user_id
@@ -88,16 +89,21 @@ def check_signature(func):
 
 
 # 获得跳转到登录链接的鉴权url
-def get_login_oauth_url(auth_url):
+def get_login_oauth_url():
     state = random.randint(1, 10)
     # log.info(request.args)
     # log.info("name = {}".format(auth_url))
     # login_url = url_for("wechat.menu", name=name, _external=True)
 
-    log.info("当前鉴权后回调url为: {}".format(auth_url))
+    args = copy.deepcopy(request.args.to_dict())
+    log.info("当前鉴权 args = {}".format(args))
+    args.update(request.view_args)
+    log.info("当前鉴权 view_args args = {}".format(args))
+    url = url_for(request.endpoint, _external=True, **args)
+    log.info("当前鉴权后回调url为: {}".format(url))
     qs = urlencode({
         'appid': settings.WECHAT_APP_ID,
-        'redirect_uri': auth_url,
+        'redirect_uri': url,
         'scope': 'snsapi_userinfo',
         'state': state,
     })
@@ -162,9 +168,8 @@ def wechat_required(func):
         if code is None:
             log.info("url中没有code参数...")
 
-            # 授权跳转到登录界面
-            auth_url = request.url
-            url = get_login_oauth_url(auth_url)
+            # 授权跳转到
+            url = get_login_oauth_url()
             if url is not None:
                 return redirect(url)
 
