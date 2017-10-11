@@ -162,3 +162,14 @@ def decode_user_id(cookie):
         return payload
 
     return None
+
+
+# 时间转换 秒转分
+def cal_cost_time(seconds):
+    log.info("需要转换的时间: seconds = {}".format(seconds))
+    if 30 <= seconds < 60:
+        seconds = 60
+
+    minutes = seconds // 60 + (1 if seconds % 60 != 0 else 0)
+    log.info("计算后的时间: minutes = {}".format(minutes))
+    return minutes

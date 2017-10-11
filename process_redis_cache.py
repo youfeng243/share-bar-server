@@ -15,7 +15,7 @@ import redis
 import requests
 
 import settings
-from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log
+from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time
 from exts.redis_dao import get_record_key, get_keep_alive_key
 
 # log = Logger('process_redis_cache.log').get_logger()
@@ -230,8 +230,8 @@ def do_charging(record_key_list):
                 log.error("没有关键信息 balance_account: charge_str = {}".format(charge_str))
                 continue
 
-            start_time = time.mktime(time.strptime(ctime, "%Y-%m-%d %H:%M:%S"))
-            cost_time = (now_timestamp - start_time) // 60
+            start_time = int(time.mktime(time.strptime(ctime, "%Y-%m-%d %H:%M:%S")))
+            cost_time = cal_cost_time(now_timestamp - start_time)
             cost_money = cost_time * int(charge_mode)
             # 如果使用的费用超额半分钟的费用，则强制下机
             if cost_money - balance_account >= 0.75 * int(charge_mode):

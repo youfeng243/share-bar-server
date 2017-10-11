@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 from exts.charge_manage import Lock
-from exts.common import log, fail, HTTP_OK, success
+from exts.common import log, fail, HTTP_OK, success, cal_cost_time
 from exts.database import redis, db
 from exts.redis_dao import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
 from exts.redis_dao import get_user_key
@@ -47,11 +47,11 @@ class WindowsService(object):
 
             # 计算花费时间
             seconds = (record.end_time - record.ctime).seconds
-            # 如果大于半分钟就以一分钟的价格扣钱
-            if 30 <= seconds < 60:
-                seconds = 60
+            # # 如果大于半分钟就以一分钟的价格扣钱
+            # if 30 <= seconds < 60:
+            #     seconds = 60
 
-            record.cost_time = seconds // 60
+            record.cost_time = cal_cost_time(seconds)
             log.info("本次上机花费的时间: user_id = {} device_id = {} cost_time = {}".format(
                 user_id, device_id, record.cost_time))
 
