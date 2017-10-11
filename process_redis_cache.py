@@ -231,7 +231,7 @@ def do_charging(record_key_list):
                 continue
 
             start_time = time.mktime(time.strptime(ctime, "%Y-%m-%d %H:%M:%S"))
-            cost_time = (now_timestamp - start_time) / 60
+            cost_time = (now_timestamp - start_time) // 60
             cost_money = cost_time * int(charge_mode)
             # 如果使用的费用超额半分钟的费用，则强制下机
             if cost_money - balance_account >= 0.75 * int(charge_mode):
