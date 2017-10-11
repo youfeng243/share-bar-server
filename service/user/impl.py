@@ -16,24 +16,24 @@ from exts.database import db
 from service.user.model import User
 
 def filter_emoji(des_str, restr=''):
+    log.info("转换前 nick_name = {}".format(des_str))
     try:
         co = re.compile(u'[\U00010000-\U0010ffff]')
     except re.error:
         co = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
-
-    return co.sub(restr, des_str)
+    nick_name = co.sub(restr, des_str)
+    log.info("转换后 nick_name = {}".format(nick_name))
+    return nick_name
 
 class UserService(object):
 
 
     @staticmethod
     def create(mobile, openid, nick_name="", head_img_url=""):
-        log.info("转换前mobile = {} nick_name = {}".format(mobile, nick_name))
-        nick_name = filter_emoji(nick_name)
-        log.info("转换后mobile = {} nick_name = {}".format(mobile, nick_name))
+
         user = User(mobile=mobile,
                     openid=openid,
-                    nick_name=nick_name,
+                    nick_name=filter_emoji(nick_name),
                     head_img_url=head_img_url)
 
         try:
@@ -48,6 +48,17 @@ class UserService(object):
             log.exception(e)
             return None, False
         return user, True
+
+    # 存储昵称和头像信息
+    @staticmethod
+    def save_nick_and_head(user, nick_name, head_img_url):
+        if user is None or nick_name is None or head_img_url is None:
+            log.error("存储参数异常: user = {} nick_name = {} head_img_url = {}".format(
+                user, nick_name, head_img_url))
+            return False
+        user.nick_name = filter_emoji(nick_name)
+        user.head_img_url = head_img_url
+        return user.save()
 
     # 根据用户ID 获得用户信息
     @staticmethod

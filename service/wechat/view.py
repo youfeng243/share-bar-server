@@ -242,12 +242,17 @@ def get_user_info():
             log.error("再次更新用户ID = {} 头像与昵称失败: head_img_url = {} nick_name = {}".format(
                 user.id, head_img_url, nick_name))
         else:
-            # 存储用户信息
-            user.head_img_url = head_img_url
-            user.nick_name = nick_name
-            if user.save():
+            # 存储用户昵称和头像信息
+            if UserService.save_nick_and_head(user, nick_name, head_img_url):
                 log.info("重新更新用户昵称与头像成功: user_id = {} head = {} nike = {}".format(
                     user.id, user.head_img_url, user.nick_name))
+
+                # # 存储用户信息
+                # user.head_img_url = head_img_url
+                # user.nick_name = nick_name
+                # if user.save():
+                #     log.info("重新更新用户昵称与头像成功: user_id = {} head = {} nike = {}".format(
+                #         user.id, user.head_img_url, user.nick_name))
 
     return success(user.to_dict())
 
