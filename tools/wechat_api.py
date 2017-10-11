@@ -89,19 +89,17 @@ def check_signature(func):
 
 
 # 获得跳转到登录链接的鉴权url
-def get_login_oauth_url(name):
+def get_login_oauth_url(auth_url):
     state = random.randint(1, 10)
     # log.info(request.args)
-    log.info("name = {}".format(name))
-    if name is None:
-        name = 'login'
-    log.info("name = {}".format(name))
-    login_url = url_for("wechat.menu", name=name, _external=True)
+    log.info("name = {}".format(auth_url))
+    # login_url = url_for("wechat.menu", name=name, _external=True)
 
-    log.info("当前鉴权后回调url为: {}".format(login_url))
+
+    log.info("当前鉴权后回调url为: {}".format(auth_url))
     qs = urlencode({
         'appid': settings.WECHAT_APP_ID,
-        'redirect_uri': login_url,
+        'redirect_uri': auth_url,
         'scope': 'snsapi_userinfo',
         'state': state,
     })
@@ -167,8 +165,8 @@ def wechat_required(func):
             log.info("url中没有code参数...")
 
             # 授权跳转到登录界面
-            name = request.values.get('name')
-            url = get_login_oauth_url(name)
+            auth_url = request.url
+            url = get_login_oauth_url(auth_url)
             if url is not None:
                 return redirect(url)
 
