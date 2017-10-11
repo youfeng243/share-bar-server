@@ -13,7 +13,6 @@ from flask import g
 from flask import redirect
 from flask import request
 from flask import session
-from flask import url_for
 
 import settings
 from exts.common import fail, log, HTTP_OK, decode_user_id
@@ -92,9 +91,8 @@ def check_signature(func):
 def get_login_oauth_url(auth_url):
     state = random.randint(1, 10)
     # log.info(request.args)
-    log.info("name = {}".format(auth_url))
+    # log.info("name = {}".format(auth_url))
     # login_url = url_for("wechat.menu", name=name, _external=True)
-
 
     log.info("当前鉴权后回调url为: {}".format(auth_url))
     qs = urlencode({
