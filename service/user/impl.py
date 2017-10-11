@@ -56,8 +56,14 @@ class UserService(object):
             log.error("存储参数异常: user = {} nick_name = {} head_img_url = {}".format(
                 user, nick_name, head_img_url))
             return False
-        user.nick_name = filter_emoji(nick_name)
-        user.head_img_url = head_img_url
+        if nick_name == '' and head_img_url == '':
+            return False
+
+        if nick_name != '':
+            user.nick_name = filter_emoji(nick_name)
+
+        if head_img_url != '':
+            user.head_img_url = head_img_url
         return user.save()
 
     # 根据用户ID 获得用户信息

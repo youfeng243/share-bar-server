@@ -19,12 +19,13 @@ from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
-    LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id
+    LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id, ATTENTION_URL
 from exts.database import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_device_code_key, get_keep_alive_key
 from service.device.model import Device
+from service.user.impl import UserService
 from service.windows.impl import WindowsService
-from tools.wechat_api import get_current_user, bind_required
+from tools.wechat_api import get_current_user, bind_required, get_wechat_user_info
 
 bp = Blueprint('windows', __name__, url_prefix='/windows')
 
@@ -60,6 +61,25 @@ def qr_code_online(device_code):
     # 账户链接
     account_url = url_for("wechat.menu", name="account")
 
+    # 初始化用户关注信息
+    subscribe, nick_name, head_img_url = 0, '', ''
+
+    # 通过微信二维码扫描则需要判断当前用户是否已经关注公众号
+    if scan_from != 'playing':
+        openid = session.get('openid', None)
+        # 如果不是微信二维码扫描 则跳转到登录界面
+        if openid is None:
+            log.info("当前扫描登录没有openid，需要跳转到登录界面..")
+            return redirect(login_url)
+
+        # 获得用户的关注状态 以及头像和昵称信息
+        subscribe, nick_name, head_img_url = get_wechat_user_info(openid)
+        # 如果用户没有关注微信号 直接跳转到关注页面
+        if subscribe != 1:
+            log.info("当前用户没有关注公众号: subscribe = {} openid = {}".format(
+                subscribe, openid))
+            return redirect(ATTENTION_URL)
+
     user_id_cookie = session.get('u_id')
     if user_id_cookie is None:
         log.warn("当前session中没有u_id 信息，需要登录...")
@@ -85,6 +105,15 @@ def qr_code_online(device_code):
             return redirect(login_url)
 
         return fail(HTTP_OK, u"用户还绑定手机号码登录!", LOGIN_ERROR_BIND)
+
+    # 判断当前用户是否已经关注了
+    if subscribe == 1:
+        # 如果用户信息存储成功!!
+        if UserService.save_nick_and_head(user, nick_name, head_img_url):
+            log.info("通过微信二维码扫描上线的用户昵称信息与头像信息更新成功: user_id = {}".format(user.id))
+        else:
+            log.info("用户头像与昵称信息存储失败: user_id = {} nick_name = {} head_img_url = {}".format(
+                user.id, nick_name, head_img_url))
 
     # 如果当前用户 被禁用 则不能上线
     if user.deleted is True:
