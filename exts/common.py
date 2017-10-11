@@ -80,7 +80,7 @@ WECHAT_JSAPI_TICKET_KEY = "global:jsapi_ticket"
 前端相对路径URL
 '''
 
-ATTENTION_URL = 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzUzMzI4NDQzNQ==&scene=124#wechat_redirect'
+ATTENTION_URL = 'https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzUzMzI4NDQzNQ==&scene=110#wechat_redirect'
 
 ERROR_MSG = {
     HTTP_OK: 'OK',
