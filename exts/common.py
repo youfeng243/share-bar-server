@@ -167,6 +167,8 @@ def decode_user_id(cookie):
 # 时间转换 秒转分
 def cal_cost_time(seconds):
     log.info("需要转换的时间: seconds = {}".format(seconds))
+    if seconds < 30:
+        seconds = 0
     if 30 <= seconds < 60:
         seconds = 60
 
