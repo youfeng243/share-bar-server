@@ -52,61 +52,52 @@ wx_pay = WxPay(
 # 一定需要登录了才能够进入账户系统
 # @bind_required
 def menu(name):
-    # 判断openid是否已经在数据库中了，如果在则直接进入
-    user = UserService.get_by_openid(g.openid)
-    if user is not None:
-        log.info("当前需要登录的: openid = {}".format(g.openid))
-
-        # 生成对应的cookie
-        u_id = encode_user_id(user.id)
-        session['u_id'] = u_id
-        log.info("当前绑定的user_id cookie = {}".format(u_id))
-
+    # url跳转
+    def redirect_to(action_name):
         # 进入账户中心
-        if name == 'account':
+        if action_name == 'account':
             log.info("跳转到/account页面...")
             return redirect('#/account')
 
         # 进入游戏仓
-        if name == 'playing':
+        if action_name == 'playing':
             log.info("跳转到/playing页面...")
             return redirect('#/playing')
 
-        log.info("无法处理请求: name = {} 跳转到登录界面".format(name))
+        log.info("无法处理请求: action_name = {} 跳转到登录界面".format(action_name))
+        return redirect('#/login')
+
+    # 判断是否已经绑定了微信
+    def already_bind_openid(openid):
+        user = UserService.get_by_openid(openid)
+        if user is not None:
+            log.info("当前需要登录的: openid = {}".format(openid))
+
+            # 生成对应的cookie
+            u_id = encode_user_id(user.id)
+            session['u_id'] = u_id
+            log.info("当前绑定的user_id cookie = {}".format(u_id))
+
+            return redirect_to(name)
         return redirect('#/login')
 
     # 判断当前用户是否已经绑定
     user_id_cookie = session.get('u_id')
     if user_id_cookie is None:
         log.warn("当前session中没有u_id 信息，需要登录...")
-        return redirect('#/login')
+        return already_bind_openid(g.openid)
 
     user_id = decode_user_id(user_id_cookie)
     if user_id is None:
         log.warn("当前用户信息被篡改，需要重新登录: user_id_cookie = {}".format(user_id_cookie))
-        return redirect('#/login')
+        return already_bind_openid(g.openid)
 
+    # 如果user_id 不存在 则需要重新登录绑定
     if UserService.get_by_id(user_id) is None:
         log.warn("数据库中没有当前用户信息，需要登录: user_id = {}".format(user_id))
-        return redirect('#/login')
+        return already_bind_openid(g.openid)
 
-    # 判断是否需要重新登录
-    # if name == 'login':
-    #     # log.info("当前用户需要重新登录: user_id = {}".format(g.user_id))
-    #     return redirect('#/login')
-
-    # 进入账户中心
-    if name == 'account':
-        log.info("跳转到/account页面...")
-        return redirect('#/account')
-
-    # 进入游戏仓
-    if name == 'playing':
-        log.info("跳转到/playing页面...")
-        return redirect('#/playing')
-
-    log.info("无法处理请求: name = {} 跳转到登录界面".format(name))
-    return redirect('#/login')
+    return redirect_to(name)
 
 
 # 判断当前用户是否微信端授权
