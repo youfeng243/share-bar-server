@@ -91,6 +91,7 @@ def check_signature(func):
 # 获得跳转到登录链接的鉴权url
 def get_login_oauth_url():
     state = random.randint(1, 10)
+    log.info(request.args)
     login_url = url_for("wechat.menu", name="login", _external=True)
 
     log.info("当前鉴权后回调url为: {}".format(login_url))

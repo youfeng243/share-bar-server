@@ -55,7 +55,7 @@ def menu(name):
     # 判断openid是否已经在数据库中了，如果在则直接进入
     user = UserService.get_by_openid(g.openid)
     if user is not None:
-        log.info("当前微信已绑定其他手机号，不能登录: openid = {}".format(g.openid))
+        log.info("当前需要登录的: openid = {}".format(g.openid))
 
         # 生成对应的cookie
         u_id = encode_user_id(user.id)
