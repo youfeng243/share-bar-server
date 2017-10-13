@@ -39,9 +39,9 @@ LOGIN_ERROR_NOT_FIND = -4
 LOGIN_ERROR_NOT_SUFFICIENT_FUNDS = -5
 # 上线失败 未知错误
 LOGIN_ERROR_UNKNOW = -6
-# 设备已经在使用了
+# 当前设备已经在使用上线了，但是不是当前用户在使用!
 LOGIN_ERROR_DEVICE_IN_USING = -7
-# 当前用户已经在线了
+# 当前用户已经在使用上线了，但是不是当前设备在使用
 LOGIN_ERROR_USER_IN_USING = -8
 # 当前设备不处于空闲状态，不能上机
 LOGIN_ERROR_DEVICE_NOT_FREE = -9

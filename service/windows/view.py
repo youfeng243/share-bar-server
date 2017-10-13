@@ -48,7 +48,7 @@ def qr_code_online(device_code):
     # LOGIN_ERROR_UNKNOW = -6
     # # 设备已经在使用了
     # LOGIN_ERROR_DEVICE_IN_USEING = -7
-    # # 当前用户已经在线了
+    # # 当前用户已经在使用上线了，但是不是当前设备在使用
     # LOGIN_ERROR_USER_IN_USEING = -8
     # # 当前设备不处于空闲状态，不能上机
     # LOGIN_ERROR_DEVICE_NOT_FREE = -9
