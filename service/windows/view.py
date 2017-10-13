@@ -81,7 +81,9 @@ def qr_code_online(device_code):
             return redirect(ATTENTION_URL)
 
         # 如果当前用户已经关注 则直接跳转到 祥基指定的链接 2017-10-13 15:26:00
-        return redirect('#/playing?code={}'.format(device_code))
+        url = '#/playing?code={}'.format(device_code)
+        log.info("当前用户已经关注了公众号，跳转链接: {}".format(url))
+        return redirect(url)
 
     user_id_cookie = session.get('u_id')
     if user_id_cookie is None:
