@@ -350,8 +350,6 @@ def get_wechat_user_info(openid):
             log.info("当前用户关注了公众号, 能够获取昵称和头像: openid = {} nick_name = {} head_img_url = {}".format(
                 openid, nick_name, head_img_url))
 
-
-
             # ticket = json_data.get('ticket')
             # expires_in = json_data.get('expires_in')
             # if not isinstance(ticket, basestring) or not isinstance(expires_in, int):
