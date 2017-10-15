@@ -17,6 +17,7 @@ from service.user.model import User
 
 def filter_emoji(des_str, restr=''):
     # 不进行过滤
+    log.info("当前需要过滤的用户名: nick_name = {}".format(des_str))
     return des_str
     # log.info("转换前 nick_name = {}".format(des_str))
     # try:
