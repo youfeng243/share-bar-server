@@ -8,26 +8,27 @@
 @time: 2017/9/25 00:14
 """
 
-import re
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
 from exts.database import db
 from service.user.model import User
 
+
 def filter_emoji(des_str, restr=''):
-    log.info("转换前 nick_name = {}".format(des_str))
-    try:
-        co = re.compile(u'[\U00010000-\U0010ffff]')
-    except re.error:
-        co = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
-    nick_name = co.sub(restr, des_str)
-    log.info("转换后 nick_name = {}".format(nick_name))
-    return nick_name
+    # 不进行过滤
+    return des_str
+    # log.info("转换前 nick_name = {}".format(des_str))
+    # try:
+    #     co = re.compile(u'[\U00010000-\U0010ffff]')
+    # except re.error:
+    #     co = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
+    # nick_name = co.sub(restr, des_str)
+    # log.info("转换后 nick_name = {}".format(nick_name))
+    # return nick_name
+
 
 class UserService(object):
-
-
     @staticmethod
     def create(mobile, openid, nick_name="", head_img_url=""):
 
