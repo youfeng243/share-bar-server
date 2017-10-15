@@ -12,7 +12,9 @@
 import json
 
 import requests
+import sys
 
+sys.path.append("..")
 from exts.common import WECHAT_ACCESS_TOKEN_KEY
 from exts.redis_dao import Redis
 from logger import Logger
