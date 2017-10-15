@@ -265,6 +265,7 @@ def get_user_wechat_info(refresh_token, openid):
                 log.warn("访问刷新微信access_token信息失败: status_code = {} url = {}".format(resp.status_code, refresh_url))
                 return head_img_url, nick_name
 
+            log.info("当前获取的用户信息为: text = {}".format(resp.text))
             data = json.loads(resp.content)
             if data is None:
                 log.warn("解析微信access_token失败: data = {}".format(data))
