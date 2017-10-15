@@ -7,6 +7,9 @@
 @file: get_user_info.py
 @time: 2017/10/15 18:51
 """
+import sys
+
+sys.path.append('../')
 from tools.wechat_api import get_wechat_user_info
 
 if __name__ == '__main__':
