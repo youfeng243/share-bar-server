@@ -13,13 +13,12 @@ from exts.charge_manage import Lock
 from exts.common import log
 from exts.database import redis
 from exts.redis_dao import get_user_key
-from service.template.impl import TemplateService
 
 
 class WechatService(object):
     # 给指定在线用户充值
     @staticmethod
-    def online_recharge(user_id, total_fee, pay_time):
+    def online_recharge(user_id, total_fee):
         # # 判断是否已经在redis中进行记录
         # record_key = get_record_key(user.id, device.id)
         # # 获得用户上线key
@@ -52,8 +51,6 @@ class WechatService(object):
         # todo 这里需要加锁, 否则扣费下机时会有影响
         lock = Lock(user_key, redis)
 
-        is_success = False
-        openid = None
         try:
             lock.acquire()
             record_key = redis.get(user_key)
@@ -80,18 +77,9 @@ class WechatService(object):
                 charge_dict['balance_account'] = balance_account + total_fee
                 redis.set(record_key, json.dumps(charge_dict))
 
-                openid = charge_dict.get('openid')
-                log.info("当前充值流程中获取的openid = {}".format(openid))
-                is_success = True
                 log.info("同步修改redis中用户余额信息成功! user_id = {} account = {}".format(user_id, balance_account + total_fee))
             except Exception as e:
                 log.error("解析json数据失败: {}".format(charge_str))
                 log.exception(e)
         finally:
             lock.release()
-
-        # 发送充值成功通知
-        if is_success and openid is not None:
-            TemplateService.recharge_remind(openid, pay_time, total_fee)
-        else:
-            log.error("无法发送充值通知: is_success = {} openid = {}".format(is_success, openid))

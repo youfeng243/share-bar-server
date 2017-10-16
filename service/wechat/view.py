@@ -106,7 +106,7 @@ def wechat_check():
     openid = session.get('openid', None)
     # refresh_token = session.get('refresh_token', None)
     # 如果两个关键的token都存在 则正常进入下面的流程
-    if openid is None: # or refresh_token is None:
+    if openid is None:  # or refresh_token is None:
         log.warn("当前用户没有openid..")
         return fail(HTTP_OK, u"当前用户没有openid!", -1)
 
@@ -315,10 +315,12 @@ def notify():
         # 创建充值记录
         obj, is_success = RechargeService.create(user_id, total_fee, transaction_id, pay_time)
         if not is_success:
+            log.error("存储充值记录失败: user_id = {} transaction_id = {}".format(
+                user_id, transaction_id))
             return fail(HTTP_OK, u"充值记录存储失败!")
 
         # 如果当前用户正在上线则需要更新redis中的总余额数据
-        WechatService.online_recharge(user_id, total_fee, pay_time)
+        WechatService.online_recharge(user_id, total_fee)
 
         return success()
     except Exception as e:

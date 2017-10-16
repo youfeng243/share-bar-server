@@ -14,6 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from exts.common import log
 from exts.database import db
 from service.recharge.model import Recharge
+from service.template.impl import TemplateService
 from service.user.model import User
 
 
@@ -40,6 +41,10 @@ class RechargeService(object):
             db.session.add(user)
             db.session.add(recharge)
             db.session.commit()
+
+            # 发送充值成功通知
+            TemplateService.recharge_remind(user.openid, pay_time, amount)
+
         except IntegrityError:
             log.error("主键重复: user_id = {} amount = {}".format(
                 user_id, amount))
