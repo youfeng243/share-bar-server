@@ -41,10 +41,12 @@ class TemplateService(object):
         online_time = ctime.strftime('%Y-%m-%d %H:%M:%S')
         address_str = address.province + address.city + address.area + address.location
 
-        account_url = url_for("wechat.menu", name="account")
+        account_url = url_for("wechat.menu", name="account", _external=True)
         log.info("当前用户中心地址: url = {}".format(account_url))
         if WechatTemplate.online(access_token, openid, online_time, address_str, balance, charge_mode, url=account_url):
             log.info("发送微信上机通知成功: openid = {}".format(openid))
+        else:
+            log.warn("发送微信上机通知失败: openid = {}".format(openid))
 
     # 下机提醒
     @classmethod
@@ -61,6 +63,8 @@ class TemplateService(object):
         address_str = record.province + record.city + record.area + record.location
         if WechatTemplate.offline(access_token, openid, offline_time, address_str, balance, record.cost_time):
             log.info("发送微信下机通知成功: openid = {}".format(openid))
+        else:
+            log.warn("发送微信下机通知失败: openid = {}".format(openid))
 
     # 充值提醒
     @classmethod
@@ -73,3 +77,5 @@ class TemplateService(object):
         recharge_time = pay_time.strftime('%Y-%m-%d %H:%M:%S')
         if WechatTemplate.recharge_remind(access_token, openid, recharge_time, account):
             log.info("发送微信充值通知成功: openid = {}".format(openid))
+        else:
+            log.warn("发送微信充值通知失败: openid = {}".format(openid))

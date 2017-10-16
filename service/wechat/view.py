@@ -311,6 +311,7 @@ def notify():
             log.info("当前记录已经存储过，不在进行存储: {}".format(transaction_id))
             return success()
 
+        log.info("当前充值记录还未存在，存储记录: transaction_id = {}".format(transaction_id))
         # 创建充值记录
         obj, is_success = RechargeService.create(user_id, total_fee, transaction_id, pay_time)
         if not is_success:

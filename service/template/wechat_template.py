@@ -148,7 +148,7 @@ class WechatTemplate(object):
             }
         }
 
-        return cls.send_wechat_template(access_token, cls.TEMPLATE_OFFLINE, openid, data)
+        return cls.send_wechat_template(access_token, cls.TEMPLATE_RECHARGE, openid, data)
 
     @classmethod
     def send_wechat_template(cls, access_token, template_id, openid, data, url=''):
