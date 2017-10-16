@@ -81,6 +81,7 @@ class WechatService(object):
                 redis.set(record_key, json.dumps(charge_dict))
 
                 openid = charge_dict.get('openid')
+                log.info("当前充值流程中获取的openid = {}".format(openid))
                 is_success = True
                 log.info("同步修改redis中用户余额信息成功! user_id = {} account = {}".format(user_id, balance_account + total_fee))
             except Exception as e:
@@ -92,3 +93,5 @@ class WechatService(object):
         # 发送充值成功通知
         if is_success and openid is not None:
             TemplateService.recharge_remind(openid, pay_time, total_fee)
+        else:
+            log.error("无法发送充值通知: is_success = {} openid = {}".format(is_success, openid))
