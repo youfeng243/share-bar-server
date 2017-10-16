@@ -8,9 +8,16 @@ PASSWORD="000000"
 DBNAME="share_bar_db"
 create_db_sql="create database IF NOT EXISTS ${DBNAME} default character set utf8mb4 collate utf8mb4_unicode_ci"
 
+
+# 安装redis
+apt-get install -y redis-server
+apt-get install -y git
+
+# 安装mysql
+apt-get install -y mysql-server mysql-client libmysqlclient-dev
+
 mysql -h${HOST_NAME}  -P${PORT}  -u${USERNAME} -p${PASSWORD} -e "${create_db_sql}"
 
-apt-get install -y libmysqlclient-dev
 pip install virtualenv
 
 virtualenv .venv -p python2
