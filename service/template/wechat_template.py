@@ -139,6 +139,7 @@ class WechatTemplate(object):
             },
             "keyword1": {
                 "value": "{}元".format(account / 100.0),
+                "color": "#173177"
             },
             "keyword2": {
                 "value": recharge_time,
