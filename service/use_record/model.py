@@ -45,7 +45,7 @@ class UseRecord(ModelBase):
     # 下机时间 数据初始化时以创建时间为结束时间
     end_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
-    # 花费时间 秒为单位
+    # 花费时间 分钟为单位
     cost_time = db.Column(db.Integer, nullable=False, index=True, default=0)
 
     # # 生效时间 创建时间

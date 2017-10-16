@@ -34,6 +34,9 @@ class User(ModelBase):
     # 电话号码
     mobile = db.Column(db.String(64), unique=True, index=True, nullable=False)
 
+    # 总游戏使用时长  分钟为单位
+    total_cost_time = db.Column(db.Integer, nullable=False, default=0)
+
     # 总充值金额
     total_account = db.Column(db.Integer, nullable=False, default=0)
 
@@ -71,6 +74,7 @@ class User(ModelBase):
             'state': self.state,
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            'total_cost_time': self.total_cost_time,
         }
 
     def __repr__(self):

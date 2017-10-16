@@ -51,6 +51,7 @@ class WindowsService(object):
             # if 30 <= seconds < 60:
             #     seconds = 60
 
+            # 计算下机时长
             record.cost_time = cal_cost_time(seconds)
             log.info("本次上机花费的时间: user_id = {} device_id = {} cost_time = {}".format(
                 user_id, device_id, record.cost_time))
@@ -69,7 +70,10 @@ class WindowsService(object):
                 user.balance_account = 0
             log.info("上机后用户所剩余额: user_id = {} balance_account = {}".format(user_id, user.balance_account))
             user.used_account += record.cost_money
+            user.total_cost_time += record.cost_time
 
+            log.info("当前用户总的上机时长: user_id = {} total_cost_time = {}".format(
+                user_id, user.total_cost_time))
             db.session.add(user)
             db.session.add(device)
             db.session.add(record)
