@@ -317,7 +317,7 @@ def notify():
             return fail(HTTP_OK, u"充值记录存储失败!")
 
         # 如果当前用户正在上线则需要更新redis中的总余额数据
-        WechatService.online_recharge(user_id, total_fee)
+        WechatService.online_recharge(user_id, total_fee, pay_time)
 
         return success()
     except Exception as e:

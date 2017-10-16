@@ -16,6 +16,7 @@ from exts.database import redis, db
 from exts.redis_dao import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
 from exts.redis_dao import get_user_key
 from service.device.model import Device
+from service.template.impl import TemplateService
 from service.use_record.model import UseRecord
 from service.user.model import User
 
@@ -78,13 +79,14 @@ class WindowsService(object):
             db.session.add(device)
             db.session.add(record)
             db.session.commit()
+
+            return True, record, user
         except Exception as e:
             log.error("未知错误: user_id = {} device_id = {} record_id = {}".format(user_id, device_id, record_id))
             log.exception(e)
             db.session.rollback()
-            return False
 
-        return True
+        return False, None, None
 
     # 上线操作
     @staticmethod
@@ -122,6 +124,8 @@ class WindowsService(object):
         charging['balance_account'] = user.balance_account
         # 填充设备机器码
         charging['device_code'] = device.device_code
+        # 填充用户的openid
+        charging['openid'] = user.openid
 
         # charging = {
         #     'id': self.id,
@@ -145,6 +149,9 @@ class WindowsService(object):
 
         charge_str = json.dumps(charging)
 
+        # 判断是否上机成功
+        is_success = False
+
         # 操作redis 需要加锁
         lock = Lock(user_key, redis)
         try:
@@ -163,8 +170,18 @@ class WindowsService(object):
             # 设置设备当前使用状态
             device.state = Device.STATE_BUSY
             device.save()
+
+            is_success = True
         finally:
             lock.release()
+
+        if is_success:
+            # 发送上线通知
+            TemplateService.online(user.openid,
+                                   record.ctime,
+                                   device.address,
+                                   user.balance_account,
+                                   device.charge_mode)
 
         return True
 
@@ -173,23 +190,25 @@ class WindowsService(object):
 
         # offline_lock_key = None
         lock = None
-        try:
-            if charging is None:
-                log.error("charging is None 下机异常!!")
-                return fail(HTTP_OK, u"下机异常!")
+        is_success = False
+        if charging is None:
+            log.error("charging is None 下机异常!!")
+            return fail(HTTP_OK, u"下机异常!")
 
+        try:
             charge_dict = json.loads(charging)
             record_id = charge_dict.get('id')
             user_id = charge_dict.get('user_id')
             device_id = charge_dict.get('device_id')
             charge_mode = charge_dict.get('charge_mode')
             device_code = charge_dict.get('device_code')
+            openid = charge_dict.get('openid')
             log.info("当前下线信息: user_id = {} device_id = {} charge_mode = {} device_code = {}".format(
                 user_id, device_id, charge_mode, device_code))
 
             user_key = get_user_key(user_id)
 
-            #  todo 下机需要加锁
+            #  下机需要加锁
             lock = Lock(user_key, redis)
 
             log.info("开始加锁下机: user_key = {}".format(user_key))
@@ -215,10 +234,11 @@ class WindowsService(object):
             # log.info("当前获得下机锁: {}".format(offline_lock_key))
 
             # 结账下机
-            if not WindowsService.cal_offline(user_id=user_id,
-                                              device_id=device_id,
-                                              record_id=record_id,
-                                              charge_mode=charge_mode):
+            result, record, user = WindowsService.cal_offline(user_id=user_id,
+                                                              device_id=device_id,
+                                                              record_id=record_id,
+                                                              charge_mode=charge_mode)
+            if not result:
                 log.error("下机扣费失败: user_id = {} device_id = {} charge_mode = {}".format(
                     user_id, device_id, charge_mode))
                 return fail(HTTP_OK, u"下机失败！")
@@ -238,7 +258,7 @@ class WindowsService(object):
             redis.delete(device_key)
             redis.delete(device_code_key)
             redis.delete(keep_alive_key)
-
+            is_success = True
         except Exception as e:
             log.error("数据解析失败: {}".format(charging))
             log.exception(e)
@@ -253,6 +273,9 @@ class WindowsService(object):
         #     if offline_lock_key is not None:
         #         redis.delete(offline_lock_key)
         #         log.info("下机解锁成功: {}".format(offline_lock_key))
+
+        if is_success and openid is not None:
+            TemplateService.offline(openid, record, user.balance_account)
 
         log.info("下机成功: user_id = {} device_id = {}".format(user_id, device_id))
         return success({'status': 1, 'msg': 'logout successed!'})
