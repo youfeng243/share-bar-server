@@ -14,28 +14,8 @@ class RedisClient(object):
         self._client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=settings.REDIS_MAX_CONNECTIONS)
         log.info("redis 初始化完成!!")
 
-    # def init_app(self, app):
-    #     uri = app.config.get('REDIS_URI')
-    #     max_conn = int(app.config.get('REDIS_MAX_CONNECTIONS', 32))
-    #     self._client = redis.StrictRedis.from_url(uri, max_connections=max_conn)
-    #
-    #     if not hasattr(app, 'extensions'):
-    #         app.extensions = {}
-    #
-    #     app.extensions['redis_client'] = self
-    #     log.info("redis_client 初始化完成!!")
-
     def __getattr__(self, name):
         return getattr(self._client, name)
-
-        # def set(self, key, value):
-        #     self._client.set(key, value)
-
-
-# # 下机锁
-# def get_offline_lock_key(lock):
-#     lock_key = "{}{}".format(REDIS_PRE_LOCK_KEY, lock)
-#     return lock_key
 
 
 # 获得用户上线使用记录key

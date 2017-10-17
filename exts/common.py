@@ -49,8 +49,9 @@ LOGIN_ERROR_DEVICE_NOT_FREE = -9
 '''
 redis 缓存公共前缀管理
 '''
-# 锁key前缀
-# REDIS_PRE_LOCK_KEY = 'offline#lock#'
+
+# 最新费率
+REDIS_NEWEST_CHARGE_MODE = 'charge#newest'
 
 # 上线记录关联前缀
 REDIS_PRE_RECORD_KEY = 'online#record#'
