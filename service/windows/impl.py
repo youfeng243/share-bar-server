@@ -73,7 +73,7 @@ class WindowsService(object):
             user.used_account += record.cost_money
             user.total_cost_time += record.cost_time
 
-            # 更新个属性时间
+            # 更新各属性时间
             user.utime = datetime.now()
             device.utime = datetime.now()
             record.utime = datetime.now()
