@@ -22,15 +22,15 @@ class ChargeService(object):
     def create(name, charge_mode):
 
         try:
-
             charge = Charge(name=name,
                             charge_mode=charge_mode)
+            db.session.add(charge)
+            db.session.commit()
 
             # 更新redis中最新的费率
             redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge.to_dict()))
 
-            db.session.add(charge)
-            db.session.commit()
+            log.info("存储最新费率成功: name = {} charge_mode = {}".format(name, charge_mode))
         except IntegrityError:
             log.error("主键重复: name = {} charge_mode = {}".format(
                 name, charge_mode))
