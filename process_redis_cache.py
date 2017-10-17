@@ -28,7 +28,7 @@ except Exception as ex:
     exit(0)
 
 # 最后剩余阈值
-WEIXIN_CACHE_LAST_TIME = 300
+WX_CACHE_LAST_TIME = 300
 
 
 def update_access_token():
@@ -110,14 +110,14 @@ def access_token_thread():
         try:
             ttl = redis_client.ttl(WECHAT_ACCESS_TOKEN_KEY)
             log.info("当前key存活时间: key = {} ttl = {}".format(WECHAT_ACCESS_TOKEN_KEY, ttl))
-            if ttl <= WEIXIN_CACHE_LAST_TIME:
+            if ttl <= WX_CACHE_LAST_TIME:
                 log.info("开始获取token...")
                 update_access_token()
                 log.info("获取token结束...")
 
             ttl = redis_client.ttl(WECHAT_JSAPI_TICKET_KEY)
             log.info("当前key存活时间: key = {} ttl = {}".format(WECHAT_JSAPI_TICKET_KEY, ttl))
-            if ttl <= WEIXIN_CACHE_LAST_TIME:
+            if ttl <= WX_CACHE_LAST_TIME:
                 log.info("开始获取jsapi_ticket...")
                 update_ticket()
                 log.info("获取jsapi_ticket结束...")
