@@ -79,7 +79,7 @@ WECHAT_JSAPI_TICKET_KEY = "global:jsapi_ticket"
 '''
 前端相对路径URL
 '''
-
+# 跳转到关注文章链接
 ATTENTION_URL = 'http://mp.weixin.qq.com/s/gyJKttwpg3nq-dEpiNTM8Q'
 
 ERROR_MSG = {
@@ -92,11 +92,10 @@ ERROR_MSG = {
     HTTP_NOT_IMPLEMENTED: 'not implemented',
 }
 
-# 短信验证码相关
+# 手机请求验证码时间间隔
 DEFAULT_MOBILE_EXPIRED = 60  # 1 minute
-LEANCLOUD_HOST = 'https://leancloud.cn'
-REQUEST_SMS_CODE_URL = ''.join([LEANCLOUD_HOST, '/1.1/requestSmsCode'])
-VERIFY_SMS_CODE = ''.join([LEANCLOUD_HOST, '/1.1/verifySmsCode/{captcha}'])
+# 短信验证码存储时间
+DEFAULT_CAPTCHA_EXPIRED = 300  # 5 分钟
 
 log = Logger('share-bar-server.log').get_logger()
 
