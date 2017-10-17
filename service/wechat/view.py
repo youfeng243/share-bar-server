@@ -19,7 +19,7 @@ from flask import session
 import settings
 from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY, encode_user_id, decode_user_id
 from exts.database import redis
-from exts.sms import validate_captcha, mobile_reach_ratelimit, request_sms
+from exts.sms_api import validate_captcha, mobile_reach_ratelimit, request_sms
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
