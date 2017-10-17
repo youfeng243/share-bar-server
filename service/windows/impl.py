@@ -73,6 +73,11 @@ class WindowsService(object):
             user.used_account += record.cost_money
             user.total_cost_time += record.cost_time
 
+            # 更新个属性时间
+            user.utime = datetime.now()
+            device.utime = datetime.now()
+            record.utime = datetime.now()
+
             log.info("当前用户总的上机时长: user_id = {} total_cost_time = {}".format(
                 user_id, user.total_cost_time))
             db.session.add(user)
