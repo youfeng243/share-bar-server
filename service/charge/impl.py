@@ -52,6 +52,7 @@ class ChargeService(object):
                 charge = json.loads(charge_str)
                 charge_mode = charge.get('charge_mode')
                 if isinstance(charge_mode, int) and charge_mode > 0:
+                    log.info("当前从redis中获得费率: charge_mode = {}".format(charge_mode))
                     return charge_mode
                 log.error("当前redis中费率数据类型不正确: charge_str = {}".format(charge_str))
             except Exception as e:
