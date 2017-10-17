@@ -18,8 +18,7 @@ from flask import session
 
 import settings
 from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY, encode_user_id, decode_user_id
-from exts.resource import redis_client
-from exts.sms_api import validate_captcha, mobile_reach_ratelimit, request_sms
+from exts.resource import redis_client, sms_client
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
@@ -139,11 +138,11 @@ def request_code():
         log.warn("当前手机号: mobile = {}".format(mobile))
         return fail(HTTP_OK, u'手机号不合法')
 
-    if mobile_reach_ratelimit(mobile):
+    if sms_client.mobile_reach_rate_limit(mobile):
         return fail(HTTP_OK, u'验证码已发送')
 
     # 通过手机号请求验证码
-    if request_sms(mobile):
+    if sms_client.request_sms(mobile):
         return success()
 
     return fail(HTTP_OK, u"发送验证码请求失败!")
@@ -181,7 +180,7 @@ def wechat_login():
     code = code.strip()
 
     # 如果验证码错误
-    if not validate_captcha(mobile, code):
+    if not sms_client.validate_captcha(mobile, code):
         return fail(HTTP_OK, u'验证码错误')
 
     user = UserService.get_user_by_mobile(mobile)
