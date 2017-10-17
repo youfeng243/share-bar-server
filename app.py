@@ -96,7 +96,9 @@ def _request_log(resp, *args, **kwargs):
 
 
 def setup_hooks(app):
-    app.after_request(_request_log)
+    # 调试模式下显示请求日志
+    if app.debug:
+        app.after_request(_request_log)
 
 
 def setup_error_handler(app):
