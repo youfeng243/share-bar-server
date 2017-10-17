@@ -47,11 +47,11 @@ class Lock(object):
             self.redis_client.delete(self.lock_key)
             log.info("删除加锁key成功: lock_key = {}".format(self.lock_key))
         log.info("解锁完成: {}".format(self.lock_key))
-        log.info("加锁耗时: {}".format(time.time() - self.start_lock_time))
-        log.info("加锁超时时长: {}".format(self.lock_timeout + 1))
+        log.info("加锁耗时: {}s".format(time.time() - self.start_lock_time))
+        log.info("设置加锁超时时长: {}s".format(self.lock_timeout + 1))
 
 
 # 后台计费管理
-class ChargeManage(object):
-    def __init__(self, redis_client):
-        self.redis_client = redis_client
+# class ChargeManage(object):
+#     def __init__(self, redis_client):
+#         self.redis_client = redis_client
