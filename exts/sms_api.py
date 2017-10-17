@@ -22,7 +22,7 @@ def request_sms(mobile):
     resp = tx_sms_sender.send_with_param("86", mobile, settings.TX_SMS_TEXT_TEMP_ID, [captcha], "", "", "")
 
     try:
-        result = json.load(resp)
+        result = json.loads(resp)
         if result.get('result') != 0:
             log.error("发送验证码失败: mobile = {} captcha = {}".format(mobile, captcha))
             log.error("返回错误为: resp = {}".format(resp))
