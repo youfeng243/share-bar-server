@@ -14,10 +14,11 @@ from flask import request
 
 import settings
 from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
-from exts.resource import db
 from exts.login_manager import setup_admin_login
+from exts.resource import db
 from service.address.view import bp as address_bp
 from service.admin.view import bp as admin_bp
+from service.charge.view import bp as charge_bp
 from service.deploy.view import bp as deploy_bp
 from service.device.view import bp as device_bp
 from service.recharge.view import bp as recharge_bp
@@ -68,6 +69,7 @@ def register_bp(app):
     app.register_blueprint(wechat_bp)
     app.register_blueprint(recharge_bp)
     app.register_blueprint(windows_bp)
+    app.register_blueprint(charge_bp)
 
 
 def _get_remote_addr():
