@@ -5,11 +5,15 @@ import json
 import requests
 from requests_futures.sessions import FuturesSession
 
+import exts.tx_sms.sms as sender
 import settings
 from exts.common import log, REQUEST_SMS_CODE_URL, VERIFY_SMS_CODE, DEFAULT_MOBILE_EXPIRED
 from exts.database import redis
 from exts.leancloud import LeanCloud
-from exts.redis_dao import get_captcha_redis_key
+from exts.redis_dao import get_mobile_redis_key
+
+# 腾讯短信句柄
+tx_sms_sender = sender.SmsSingleSender(settings.TX_SMS_APP_ID, settings.TX_SMS_APP_KEY)
 
 lean_cloud_client = LeanCloud(settings.LEANCLOUD_ID, settings.LEANCLOUD_KEY)
 
@@ -20,7 +24,7 @@ def sms_default_callback(session, resp):
 
 # 短信验证码服务
 def request_sms(mobile):
-    if not settings.LEANCLOUD_ENABLED:
+    if not settings.SMS_ENABLED:
         log.info("当前处于调试状态，没有打开短信验证码功能, 不发送短信验证码请求...")
         return True
 
@@ -47,11 +51,11 @@ def request_sms(mobile):
 
 # 这里是校验手机验证码
 def validate_captcha(mobile, captcha):
-    if not settings.LEANCLOUD_ENABLED:
-        if captcha == settings.LEANCLOUD_DEBUG_SMS_CODE:
+    if not settings.SMS_ENABLED:
+        if captcha == settings.SMS_DEBUG_CAPTCHA:
             return True
         log.info("调试模式验证码校验失败: 发送过来的验证码 = {} 需要校验的调试验证码 = {}".format(
-            captcha, settings.LEANCLOUD_DEBUG_SMS_CODE))
+            captcha, settings.SMS_DEBUG_CAPTCHA))
         return False
 
     # 判断是否已经设置了 短信验证码关键信息
@@ -76,11 +80,11 @@ def validate_captcha(mobile, captcha):
 
 # 记录当前手机号码已经发过一次验证码，存入redis 一分钟后过期
 def mobile_reach_ratelimit(mobile):
-    if not settings.LEANCLOUD_ENABLED:
+    if not settings.SMS_ENABLED:
         log.info("调试模式下，可以无限次请求验证码!")
         return False
 
-    key = get_captcha_redis_key(mobile)
+    key = get_mobile_redis_key(mobile)
     value = redis.get(key)
     log.info('redis[%s]: %s', key, value)
     if value is not None:

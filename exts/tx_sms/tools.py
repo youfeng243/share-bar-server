@@ -9,7 +9,8 @@ import time
 class SmsSenderUtil:
     """ 工具类定义 """
 
-    def get_random(self):
+    @staticmethod
+    def get_random():
         return random.randint(100000, 999999)
 
     def get_cur_time(self):

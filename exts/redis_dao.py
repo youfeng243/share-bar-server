@@ -72,6 +72,11 @@ def get_keep_alive_key(record_key):
     return "{}{}".format(REDIS_PRE_KEEP_ALIVE_KEY, record_key)
 
 
-# 获得存储在redis中的手机信息
+# 获得存储在redis中的手机信息key
+def get_mobile_redis_key(mobile):
+    return 'bar:ratelimit:mobile:{}'.format(mobile)
+
+
+# 获得存储在redis中的验证码信息key
 def get_captcha_redis_key(mobile):
-    return 'bar:ratelimit:mobile:captcha:{}'.format(mobile)
+    return 'bar:ratelimit:captcha:{}'.format(mobile)
