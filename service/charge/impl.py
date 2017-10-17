@@ -21,13 +21,14 @@ class ChargeService(object):
     @staticmethod
     def create(name, charge_mode):
 
-        charge = Charge(name=name,
-                        charge_mode=charge_mode)
-
-        # 更新redis中最新的费率
-        redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge.to_dict()))
-
         try:
+
+            charge = Charge(name=name,
+                            charge_mode=charge_mode)
+
+            # 更新redis中最新的费率
+            redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge.to_dict()))
+
             db.session.add(charge)
             db.session.commit()
         except IntegrityError:
