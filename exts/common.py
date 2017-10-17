@@ -25,6 +25,11 @@ HTTP_SERVER_ERROR = 500
 HTTP_NOT_IMPLEMENTED = 501
 
 '''
+默认费率
+'''
+DEFAULT_CHARGE_MODE = 5
+
+'''
 登录错误码
 '''
 # 当前用户没有登录
@@ -97,6 +102,9 @@ ERROR_MSG = {
 DEFAULT_MOBILE_EXPIRED = 60  # 1 minute
 # 短信验证码存储时间
 DEFAULT_CAPTCHA_EXPIRED = 300  # 5 分钟
+
+# 费率过期时间
+DEFAULT_CHARGE_EXPIRED = 3600  # 一个小时过期
 
 log = Logger('share-bar-server.log').get_logger()
 

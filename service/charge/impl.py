@@ -11,7 +11,7 @@ import json
 
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log, REDIS_NEWEST_CHARGE_MODE
+from exts.common import log, REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, DEFAULT_CHARGE_MODE
 from exts.resource import db, redis_client
 from service.charge.model import Charge
 
@@ -25,7 +25,7 @@ class ChargeService(object):
                         charge_mode=charge_mode)
 
         # 更新redis中最新的费率
-        redis_client.set(REDIS_NEWEST_CHARGE_MODE, json.dumps(charge.to_dict()))
+        redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge.to_dict()))
 
         try:
             db.session.add(charge)
@@ -41,3 +41,32 @@ class ChargeService(object):
             log.exception(e)
             return None, False
         return charge, True
+
+    # 获得最新费率
+    @staticmethod
+    def get_newest_charge_mode():
+        # 先从redis中获取
+        charge_str = redis_client.get(REDIS_NEWEST_CHARGE_MODE)
+        if charge_str is not None:
+            try:
+                charge = json.loads(charge_str)
+                charge_mode = charge.get('charge_mode')
+                if isinstance(charge_mode, int) and charge_mode > 0:
+                    return charge_mode
+                log.error("当前redis中费率数据类型不正确: charge_str = {}".format(charge_str))
+            except Exception as e:
+                log.error("费率解析失败: charge_str = {}".format(charge_str))
+                log.exception(e)
+
+        # 如果从redis中获取费率失败，则从数据库中获得最新费率
+        charge_item = Charge.query.order_by(Charge.ctime.desc()).first()
+        if charge_item is None:
+            log.warn("当前数据库中还没有任何费率信息, 使用默认费率: DEFAULT_CHARGE_MODE = {}".format(DEFAULT_CHARGE_MODE))
+            return DEFAULT_CHARGE_MODE
+
+        # 设置费率到redis
+        redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge_item.to_dict()))
+
+        log.info("加载当前最新费率到redis: charge_mode = {} time = {}".format(
+            charge_item.charge_mode, charge_item.ctime.strftime('%Y-%m-%d %H:%M:%S')))
+        return charge_item.charge_mode
