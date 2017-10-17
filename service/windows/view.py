@@ -22,6 +22,7 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id, ATTENTION_URL
 from exts.resource import redis_client
 from exts.redis_api import get_record_key, get_user_key, get_device_key, get_device_code_key, get_keep_alive_key
+from service.charge.impl import ChargeService
 from service.device.model import Device
 from service.windows.impl import WindowsService
 from tools.wechat_api import get_current_user, bind_required, get_wechat_user_info
@@ -147,8 +148,11 @@ def qr_code_online(device_code):
         log.warn("当前设备号没有对应的设备信息: device_code = {}".format(device_code))
         return fail(HTTP_OK, u"设备信息异常，设备不存在", LOGIN_ERROR_NOT_FIND)
 
+    # 获得最新费率
+    charge_mode = ChargeService.get_newest_charge_mode()
+
     # 判断用户是否余额充足 如果小于一分钟不能上机
-    if user.balance_account < device.charge_mode:
+    if user.balance_account < charge_mode:
         # if scan_from != 'playing':
         #     log.info("扫描不是来自上机界面按钮且当前用户余额不足, 需要跳转用户页面: url = {}".format(account_url))
         #     return redirect(account_url)
@@ -204,7 +208,7 @@ def qr_code_online(device_code):
         #                                       device.address.city,
         #                                       device.address.area,
         #                                       device.address.location)
-        if not WindowsService.do_online(user, device):
+        if not WindowsService.do_online(user, device, charge_mode):
             # if scan_from != 'playing':
             #     log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
             #     return redirect(play_url)

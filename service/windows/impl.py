@@ -95,7 +95,7 @@ class WindowsService(object):
 
     # 上线操作
     @staticmethod
-    def do_online(user, device):
+    def do_online(user, device, charge_mode):
         log.info("用户还未上机可以进行上机: user_id = {} device_id = {}".format(user.id, device.id))
         record, is_success = UseRecord.create(user.id,
                                               device.id,
@@ -124,7 +124,7 @@ class WindowsService(object):
         # 获得计费结构体
         charging = record.to_charging()
         # 得到计费方式
-        charging['charge_mode'] = device.charge_mode
+        charging['charge_mode'] = charge_mode
         # 得到当前用户总额
         charging['balance_account'] = user.balance_account
         # 填充设备机器码
@@ -154,9 +154,6 @@ class WindowsService(object):
 
         charge_str = json.dumps(charging)
 
-        # 判断是否上机成功
-        is_success = False
-
         # 操作redis 需要加锁
         lock = DistributeLock(user_key, redis_client)
         try:
@@ -177,16 +174,20 @@ class WindowsService(object):
             device.save()
 
             is_success = True
+        except Exception as e:
+            is_success = False
+            log.exception(e)
         finally:
             lock.release()
 
+        # 判断上线是否成功
         if is_success:
             # 发送上线通知
             TemplateService.online(user.openid,
                                    record.ctime,
                                    device.address,
                                    user.balance_account,
-                                   device.charge_mode)
+                                   charge_mode)
 
         return True
 
@@ -195,7 +196,6 @@ class WindowsService(object):
 
         # offline_lock_key = None
         lock = None
-        is_success = False
         if charging is None:
             log.error("charging is None 下机异常!!")
             return fail(HTTP_OK, u"下机异常!")
@@ -279,6 +279,7 @@ class WindowsService(object):
         #         redis_client.delete(offline_lock_key)
         #         log.info("下机解锁成功: {}".format(offline_lock_key))
 
+        # 如果成功则进行下机提醒
         if is_success and openid is not None:
             TemplateService.offline(openid, record, user.balance_account)
 
