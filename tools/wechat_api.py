@@ -17,8 +17,8 @@ from flask import url_for
 
 import settings
 from exts.common import fail, log, HTTP_OK, decode_user_id, WECHAT_ACCESS_TOKEN_KEY
-from exts.resource import redis
-from exts.redis_dao import get_openid_key
+from exts.resource import redis_client
+from exts.redis_api import get_openid_key
 from service.user.impl import UserService
 
 
@@ -219,7 +219,7 @@ def wechat_required(func):
             # 存入redis 中
             if access_token is not None and expires_in is not None:
                 # 添加到缓存
-                redis.setex(get_openid_key(openid), expires_in, access_token)
+                redis_client.setex(get_openid_key(openid), expires_in, access_token)
 
             g.openid = openid
             g.refresh_token = refresh_token
@@ -254,7 +254,7 @@ def get_user_wechat_info(refresh_token, openid):
         log.warn("access_token or openid = None, 无法获取头像昵称信息...")
         return head_img_url, nick_name
 
-    access_token = redis.get(get_openid_key(openid))
+    access_token = redis_client.get(get_openid_key(openid))
     if access_token is None:
         # 重新刷新access_token
         refresh_url = 'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid={}&grant_type=refresh_token&refresh_token={}'.format(
@@ -278,7 +278,7 @@ def get_user_wechat_info(refresh_token, openid):
                 return head_img_url, nick_name
 
             # 存入redis
-            redis.setex(get_openid_key(openid), expires_in, access_token)
+            redis_client.setex(get_openid_key(openid), expires_in, access_token)
 
             log.info("重新刷新微信access_token成功: access_token = {} expires_in = {} openid = {}".format(
                 access_token, expires_in, openid))
@@ -318,7 +318,7 @@ def get_wechat_user_info(openid):
         log.error("openid 为None，未知异常！！！")
         return subscribe, nick_name, head_img_url
 
-    access_token = redis.get(WECHAT_ACCESS_TOKEN_KEY)
+    access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
     if access_token is None:
         log.error("access_token 为None，刷新token进程异常！！！")
         return subscribe, nick_name, head_img_url

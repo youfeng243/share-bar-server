@@ -12,9 +12,9 @@ from datetime import datetime
 
 from exts.charge_manage import Lock
 from exts.common import log, fail, HTTP_OK, success, cal_cost_time
-from exts.resource import redis, db
-from exts.redis_dao import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
-from exts.redis_dao import get_user_key
+from exts.resource import redis_client, db
+from exts.redis_api import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
+from exts.redis_api import get_user_key
 from service.device.model import Device
 from service.template.impl import TemplateService
 from service.use_record.model import UseRecord
@@ -158,19 +158,19 @@ class WindowsService(object):
         is_success = False
 
         # 操作redis 需要加锁
-        lock = Lock(user_key, redis)
+        lock = Lock(user_key, redis_client)
         try:
             lock.acquire()
 
             # 开始上线 把上线信息存储redis
-            redis.set(record_key, charge_str)
-            redis.set(user_key, record_key)
-            redis.set(device_key, record_key)
+            redis_client.set(record_key, charge_str)
+            redis_client.set(user_key, record_key)
+            redis_client.set(device_key, record_key)
             # 根据设备机器码获得记录token
-            redis.set(device_code_key, record_key)
+            redis_client.set(device_code_key, record_key)
             # 设置最新存活时间
             import time
-            redis.set(keep_alive_key, int(time.time()))
+            redis_client.set(keep_alive_key, int(time.time()))
 
             # 设置设备当前使用状态
             device.state = Device.STATE_BUSY
@@ -214,7 +214,7 @@ class WindowsService(object):
             user_key = get_user_key(user_id)
 
             #  下机需要加锁
-            lock = Lock(user_key, redis)
+            lock = Lock(user_key, redis_client)
 
             log.info("开始加锁下机: user_key = {}".format(user_key))
 
@@ -223,19 +223,19 @@ class WindowsService(object):
 
             # 判断是否已经在redis中进行记录
             record_key = get_record_key(user_id, device_id)
-            if redis.get(record_key) is None:
+            if redis_client.get(record_key) is None:
                 log.warn("当前用户或者设备已经下机: user_id = {} device_id = {}".format(user_id, device_id))
                 return success({'status': 1, 'msg': 'logout successed!'})
 
             # # 获得下机锁
             # offline_lock_key = get_offline_lock_key(record_key)
             #
-            # if redis.get(offline_lock_key) is not None:
+            # if redis_client.get(offline_lock_key) is not None:
             #     log.warn("当前已经在下机，其他下机请求被忽略: record_key = {}".format(record_key))
             #     return success({'status': 1, 'msg': 'logout successed!'})
             #
             # # 加上下机锁
-            # redis.set(offline_lock_key, 'lock')
+            # redis_client.set(offline_lock_key, 'lock')
             # log.info("当前获得下机锁: {}".format(offline_lock_key))
 
             # 结账下机
@@ -258,11 +258,11 @@ class WindowsService(object):
             keep_alive_key = get_keep_alive_key(record_key)
 
             # 从redis中删除上机记录
-            redis.delete(record_key)
-            redis.delete(user_key)
-            redis.delete(device_key)
-            redis.delete(device_code_key)
-            redis.delete(keep_alive_key)
+            redis_client.delete(record_key)
+            redis_client.delete(user_key)
+            redis_client.delete(device_key)
+            redis_client.delete(device_code_key)
+            redis_client.delete(keep_alive_key)
             is_success = True
         except Exception as e:
             log.error("数据解析失败: {}".format(charging))
@@ -276,7 +276,7 @@ class WindowsService(object):
         # finally:
         #     # 这里需要加锁
         #     if offline_lock_key is not None:
-        #         redis.delete(offline_lock_key)
+        #         redis_client.delete(offline_lock_key)
         #         log.info("下机解锁成功: {}".format(offline_lock_key))
 
         if is_success and openid is not None:

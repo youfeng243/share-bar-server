@@ -2,28 +2,28 @@
 
 from __future__ import absolute_import
 
-import redis as r_
+import redis
 
 import settings
 from exts.common import log, REDIS_PRE_RECORD_KEY, REDIS_PRE_USER_KEY, REDIS_PRE_DEVICE_KEY, \
     REDIS_PRE_DEVICE_CODE_KEY, REDIS_PRE_OPENID_KEY, REDIS_PRE_KEEP_ALIVE_KEY
 
 
-class Redis(object):
+class RedisClient(object):
     def __init__(self):
-        self._client = r_.StrictRedis.from_url(settings.REDIS_URI, max_connections=settings.REDIS_MAX_CONNECTIONS)
+        self._client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=settings.REDIS_MAX_CONNECTIONS)
         log.info("redis 初始化完成!!")
 
     # def init_app(self, app):
     #     uri = app.config.get('REDIS_URI')
     #     max_conn = int(app.config.get('REDIS_MAX_CONNECTIONS', 32))
-    #     self._client = r_.StrictRedis.from_url(uri, max_connections=max_conn)
+    #     self._client = redis.StrictRedis.from_url(uri, max_connections=max_conn)
     #
     #     if not hasattr(app, 'extensions'):
     #         app.extensions = {}
     #
-    #     app.extensions['redis'] = self
-    #     log.info("redis 初始化完成!!")
+    #     app.extensions['redis_client'] = self
+    #     log.info("redis_client 初始化完成!!")
 
     def __getattr__(self, name):
         return getattr(self._client, name)

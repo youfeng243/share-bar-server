@@ -10,17 +10,17 @@
 
 # 获得用户的关注状态 以及头像和昵称信息
 import json
+import sys
 
 import requests
-import sys
 
 sys.path.append("..")
 from exts.common import WECHAT_ACCESS_TOKEN_KEY
-from exts.redis_dao import Redis
+from exts.redis_api import RedisClient
 from logger import Logger
 
 log = Logger('get_user_info.log').get_logger()
-redis = Redis()
+redis_client = RedisClient()
 
 
 def get_wechat_user_info(openid):
@@ -31,7 +31,7 @@ def get_wechat_user_info(openid):
         log.error("openid 为None，未知异常！！！")
         return subscribe, nick_name, head_img_url
 
-    access_token = redis.get(WECHAT_ACCESS_TOKEN_KEY)
+    access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
     if access_token is None:
         log.error("access_token 为None，刷新token进程异常！！！")
         return subscribe, nick_name, head_img_url

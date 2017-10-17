@@ -10,7 +10,7 @@
 from flask import url_for
 
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, log
-from exts.resource import redis
+from exts.resource import redis_client
 from service.template.wechat_template import WechatTemplate
 
 
@@ -18,7 +18,7 @@ class TemplateService(object):
     # 获得access_token
     # @classmethod
     # def get_access_token(cls):
-    #     access_token = redis.get(WECHAT_ACCESS_TOKEN_KEY)
+    #     access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
     #     if access_token is None:
     #         log.error("access_token 为None，刷新token进程异常！！！")
     #         return subscribe, nick_name, head_img_url
@@ -34,7 +34,7 @@ class TemplateService(object):
                balance,
                # 计费 价格 分钟 / 分
                charge_mode):
-        access_token = redis.get(WECHAT_ACCESS_TOKEN_KEY)
+        access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
         if access_token is None:
             log.error("access_token 为None，刷新token进程异常！！！")
             return
@@ -55,7 +55,7 @@ class TemplateService(object):
                 # 余额 分
                 balance):
 
-        access_token = redis.get(WECHAT_ACCESS_TOKEN_KEY)
+        access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
         if access_token is None:
             log.error("access_token 为None，刷新token进程异常！！！")
             return
@@ -69,7 +69,7 @@ class TemplateService(object):
     # 充值提醒
     @classmethod
     def recharge_remind(cls, openid, pay_time, account):
-        access_token = redis.get(WECHAT_ACCESS_TOKEN_KEY)
+        access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
         if access_token is None:
             log.error("access_token 为None，刷新token进程异常！！！")
             return

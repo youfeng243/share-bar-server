@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from exts.redis_dao import Redis
+from exts.redis_api import RedisClient
 
 db = SQLAlchemy()
-redis = Redis()
+redis_client = RedisClient()

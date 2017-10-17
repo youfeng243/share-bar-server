@@ -18,7 +18,7 @@ from flask import session
 
 import settings
 from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY, encode_user_id, decode_user_id
-from exts.resource import redis
+from exts.resource import redis_client
 from exts.sms_api import validate_captcha, mobile_reach_ratelimit, request_sms
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
@@ -390,7 +390,7 @@ def get_jsapi_signature():
         log.warn("没有传入url 参数: {}".format(json.dumps(request.json, ensure_ascii=False)))
         return fail(HTTP_OK, u"没有传入url参数!")
 
-    jsapi_ticket = redis.get(WECHAT_JSAPI_TICKET_KEY)
+    jsapi_ticket = redis_client.get(WECHAT_JSAPI_TICKET_KEY)
     if jsapi_ticket is None:
         log.warn("没有jsapi_ticket: user_id = {}".format(g.user_id))
         return fail(HTTP_OK, u'没有jsapi_ticket')

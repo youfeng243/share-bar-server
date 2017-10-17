@@ -16,7 +16,7 @@ import requests
 
 import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time
-from exts.redis_dao import get_record_key, get_keep_alive_key
+from exts.redis_api import get_record_key, get_keep_alive_key
 
 # log = Logger('process_redis_cache.log').get_logger()
 

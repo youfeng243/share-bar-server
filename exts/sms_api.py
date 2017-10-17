@@ -5,8 +5,8 @@ import json
 import exts.tx_sms.sms as sender
 import settings
 from exts.common import log, DEFAULT_MOBILE_EXPIRED, DEFAULT_CAPTCHA_EXPIRED
-from exts.resource import redis
-from exts.redis_dao import get_mobile_redis_key, get_captcha_redis_key
+from exts.resource import redis_client
+from exts.redis_api import get_mobile_redis_key, get_captcha_redis_key
 from exts.tx_sms.tools import SmsSenderUtil
 
 tx_sms_sender = sender.SmsSingleSender(settings.TX_SMS_APP_ID, settings.TX_SMS_APP_KEY)
@@ -30,7 +30,7 @@ def request_sms(mobile):
 
         # 存储验证码到redis中 只保留五分钟有效
         key = get_captcha_redis_key(mobile)
-        redis.setex(key, DEFAULT_CAPTCHA_EXPIRED, captcha)
+        redis_client.setex(key, DEFAULT_CAPTCHA_EXPIRED, captcha)
 
         log.info("验证码发送成功: mobile = {} captcha = {}".format(mobile, captcha))
         return True
@@ -51,7 +51,7 @@ def validate_captcha(mobile, captcha):
         return False
 
     key = get_captcha_redis_key(mobile)
-    value = redis.get(key)
+    value = redis_client.get(key)
     if value is None:
         log.info("当前手机不存在验证码: {}".format(mobile))
         return False
@@ -62,7 +62,7 @@ def validate_captcha(mobile, captcha):
         return False
 
     # 删除已经验证码完成的验证码
-    redis.delete(key)
+    redis_client.delete(key)
     log.info("删除手机验证码redis key = {}".format(key))
     return True
 
@@ -74,10 +74,10 @@ def mobile_reach_ratelimit(mobile):
         return False
 
     key = get_mobile_redis_key(mobile)
-    value = redis.get(key)
+    value = redis_client.get(key)
     log.info('redis[%s]: %s', key, value)
     if value is not None:
         return True
 
-    redis.setex(key, DEFAULT_MOBILE_EXPIRED, mobile)
+    redis_client.setex(key, DEFAULT_MOBILE_EXPIRED, mobile)
     return False
