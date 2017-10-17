@@ -10,7 +10,7 @@
 from flask import url_for
 
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, log
-from exts.database import redis
+from exts.resource import redis
 from service.template.wechat_template import WechatTemplate
 
 

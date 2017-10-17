@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 
 from exts.charge_manage import Lock
 from exts.common import log
-from exts.database import db, redis
+from exts.resource import db, redis
 from exts.redis_dao import get_user_key
 from service.recharge.model import Recharge
 from service.template.impl import TemplateService

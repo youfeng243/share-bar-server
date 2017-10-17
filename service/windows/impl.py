@@ -12,7 +12,7 @@ from datetime import datetime
 
 from exts.charge_manage import Lock
 from exts.common import log, fail, HTTP_OK, success, cal_cost_time
-from exts.database import redis, db
+from exts.resource import redis, db
 from exts.redis_dao import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
 from exts.redis_dao import get_user_key
 from service.device.model import Device

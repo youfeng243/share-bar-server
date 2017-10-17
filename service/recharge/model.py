@@ -9,7 +9,7 @@
 """
 from datetime import datetime
 
-from exts.database import db
+from exts.resource import db
 from exts.model_base import ModelBase
 
 

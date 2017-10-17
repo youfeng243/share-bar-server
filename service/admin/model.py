@@ -14,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from exts.common import log, package_result
-from exts.database import db
+from exts.resource import db
 from exts.model_base import ModelBase
 
 

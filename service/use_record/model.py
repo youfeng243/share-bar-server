@@ -12,7 +12,7 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
-from exts.database import db
+from exts.resource import db
 from exts.model_base import ModelBase
 from service.device.model import Device
 from service.user.model import User

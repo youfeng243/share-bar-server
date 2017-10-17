@@ -20,7 +20,7 @@ from flask_login import login_required
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id, ATTENTION_URL
-from exts.database import redis
+from exts.resource import redis
 from exts.redis_dao import get_record_key, get_user_key, get_device_key, get_device_code_key, get_keep_alive_key
 from service.device.model import Device
 from service.windows.impl import WindowsService

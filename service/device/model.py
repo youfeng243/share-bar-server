@@ -12,7 +12,7 @@ import json
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log, package_result
-from exts.database import db
+from exts.resource import db
 from exts.model_base import ModelBase
 from service.deploy.model import Deploy
 

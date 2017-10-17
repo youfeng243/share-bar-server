@@ -15,7 +15,7 @@ from flask import request
 from sqlalchemy import text
 
 from exts.common import log, fail, HTTP_OK, success, package_result
-from exts.database import db
+from exts.resource import db
 
 
 class ModelBase(db.Model):

@@ -8,7 +8,7 @@
 @time: 2017/8/29 17:58
 """
 
-from exts.database import db
+from exts.resource import db
 from exts.model_base import ModelBase
 from service.recharge.model import Recharge
 

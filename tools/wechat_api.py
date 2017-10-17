@@ -17,7 +17,7 @@ from flask import url_for
 
 import settings
 from exts.common import fail, log, HTTP_OK, decode_user_id, WECHAT_ACCESS_TOKEN_KEY
-from exts.database import redis
+from exts.resource import redis
 from exts.redis_dao import get_openid_key
 from service.user.impl import UserService
 

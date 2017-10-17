@@ -5,7 +5,7 @@ import json
 import exts.tx_sms.sms as sender
 import settings
 from exts.common import log, DEFAULT_MOBILE_EXPIRED, DEFAULT_CAPTCHA_EXPIRED
-from exts.database import redis
+from exts.resource import redis
 from exts.redis_dao import get_mobile_redis_key, get_captcha_redis_key
 from exts.tx_sms.tools import SmsSenderUtil
 

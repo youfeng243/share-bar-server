@@ -10,7 +10,7 @@
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
-from exts.database import db
+from exts.resource import db
 from exts.model_base import ModelBase
 
 

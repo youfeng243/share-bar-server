@@ -11,7 +11,7 @@
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
-from exts.database import db
+from exts.resource import db
 from service.user.model import User
 
 

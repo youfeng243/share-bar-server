@@ -7,7 +7,7 @@ from setuptools import find_packages
 
 import settings
 from app import create_app
-from exts.database import db, redis
+from exts.resource import db, redis
 from service.address.mock import gen_address
 from service.admin.mock import gen_admin
 from service.admin.model import Admin
