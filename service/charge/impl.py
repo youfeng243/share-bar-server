@@ -61,6 +61,9 @@ class ChargeService(object):
         # 如果从redis中获取费率失败，则从数据库中获得最新费率
         charge_item = Charge.query.order_by(Charge.ctime.desc()).first()
         if charge_item is None:
+            # 存储默认费率到数据库中，同时存入redis
+            ChargeService.create('DEFAULT_CHARGE', DEFAULT_CHARGE_MODE)
+
             log.warn("当前数据库中还没有任何费率信息, 使用默认费率: DEFAULT_CHARGE_MODE = {}".format(DEFAULT_CHARGE_MODE))
             return DEFAULT_CHARGE_MODE
 
