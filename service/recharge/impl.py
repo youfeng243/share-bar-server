@@ -12,7 +12,7 @@ from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
-from exts.charge_manage import Lock
+from exts.distributed_lock import Lock
 from exts.common import log
 from exts.resource import db, redis_client
 from exts.redis_api import get_user_key

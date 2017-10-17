@@ -10,7 +10,7 @@
 import json
 from datetime import datetime
 
-from exts.charge_manage import Lock
+from exts.distributed_lock import Lock
 from exts.common import log, fail, HTTP_OK, success, cal_cost_time
 from exts.resource import redis_client, db
 from exts.redis_api import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key

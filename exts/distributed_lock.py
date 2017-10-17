@@ -4,7 +4,7 @@
 @author: youfeng
 @email: youfeng243@163.com
 @license: Apache Licence
-@file: charge_manage.py
+@file: distributed_lock.py
 @time: 2017/10/2 21:24
 """
 
