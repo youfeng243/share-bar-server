@@ -53,17 +53,17 @@ class ChargeService(object):
         charge_item = Charge.query.order_by(Charge.ctime.desc()).first()
         if charge_item is None:
             # 存储默认费率到数据库中，同时存入redis
-            ChargeService.create('DEFAULT_CHARGE', DEFAULT_CHARGE_MODE)
+            charge, is_success = ChargeService.create('DEFAULT_CHARGE', DEFAULT_CHARGE_MODE)
 
             log.warn("当前数据库中还没有任何费率信息, 使用默认费率: DEFAULT_CHARGE_MODE = {}".format(DEFAULT_CHARGE_MODE))
-            return DEFAULT_CHARGE_MODE
+            return charge
 
         # 设置费率到redis
         redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge_item.to_dict()))
 
         log.info("加载当前最新费率到redis: charge_mode = {} time = {}".format(
             charge_item.charge_mode, charge_item.ctime.strftime('%Y-%m-%d %H:%M:%S')))
-        return charge_item.charge_mode
+        return charge_item
 
     # 获得最新费率
     @staticmethod
@@ -84,7 +84,11 @@ class ChargeService(object):
 
         try:
             # 从数据库中更新费率到redis
-            return ChargeService.update_charge_to_redis()
+            charge = ChargeService.update_charge_to_redis()
+            if charge is None:
+                log.error("当前存储费率失败, 使用默认费率: charge_mode = {}".format(charge.charge_mode))
+                return DEFAULT_CHARGE_MODE
+            return charge.charge_mode
         except Exception as e:
             log.error("获取费率失败: ")
             log.exception(e)

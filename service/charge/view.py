@@ -87,7 +87,24 @@ def delete_charges():
 
     # 如果当前费率有被成功删除的，则需要更新redis中的费率信息
     if len(result_list) > 0:
-        charge_mode = ChargeService.update_charge_to_redis()
-        log.info("完成一次 redis 中费率更新: 最新费率 charge_mode = {}".format(charge_mode))
+        charge = ChargeService.update_charge_to_redis()
+        if charge is not None:
+            log.info("完成一次 redis 中费率更新: 最新费率 charge_mode = {}".format(charge.charge_mode))
+        else:
+            log.info("更新费率到redis失败!")
 
     return success(result_list)
+
+
+# 获得当前最新费率
+@bp.route('/charge/newest', methods=['GET'])
+@login_required
+def newest_charge():
+    charge = ChargeService.update_charge_to_redis()
+    if charge is not None:
+        log.info("完成一次 redis 中费率更新: 最新费率 charge_mode = {} ctime = {} ".format(
+            charge.charge_mode, charge.ctime.strftime('%Y-%m-%d %H:%M:%S')))
+        return success(charge.to_dict())
+
+    log.info("更新费率到redis失败!")
+    return fail(HTTP_OK, u"费率更新失败!")
