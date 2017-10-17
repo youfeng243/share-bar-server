@@ -81,4 +81,5 @@ class ChargeService(object):
             log.error("获取费率失败: ")
             log.exception(e)
 
+        log.error("费率获取异常，采用默认费率: DEFAULT_CHARGE_MODE = {}".format(DEFAULT_CHARGE_MODE))
         return DEFAULT_CHARGE_MODE
