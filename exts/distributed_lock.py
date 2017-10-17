@@ -14,7 +14,7 @@ import time
 from exts.common import log
 
 
-class Lock(object):
+class DistributeLock(object):
     def __init__(self, key, redis_client, lock_timeout=3):
         self.redis_client = redis_client
         self.lock_timeout = lock_timeout

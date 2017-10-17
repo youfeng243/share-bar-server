@@ -10,11 +10,11 @@
 import json
 from datetime import datetime
 
-from exts.distributed_lock import Lock
 from exts.common import log, fail, HTTP_OK, success, cal_cost_time
-from exts.resource import redis_client, db
+from exts.distributed_lock import DistributeLock
 from exts.redis_api import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
 from exts.redis_api import get_user_key
+from exts.resource import redis_client, db
 from service.device.model import Device
 from service.template.impl import TemplateService
 from service.use_record.model import UseRecord
@@ -158,7 +158,7 @@ class WindowsService(object):
         is_success = False
 
         # 操作redis 需要加锁
-        lock = Lock(user_key, redis_client)
+        lock = DistributeLock(user_key, redis_client)
         try:
             lock.acquire()
 
@@ -214,7 +214,7 @@ class WindowsService(object):
             user_key = get_user_key(user_id)
 
             #  下机需要加锁
-            lock = Lock(user_key, redis_client)
+            lock = DistributeLock(user_key, redis_client)
 
             log.info("开始加锁下机: user_key = {}".format(user_key))
 
