@@ -11,9 +11,9 @@ import json
 
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log, package_result
-from exts.resource import db
+from exts.common import log, package_result, DEFAULT_CHARGE_MODE
 from exts.model_base import ModelBase
+from exts.resource import db
 from service.deploy.model import Deploy
 
 __all__ = ['Deploy']
@@ -46,7 +46,7 @@ class Device(ModelBase):
     state = db.Column(db.Enum(*STATE_VALUES), index=True, default=STATE_FREE)
 
     # 计费方式 分/分钟
-    charge_mode = db.Column(db.Integer, default=5)
+    charge_mode = db.Column(db.Integer, default=DEFAULT_CHARGE_MODE)
 
     @classmethod
     def create(cls, device_code, address_id):
