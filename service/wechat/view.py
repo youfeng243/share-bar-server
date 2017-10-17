@@ -24,7 +24,6 @@ from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
-from service.wechat.impl import WechatService
 from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, \
     bind_required, \
     get_current_user_by_openid
@@ -320,7 +319,7 @@ def notify():
             return fail(HTTP_OK, u"充值记录存储失败!")
 
         # 如果当前用户正在上线则需要更新redis中的总余额数据
-        WechatService.online_recharge(user_id, total_fee)
+        RechargeService.online_recharge(user_id, total_fee)
 
         return success()
     except Exception as e:

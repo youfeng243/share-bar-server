@@ -7,12 +7,15 @@
 @file: impl.py
 @time: 2017/9/25 00:18
 """
+import json
 from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
+from exts.charge_manage import Lock
 from exts.common import log
-from exts.database import db
+from exts.database import db, redis
+from exts.redis_dao import get_user_key
 from service.recharge.model import Recharge
 from service.template.impl import TemplateService
 from service.user.model import User
@@ -60,3 +63,46 @@ class RechargeService(object):
     @staticmethod
     def find_by_transaction_id(transaction_id):
         return Recharge.query.filter_by(transaction_id=transaction_id).first()
+
+    # 给指定在线用户充值
+    @staticmethod
+    def online_recharge(user_id, total_fee):
+        # 先获得用户缓存的信息
+        user_key = get_user_key(user_id)
+
+        # todo 这里需要加锁, 否则扣费下机时会有影响
+        lock = Lock(user_key, redis)
+
+        try:
+            lock.acquire()
+            record_key = redis.get(user_key)
+            if record_key is None:
+                log.info("当前用户没有在线 record_key = None, 不需要同步在线数据: user_id = {}".format(user_id))
+                return
+
+            charge_str = redis.get(record_key)
+            if charge_str is None:
+                log.info("当前用户没有在线 charging = None, 不需要同步在线数据: user_id = {}".format(user_id))
+                return
+
+            try:
+                charge_dict = json.loads(charge_str)
+                if charge_dict is None:
+                    log.error("解析json数据失败: {}".format(charge_str))
+                    return
+
+                balance_account = charge_dict.get('balance_account')
+                if not isinstance(balance_account, int):
+                    log.error("balance_account 数据类型不正确: {}".format(balance_account))
+                    return
+
+                charge_dict['balance_account'] = balance_account + total_fee
+                redis.set(record_key, json.dumps(charge_dict))
+
+                log.info(
+                    "同步修改redis中用户余额信息成功! user_id = {} account = {}".format(user_id, balance_account + total_fee))
+            except Exception as e:
+                log.error("解析json数据失败: {}".format(charge_str))
+                log.exception(e)
+        finally:
+            lock.release()
