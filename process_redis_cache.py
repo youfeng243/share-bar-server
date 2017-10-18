@@ -11,23 +11,22 @@ import json
 import threading
 import time
 
-import redis
 import requests
 
 import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time
-from exts.redis_api import get_record_key, get_keep_alive_key
+from exts.redis_api import get_record_key, get_keep_alive_key, RedisClient
 
 # log = Logger('process_redis_cache.log').get_logger()
 
 try:
-    redis_client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=32)
+    redis_client = RedisClient()
 except Exception as ex:
     log.error("启动redis失败..")
     log.exception(ex)
     exit(0)
 
-# 最后剩余阈值
+# 最后剩余时间阈值
 WX_CACHE_LAST_TIME = 300
 
 
@@ -189,8 +188,7 @@ def do_charging(record_key_list):
                 # 下机
                 log.info("当前用户与机器没有收到任何心跳信息，强制下机: record_key = {} last_timestamp = {}".format(
                     record_key, last_timestamp))
-                # 先获得上机信息
-                # charging = redis_client.get(record_key)
+                # 执行下机流程
                 do_offline(record_key)
                 log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
                 continue
@@ -238,8 +236,7 @@ def do_charging(record_key_list):
                 log.info("当前用户余额不足，强制下机: record_key = {} balance_account = {} "
                          "cost_time = {}分钟 cost_money = {} start_time = {} now_time = {}".
                          format(record_key, balance_account, cost_time, cost_money, start_time, now_timestamp))
-                # 先获得上机信息
-                # charging = redis_client.get(record_key)
+                # 执行下机流程
                 do_offline(record_key)
                 log.info("当前用户余额不足, 强制下机完成: record_key = {}".format(record_key))
                 continue

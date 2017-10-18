@@ -14,8 +14,32 @@ class RedisClient(object):
         self._client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=settings.REDIS_MAX_CONNECTIONS)
         log.info("redis 初始化完成!!")
 
-    def __getattr__(self, name):
-        return getattr(self._client, name)
+    # def __getattr__(self, name):
+    #     return getattr(self._client, name)
+
+    def get(self, key):
+        return self._client.get(key)
+
+    def set(self, key, value):
+        return self._client.set(key, value)
+
+    def setex(self, key, ttl, value):
+        return self._client.setex(key, ttl, value)
+
+    def setnx(self, key, value):
+        return self._client.setnx(key, value)
+
+    def ttl(self, key):
+        return self._client.ttl(key)
+
+    def delete(self, key):
+        return self._client.delete(key)
+
+    def keys(self, pattern):
+        return self._client.keys(pattern=pattern)
+
+    def flushdb(self):
+        return self._client.flushdb()
 
 
 # 获得用户上线使用记录key

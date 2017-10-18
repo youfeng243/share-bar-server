@@ -351,22 +351,6 @@ def get_wechat_user_info(openid):
             log.info("当前用户关注了公众号, 能够获取昵称和头像: openid = {} nick_name = {} head_img_url = {}".format(
                 openid, nick_name, head_img_url))
 
-            # ticket = json_data.get('ticket')
-            # expires_in = json_data.get('expires_in')
-            # if not isinstance(ticket, basestring) or not isinstance(expires_in, int):
-            #     log.error("ticket解析出来的数据类型不正确: {}".format(resp.text))
-            #     return False
-            #
-            # if expires_in <= 0:
-            #     log.error("ticket过期时间不正确: {}".format(expires_in))
-            #     return False
-            #
-            # log.info("成功获取ticket: ticket = {} expires_in = {}".format(ticket, expires_in))
-            #
-            # # 设置redis
-            # redis_client.setex(WECHAT_JSAPI_TICKET_KEY, expires_in, ticket)
-
-            # return True
     except Exception as e:
         log.error("访问微信用户链接失败: url = {}".format(url))
         log.exception(e)
