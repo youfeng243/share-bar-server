@@ -16,7 +16,7 @@ from exts.common import log
 
 class DistributeLock(object):
     def __init__(self, key, redis_client, lock_timeout=3):
-        self.redis_client = redis_client
+        self.__redis = redis_client
         self.lock_timeout = lock_timeout
         self.lock_flag = 0
         self.lock_key = 'lock#' + key
@@ -31,9 +31,9 @@ class DistributeLock(object):
         while self.lock_flag != 1:
             now = int(time.time())
             self.lock_time = now + self.lock_timeout + 1
-            lock = self.redis_client.setnx(self.lock_key, self.lock_time)
-            if lock == 1 or ((now > int(self.redis_client.get(self.lock_key))) and
-                                     now > int(self.redis_client.getset(self.lock_key, self.lock_time))):
+            lock = self.__redis.setnx(self.lock_key, self.lock_time)
+            if lock == 1 or ((now > int(self.__redis.get(self.lock_key))) and
+                                     now > int(self.__redis.getset(self.lock_key, self.lock_time))):
                 break
 
             time.sleep(0.001)
@@ -44,14 +44,8 @@ class DistributeLock(object):
         now = int(time.time())
 
         if now < self.lock_time:
-            self.redis_client.delete(self.lock_key)
+            self.__redis.delete(self.lock_key)
             log.info("删除加锁key成功: lock_key = {}".format(self.lock_key))
         log.info("解锁完成: {}".format(self.lock_key))
         log.info("加锁耗时: {}s".format(time.time() - self.start_lock_time))
         log.info("设置加锁超时时长: {}s".format(self.lock_timeout + 1))
-
-
-# 后台计费管理
-# class ChargeManage(object):
-#     def __init__(self, redis_client):
-#         self.redis_client = redis_client
