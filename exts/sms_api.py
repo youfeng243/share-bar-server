@@ -11,8 +11,8 @@ from exts.tx_sms.tools import SmsSenderUtil
 
 # 发送短信对象封装
 class SmsClient(object):
-    def __init__(self, redis_, sms_app_id, sms_app_key, sms_text_temp_id):
-        self.redis_client = redis_
+    def __init__(self, redis_client, sms_app_id, sms_app_key, sms_text_temp_id):
+        self.__redis = redis_client
         self.tx_sms_sender = sender.SmsSingleSender(sms_app_id, sms_app_key)
         self.sms_text_temp_id = sms_text_temp_id
 
@@ -34,7 +34,7 @@ class SmsClient(object):
 
             # 存储验证码到redis中 只保留五分钟有效
             key = get_captcha_redis_key(mobile)
-            self.redis_client.setex(key, DEFAULT_CAPTCHA_EXPIRED, captcha)
+            self.__redis.setex(key, DEFAULT_CAPTCHA_EXPIRED, captcha)
 
             log.info("验证码发送成功: mobile = {} captcha = {}".format(mobile, captcha))
             return True
@@ -54,7 +54,7 @@ class SmsClient(object):
             return False
 
         key = get_captcha_redis_key(mobile)
-        value = self.redis_client.get(key)
+        value = self.__redis.get(key)
         if value is None:
             log.info("当前手机不存在验证码: {}".format(mobile))
             return False
@@ -65,7 +65,7 @@ class SmsClient(object):
             return False
 
         # 删除已经验证码完成的验证码
-        self.redis_client.delete(key)
+        self.__redis.delete(key)
         log.info("删除手机验证码redis key = {}".format(key))
         return True
 
@@ -76,10 +76,10 @@ class SmsClient(object):
             return False
 
         key = get_mobile_redis_key(mobile)
-        value = self.redis_client.get(key)
+        value = self.__redis.get(key)
         log.info('redis[%s]: %s', key, value)
         if value is not None:
             return True
 
-        self.redis_client.setex(key, DEFAULT_MOBILE_EXPIRED, mobile)
+        self.__redis.setex(key, DEFAULT_MOBILE_EXPIRED, mobile)
         return False
