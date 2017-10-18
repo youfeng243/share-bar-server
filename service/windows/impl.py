@@ -227,17 +227,6 @@ class WindowsService(object):
                 log.warn("当前用户或者设备已经下机: user_id = {} device_id = {}".format(user_id, device_id))
                 return success({'status': 1, 'msg': 'logout successed!'})
 
-            # # 获得下机锁
-            # offline_lock_key = get_offline_lock_key(record_key)
-            #
-            # if redis_client.get(offline_lock_key) is not None:
-            #     log.warn("当前已经在下机，其他下机请求被忽略: record_key = {}".format(record_key))
-            #     return success({'status': 1, 'msg': 'logout successed!'})
-            #
-            # # 加上下机锁
-            # redis_client.set(offline_lock_key, 'lock')
-            # log.info("当前获得下机锁: {}".format(offline_lock_key))
-
             # 结账下机
             result, record, user = WindowsService.cal_offline(user_id=user_id,
                                                               device_id=device_id,
@@ -273,11 +262,6 @@ class WindowsService(object):
             if lock is not None:
                 lock.release()
                 log.info("下机完成: lock_key = {}".format(lock.lock_key))
-        # finally:
-        #     # 这里需要加锁
-        #     if offline_lock_key is not None:
-        #         redis_client.delete(offline_lock_key)
-        #         log.info("下机解锁成功: {}".format(offline_lock_key))
 
         # 如果成功则进行下机提醒
         if is_success and openid is not None:

@@ -15,18 +15,11 @@ from service.template.wechat_template import WechatTemplate
 
 
 class TemplateService(object):
-    # 获得access_token
-    # @classmethod
-    # def get_access_token(cls):
-    #     access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
-    #     if access_token is None:
-    #         log.error("access_token 为None，刷新token进程异常！！！")
-    #         return subscribe, nick_name, head_img_url
 
     # 上机提醒
     @classmethod
     def online(cls, openid,
-               # 上线时间 self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+               # 上线时间 self.ctime
                ctime,
                # 地址 结构体对象
                address,

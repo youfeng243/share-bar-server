@@ -39,9 +39,6 @@ def create_app(name=None):
     # 数据库初始化
     db.init_app(app)
 
-    # redis_client 初始化
-    # redis_client.init_app(app)
-
     # 管理员登录管理
     setup_admin_login(app)
 
