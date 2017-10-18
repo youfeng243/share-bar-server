@@ -14,9 +14,6 @@ class RedisClient(object):
         self._client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=settings.REDIS_MAX_CONNECTIONS)
         log.info("redis 初始化完成!!")
 
-    # def __getattr__(self, name):
-    #     return getattr(self._client, name)
-
     def get(self, key):
         return self._client.get(key)
 
