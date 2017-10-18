@@ -5,7 +5,7 @@ import json
 import exts.tx_sms.sms as sender
 import settings
 from exts.common import log, DEFAULT_MOBILE_EXPIRED, DEFAULT_CAPTCHA_EXPIRED
-from exts.redis_api import get_mobile_redis_key, get_captcha_redis_key
+from exts.redis_api import RedisClient
 from exts.tx_sms.tools import SmsSenderUtil
 
 
@@ -33,7 +33,7 @@ class SmsClient(object):
                 return False
 
             # 存储验证码到redis中 只保留五分钟有效
-            key = get_captcha_redis_key(mobile)
+            key = RedisClient.get_captcha_redis_key(mobile)
             self.__redis.setex(key, DEFAULT_CAPTCHA_EXPIRED, captcha)
 
             log.info("验证码发送成功: mobile = {} captcha = {}".format(mobile, captcha))
@@ -53,7 +53,7 @@ class SmsClient(object):
                 captcha, settings.SMS_DEBUG_CAPTCHA))
             return False
 
-        key = get_captcha_redis_key(mobile)
+        key = RedisClient.get_captcha_redis_key(mobile)
         value = self.__redis.get(key)
         if value is None:
             log.info("当前手机不存在验证码: {}".format(mobile))
@@ -75,7 +75,7 @@ class SmsClient(object):
             log.info("调试模式下，可以无限次请求验证码!")
             return False
 
-        key = get_mobile_redis_key(mobile)
+        key = RedisClient.get_mobile_redis_key(mobile)
         value = self.__redis.get(key)
         log.info('redis[%s]: %s', key, value)
         if value is not None:

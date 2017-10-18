@@ -12,8 +12,7 @@ from datetime import datetime
 
 from exts.common import log, fail, HTTP_OK, success, cal_cost_time
 from exts.distributed_lock import DistributeLock
-from exts.redis_api import get_record_key, get_device_key, get_device_code_key, get_keep_alive_key
-from exts.redis_api import get_user_key
+from exts.redis_api import RedisClient
 from exts.resource import redis_client, db
 from service.device.model import Device
 from service.template.impl import TemplateService
@@ -107,16 +106,16 @@ class WindowsService(object):
             return False
 
         # 判断是否已经在redis中进行记录
-        record_key = get_record_key(user.id, device.id)
+        record_key = RedisClient.get_record_key(user.id, device.id)
         # 获得用户上线key
-        user_key = get_user_key(user.id)
+        user_key = RedisClient.get_user_key(user.id)
         # 获得设备上线key
-        device_key = get_device_key(device.id)
+        device_key = RedisClient.get_device_key(device.id)
         # 获得当前设备token
-        device_code_key = get_device_code_key(device.device_code)
+        device_code_key = RedisClient.get_device_code_key(device.device_code)
 
         # 获得keep_alive_key 更新最新存活时间
-        keep_alive_key = get_keep_alive_key(record_key)
+        keep_alive_key = RedisClient.get_keep_alive_key(record_key)
 
         log.info("当前上机时间: user_id:{} device_id:{} record_id:{} ctime:{}".format(
             user.id, device.id, record.id, record.ctime.strftime('%Y-%m-%d %H:%M:%S')))
@@ -211,7 +210,8 @@ class WindowsService(object):
             log.info("当前下线信息: user_id = {} device_id = {} charge_mode = {} device_code = {}".format(
                 user_id, device_id, charge_mode, device_code))
 
-            user_key = get_user_key(user_id)
+            # 获得用户上线key
+            user_key = RedisClient.get_user_key(user_id)
 
             #  下机需要加锁
             lock = DistributeLock(user_key, redis_client)
@@ -222,7 +222,7 @@ class WindowsService(object):
             lock.acquire()
 
             # 判断是否已经在redis中进行记录
-            record_key = get_record_key(user_id, device_id)
+            record_key = RedisClient.get_record_key(user_id, device_id)
             if redis_client.get(record_key) is None:
                 log.warn("当前用户或者设备已经下机: user_id = {} device_id = {}".format(user_id, device_id))
                 return success({'status': 1, 'msg': 'logout successed!'})
@@ -237,14 +237,12 @@ class WindowsService(object):
                     user_id, device_id, charge_mode))
                 return fail(HTTP_OK, u"下机失败！")
 
-            # 获得用户上线key
-            user_key = get_user_key(user_id)
             # 获得设备上线key
-            device_key = get_device_key(device_id)
+            device_key = RedisClient.get_device_key(device_id)
             # 获得当前设备token
-            device_code_key = get_device_code_key(device_code)
+            device_code_key = RedisClient.get_device_code_key(device_code)
             # 获得keep_alive_key 更新最新存活时间
-            keep_alive_key = get_keep_alive_key(record_key)
+            keep_alive_key = RedisClient.get_keep_alive_key(record_key)
 
             # 从redis中删除上机记录
             redis_client.delete(record_key)

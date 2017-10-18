@@ -7,13 +7,12 @@
 @file: model.py
 @time: 2017/9/2 00:10
 """
-from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
-from exts.resource import db
 from exts.model_base import ModelBase
+from exts.resource import db
 from service.device.model import Device
 
 __all__ = ['Device']

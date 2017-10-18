@@ -20,8 +20,8 @@ from flask_login import login_required
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id, ATTENTION_URL
+from exts.redis_api import RedisClient
 from exts.resource import redis_client
-from exts.redis_api import get_record_key, get_user_key, get_device_key, get_device_code_key, get_keep_alive_key
 from service.charge.impl import ChargeService
 from service.device.model import Device
 from service.windows.impl import WindowsService
@@ -162,11 +162,11 @@ def qr_code_online(device_code):
         return fail(HTTP_OK, u"用户余额不足，不能上线!", LOGIN_ERROR_NOT_SUFFICIENT_FUNDS)
 
     # 判断是否已经在redis中进行记录
-    record_key = get_record_key(user.id, device.id)
+    record_key = RedisClient.get_record_key(user.id, device.id)
     # 获得用户上线key
-    user_key = get_user_key(user.id)
+    user_key = RedisClient.get_user_key(user.id)
     # 获得设备上线key
-    device_key = get_device_key(device.id)
+    device_key = RedisClient.get_device_key(device.id)
     # # 获得当前设备token
     # device_code_key = get_device_code_key(device_code)
 
@@ -228,7 +228,7 @@ def qr_code_online(device_code):
 @bp.route('/offline', methods=['GET'])
 @bind_required
 def wechat_offline():
-    user_key = get_user_key(g.user_id)
+    user_key = RedisClient.get_user_key(g.user_id)
     record_key = redis_client.get(user_key)
     if record_key is None:
         return success({
@@ -248,7 +248,7 @@ def wechat_offline():
 @bp.route('/online/status', methods=['GET'])
 @bind_required
 def get_online_status():
-    user_key = get_user_key(g.user_id)
+    user_key = RedisClient.get_user_key(g.user_id)
     record_key = redis_client.get(user_key)
     if record_key is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
@@ -273,7 +273,7 @@ def check_connect():
     if device_code is None:
         return fail(HTTP_OK, u"not have device_code!!!")
 
-    device_code_key = get_device_code_key(device_code)
+    device_code_key = RedisClient.get_device_code_key(device_code)
     record_key = redis_client.get(device_code_key)
     if record_key is None:
         return success({
@@ -302,7 +302,7 @@ def keep_alive():
             "msg": "keepalive failed!reason:token invalid"})
 
     # 获得keep_alive_key 更新最新存活时间
-    keep_alive_key = get_keep_alive_key(record_key)
+    keep_alive_key = RedisClient.get_keep_alive_key(record_key)
 
     # 设置最新存活时间
     redis_client.set(keep_alive_key, int(time.time()))
@@ -356,7 +356,7 @@ def admin_offline():
     log.info("当前强制下机device_id = {}".format(device_id))
 
     if user_id is not None:
-        user_key = get_user_key(user_id)
+        user_key = RedisClient.get_user_key(user_id)
         record_key = redis_client.get(user_key)
         if record_key is None:
             return success({
@@ -372,7 +372,7 @@ def admin_offline():
         return WindowsService.do_offline(charging)
 
     if device_code is not None:
-        device_code_key = get_device_code_key(device_code)
+        device_code_key = RedisClient.get_device_code_key(device_code)
         record_key = redis_client.get(device_code_key)
         if record_key is not None:
             charging = redis_client.get(record_key)
@@ -384,7 +384,7 @@ def admin_offline():
             return WindowsService.do_offline(charging)
 
     if device_id is not None:
-        device_key = get_device_key(device_id)
+        device_key = RedisClient.get_device_key(device_id)
 
         record_key = redis_client.get(device_key)
         if record_key is None:

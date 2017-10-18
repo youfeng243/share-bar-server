@@ -15,7 +15,7 @@ import requests
 
 import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time
-from exts.redis_api import get_record_key, get_keep_alive_key, RedisClient
+from exts.redis_api import RedisClient
 
 # log = Logger('process_redis_cache.log').get_logger()
 
@@ -169,10 +169,10 @@ def do_charging(record_key_list):
                 log.error("没有关键信息 device_id: charge_str = {}".format(charge_str))
                 continue
 
-            record_key = get_record_key(user_id, device_id)
+            record_key = RedisClient.get_record_key(user_id, device_id)
 
             # 判断是否已经有5分钟没有收到心跳
-            keep_alive_key = get_keep_alive_key(record_key)
+            keep_alive_key = RedisClient.get_keep_alive_key(record_key)
             last_timestamp = redis_client.get(keep_alive_key)
             if last_timestamp is None:
                 log.error("当前上线用户没有最后存活时间: user_id = {} device_id = {}".format(

@@ -14,8 +14,8 @@ from sqlalchemy.exc import IntegrityError
 
 from exts.distributed_lock import DistributeLock
 from exts.common import log
+from exts.redis_api import RedisClient
 from exts.resource import db, redis_client
-from exts.redis_api import get_user_key
 from service.recharge.model import Recharge
 from service.template.impl import TemplateService
 from service.user.model import User
@@ -68,7 +68,7 @@ class RechargeService(object):
     @staticmethod
     def online_recharge(user_id, total_fee):
         # 先获得用户缓存的信息
-        user_key = get_user_key(user_id)
+        user_key = RedisClient.get_user_key(user_id)
 
         # todo 这里需要加锁, 否则扣费下机时会有影响
         lock = DistributeLock(user_key, redis_client)
