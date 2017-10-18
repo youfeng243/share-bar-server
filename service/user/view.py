@@ -146,7 +146,7 @@ def get_user_use_records():
 # 强制下机
 @bp.route('/user/force/logout', methods=['POST'])
 @login_required
-def admin_offline():
+def user_offline():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
