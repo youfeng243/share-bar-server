@@ -15,7 +15,6 @@ from flask import redirect
 from flask import request
 from flask import session
 from flask import url_for
-from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
@@ -337,67 +336,3 @@ def windows_offline():
             'msg': "logout failed! reason: user device is already offline"})
 
     return WindowsService.do_offline(charging)
-
-
-# 强制下机
-@bp.route('/force/logout', methods=['POST'])
-@login_required
-def admin_offline():
-    if not request.is_json:
-        log.warn("参数错误...")
-        return fail(HTTP_OK, u"need application/json!!")
-
-    user_id = request.json.get('user_id')
-    device_code = request.json.get('device_code')
-    device_id = request.json.get('device_id')
-
-    log.info("当前强制下机user_id = {}".format(user_id))
-    log.info("当前强制下机device_code = {}".format(device_code))
-    log.info("当前强制下机device_id = {}".format(device_id))
-
-    if user_id is not None:
-        user_key = RedisClient.get_user_key(user_id)
-        record_key = redis_client.get(user_key)
-        if record_key is None:
-            return success({
-                'status': 0,
-                'msg': "logout failed! reason: user device is already offline"})
-
-        charging = redis_client.get(record_key)
-        if charging is None:
-            return success({
-                'status': 0,
-                'msg': "logout failed! reason: user device is already offline"})
-        log.info("通过user_id下机: user_id = {}".format(user_id))
-        return WindowsService.do_offline(charging)
-
-    if device_code is not None:
-        device_code_key = RedisClient.get_device_code_key(device_code)
-        record_key = redis_client.get(device_code_key)
-        if record_key is not None:
-            charging = redis_client.get(record_key)
-            if charging is None:
-                return success({
-                    'status': 0,
-                    'msg': "logout failed! reason: user device is already offline"})
-            log.info("通过device_code下机: device_code = {}".format(device_code))
-            return WindowsService.do_offline(charging)
-
-    if device_id is not None:
-        device_key = RedisClient.get_device_key(device_id)
-
-        record_key = redis_client.get(device_key)
-        if record_key is None:
-            return success({
-                'status': 0,
-                'msg': "logout failed! reason: user device is already offline"})
-
-        charging = redis_client.get(record_key)
-        if charging is None:
-            return success({
-                'status': 0,
-                'msg': "logout failed! reason: user device is already offline"})
-        log.info("通过device_id下机: device_id = {}".format(device_id))
-        return WindowsService.do_offline(charging)
-
-    return success(u'当前参数没有使任何机器或用户下机')
