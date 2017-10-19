@@ -30,7 +30,7 @@ class Device(ModelBase):
     STATUS_LOCK = 'lock'
 
     # 使用状态
-    STATE_VALUES = (STATE_FREE, STATE_BUSY, STATE_OFFLINE)
+    STATE_VALUES = (STATE_FREE, STATE_BUSY, STATE_OFFLINE, STATUS_LOCK)
 
     # 设备机器码
     device_code = db.Column(db.String(128), unique=True, index=True)
