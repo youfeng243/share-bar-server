@@ -52,7 +52,7 @@ class Device(ModelBase):
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
 
-    # 设备当前使用状态 free 空闲 busy 忙碌
+    # 设备当前使用状态 free 空闲 busy 忙碌 lock 锁定
     state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUE_USE_FREE)
 
     # 存活状态
