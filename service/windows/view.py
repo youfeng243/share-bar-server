@@ -55,11 +55,6 @@ def qr_code_online(device_code):
     scan_from = request.args.get('from')
     # 登录链接
     login_url = url_for("wechat.menu", name="login")
-    # # 游戏链接
-    # play_url = url_for("wechat.menu", name="playing")
-    # # 账户链接
-    # account_url = url_for("wechat.menu", name="account")
-
     # 通过微信二维码扫描则需要判断当前用户是否已经关注公众号
     if scan_from != 'playing':
         # # 初始化用户关注信息
@@ -87,63 +82,32 @@ def qr_code_online(device_code):
     user_id_cookie = session.get('u_id')
     if user_id_cookie is None:
         log.warn("当前session中没有u_id 信息，需要登录...")
-        # if scan_from != 'playing':
-        #     log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
-        #     return redirect(login_url)
         return fail(HTTP_OK, u'当前用户没有登录', LOGIN_ERROR_BIND)
 
     user_id = decode_user_id(user_id_cookie)
     if user_id is None:
         log.warn("当前用户信息被篡改，需要重新登录: user_id_cookie = {}".format(user_id_cookie))
-        # if scan_from != 'playing':
-        #     log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
-        #     return redirect(login_url)
         return fail(HTTP_OK, u'当前用户登录信息被篡改, 不能登录', LOGIN_ERROR_BIND)
 
     # 获得用户信息
     user = get_current_user(user_id)
     if user is None:
         log.warn("当前user_id还未绑定手机号码: user_id = {}".format(user_id))
-        # if scan_from != 'playing':
-        #     log.info("扫描不是来自上机界面按钮且没有登录, 需要跳转登录页面: url = {}".format(login_url))
-        #     return redirect(login_url)
-
         return fail(HTTP_OK, u"用户还绑定手机号码登录!", LOGIN_ERROR_BIND)
-
-    # # 判断当前用户是否已经关注了
-    # if subscribe == 1:
-    #     # 如果用户信息存储成功!!
-    #     if UserService.save_nick_and_head(user, nick_name, head_img_url):
-    #         log.info("通过微信二维码扫描上线的用户昵称信息与头像信息更新成功: user_id = {}".format(user.id))
-    #     else:
-    #         log.info("用户头像与昵称信息存储失败: user_id = {} nick_name = {} head_img_url = {}".format(
-    #             user.id, nick_name, head_img_url))
 
     # 如果当前用户 被禁用 则不能上线
     if user.deleted is True:
-        # if scan_from != 'playing':
-        #     log.info("扫描不是来自上机界面按钮且当前用户已经被删除了, 需要跳转登录页面: url = {}".format(login_url))
-        #     return redirect(login_url)
-
         log.warn("当前用户已经被删除了，不能上线: user_id = {}".format(user.id))
         return fail(HTTP_OK, u"当前用户已经被删除了，不能上机", LOGIN_ERROR_DELETE)
 
     # 判断当前用户是否已经被禁用了
     if user.state == 'unused':
-        # if scan_from != 'playing':
-        #     log.info("扫描不是来自上机界面按钮且当前用户已经被禁用了, 需要跳转登录页面: url = {}".format(login_url))
-        #     return redirect(login_url)
-
         log.warn("当前用户已经被禁用了，不能上线: user_id = {}".format(user.id))
         return fail(HTTP_OK, u"当前用户已经被禁用了，不能上线", LOGIN_ERROR_FORBID)
 
     # 获得设备信息
     device = Device.get_device_by_code(device_code=device_code)
     if device is None:
-        # if scan_from != 'playing':
-        #     log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
-        #     return redirect(play_url)
-
         log.warn("当前设备号没有对应的设备信息: device_code = {}".format(device_code))
         return fail(HTTP_OK, u"设备信息异常，设备不存在", LOGIN_ERROR_NOT_FIND)
 
@@ -152,10 +116,6 @@ def qr_code_online(device_code):
 
     # 判断用户是否余额充足 如果小于一分钟不能上机
     if user.balance_account < charge_mode:
-        # if scan_from != 'playing':
-        #     log.info("扫描不是来自上机界面按钮且当前用户余额不足, 需要跳转用户页面: url = {}".format(account_url))
-        #     return redirect(account_url)
-
         log.info("用户余额不足，不能上线: user_id = {} device_id = {} account = {}".format(
             user.id, device.id, user.balance_account))
         return fail(HTTP_OK, u"用户余额不足，不能上线!", LOGIN_ERROR_NOT_SUFFICIENT_FUNDS)
@@ -166,8 +126,6 @@ def qr_code_online(device_code):
     user_key = RedisClient.get_user_key(user.id)
     # 获得设备上线key
     device_key = RedisClient.get_device_key(device.id)
-    # # 获得当前设备token
-    # device_code_key = get_device_code_key(device_code)
 
     # 判断是否已经登录了
     charging = redis_client.get(record_key)
@@ -175,50 +133,23 @@ def qr_code_online(device_code):
 
         # 判断当前设备是否已经在使用了
         if redis_client.get(device_key):
-            # if scan_from != 'playing':
-            #     log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
-            #     return redirect(play_url)
-
             log.warn("当前设备{}已经在被使用，但是用户ID = {}又在申请".format(device.id, user.id))
             return fail(HTTP_OK, u"当前设备已经在使用上线了，但是不是当前用户在使用!", LOGIN_ERROR_DEVICE_IN_USING)
 
         # 判断当前用户是否已经上线了
         if redis_client.get(user_key):
-            # if scan_from != 'playing':
-            #     log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
-            #     return redirect(play_url)
-
             log.warn("当前用户{}已经在上线，但是又在申请当前设备ID = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
 
         # 判断当前设备是否处于空闲状态
         if device.state != Device.STATE_FREE:
-            # if scan_from != 'playing':
-            #     log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
-            #     return redirect(play_url)
-
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
         log.info("用户还未上机可以进行上机: user_id = {} device_id = {}".format(user.id, device.id))
-        # record, is_success = UseRecord.create(user.id,
-        #                                       device.id,
-        #                                       device.address.province,
-        #                                       device.address.city,
-        #                                       device.address.area,
-        #                                       device.address.location)
         if not WindowsService.do_online(user, device, charge_mode):
-            # if scan_from != 'playing':
-            #     log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
-            #     return redirect(play_url)
-
             log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"上机异常!!", LOGIN_ERROR_UNKNOW)
-
-    # 如果不是来自游戏仓按钮
-    # if scan_from != 'playing':
-    #     log.info("扫描不是来自上机界面按钮, 需要跳转: url = {}".format(play_url))
-    #     return redirect(play_url)
 
     log.info("来自微信端游戏仓界面扫描: user_id = {} device_id = {}".format(user.id, device.id))
     return success()
