@@ -26,6 +26,8 @@ class Device(ModelBase):
     STATE_FREE = 'free'
     STATE_BUSY = 'busy'
     STATE_OFFLINE = 'offline'
+    # 锁定状态，或称 维护状态，锁定状态非 busy状态，因为busy状态用户正在上机
+    STATUS_LOCK = 'lock'
 
     # 使用状态
     STATE_VALUES = (STATE_FREE, STATE_BUSY, STATE_OFFLINE)
