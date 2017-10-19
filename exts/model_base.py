@@ -124,6 +124,7 @@ class ModelBase(db.Model):
         start_time_str = request.json.get('start_time')
         end_time_str = request.json.get('end_time')
         state = request.json.get('state')
+        alive = request.json.get('alive')
 
         order_by = request.json.get('order_by')
 
@@ -142,6 +143,11 @@ class ModelBase(db.Model):
         if hasattr(cls, 'state') and state is not None:
             if hasattr(cls, 'STATUS_VALUES') and state not in cls.STATUS_VALUES:
                 return fail(HTTP_OK, u'状态信息错误!')
+
+        # 判断是否有检测设备状态
+        if hasattr(cls, 'alive') and alive is not None:
+            if hasattr(cls, 'ALIVE_VALUES') and alive not in cls.ALIVE_VALUES:
+                return fail(HTTP_OK, u'存活状态信息错误!')
 
         if isinstance(start_time_str, basestring) and isinstance(end_time_str, basestring):
             if end_time_str < start_time_str:
