@@ -141,10 +141,10 @@ def qr_code_online(device_code):
             log.warn("当前用户{}已经在上线，但是又在申请当前设备ID = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
 
-        # 判断当前设备是否处于空闲状态
-        if device.state != Device.STATUE_USE_FREE:
+        # 判断当前设备是否处于空闲状态 且设备必须处于在线状态
+        if device.state != Device.STATUE_USE_FREE or device.alive != Device.STATUS_ALIVE_ONLINE:
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
-            return fail(HTTP_OK, u"当前设备不处于空闲状态，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
+            return fail(HTTP_OK, u"当前设备不处于空闲状态，或者当前设备不在线，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
         log.info("用户还未上机可以进行上机: user_id = {} device_id = {}".format(user.id, device.id))
         if not WindowsService.do_online(user, device, charge_mode):
