@@ -102,7 +102,7 @@ def update():
         if g.admin.id == a_id:
             return fail(HTTP_OK, u"不能修改自身状态信息")
 
-        if state in Admin.STATE_VALUES:
+        if state in Admin.STATUS_VALUES:
             admin.state = state
         else:
             log.warn("state 状态信息不正确! state = {}".format(state))

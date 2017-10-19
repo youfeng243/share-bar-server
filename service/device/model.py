@@ -23,14 +23,22 @@ __all__ = ['Deploy']
 class Device(ModelBase):
     __tablename__ = 'device'
 
-    STATE_FREE = 'free'
-    STATE_BUSY = 'busy'
-    STATE_OFFLINE = 'offline'
+    # 空闲状态
+    STATUE_USE_FREE = 'free'
+    # 用户正在使用状态
+    STATUE_USE_BUSY = 'busy'
     # 锁定状态，或称 维护状态，锁定状态非 busy状态，因为busy状态用户正在上机
-    STATUS_LOCK = 'lock'
+    STATUE_USE_LOCK = 'lock'
+
+    # 当前设备存活状态
+    STATUE_ALIVE_OFFLINE = 'offline'
+    STATUS_ALIVE_ONLINE = 'online'
 
     # 使用状态
-    STATE_VALUES = (STATE_FREE, STATE_BUSY, STATE_OFFLINE, STATUS_LOCK)
+    STATUS_VALUES = (STATUE_USE_FREE, STATUE_USE_BUSY, STATUE_USE_LOCK)
+
+    # 存活状态
+    ALIVE_VALUES = (STATUE_ALIVE_OFFLINE, STATUS_ALIVE_ONLINE)
 
     # 设备机器码
     device_code = db.Column(db.String(128), unique=True, index=True)
@@ -44,8 +52,11 @@ class Device(ModelBase):
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
 
-    # 设备当前使用状态 free 空闲 busy 忙碌  offline 离线
-    state = db.Column(db.Enum(*STATE_VALUES), index=True, default=STATE_FREE)
+    # 设备当前使用状态 free 空闲 busy 忙碌
+    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUE_USE_FREE)
+
+    # 存活状态
+    alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=STATUE_ALIVE_OFFLINE)
 
     # 计费方式 分/分钟
     charge_mode = db.Column(db.Integer, default=DEFAULT_CHARGE_MODE)

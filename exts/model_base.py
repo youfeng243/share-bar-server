@@ -140,7 +140,7 @@ class ModelBase(db.Model):
 
         # 如果存在状态信息，但是状态错误，则返回错误
         if hasattr(cls, 'state') and state is not None:
-            if hasattr(cls, 'STATE_VALUES') and state not in cls.STATE_VALUES:
+            if hasattr(cls, 'STATUS_VALUES') and state not in cls.STATUS_VALUES:
                 return fail(HTTP_OK, u'状态信息错误!')
 
         if isinstance(start_time_str, basestring) and isinstance(end_time_str, basestring):

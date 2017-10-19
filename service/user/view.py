@@ -83,7 +83,7 @@ def change_user_state():
             continue
 
         state = item.get('state', None)
-        if state not in User.STATE_VALUES:
+        if state not in User.STATUS_VALUES:
             log.warn("传入的状态信息不正确: user_id = {} state = {}".format(user_id, state))
             continue
 

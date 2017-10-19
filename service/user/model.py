@@ -20,7 +20,7 @@ class User(ModelBase):
     __tablename__ = 'user'
 
     # 使用状态
-    STATE_VALUES = ('unused', 'using')
+    STATUS_VALUES = ('unused', 'using')
 
     # 用户微信唯一ID
     openid = db.Column(db.String(512), index=True, unique=True, nullable=True)
@@ -47,7 +47,7 @@ class User(ModelBase):
     balance_account = db.Column(db.Integer, nullable=False, default=0)
 
     # 当前用户使用状态信息 unused 禁用  using 使用
-    state = db.Column(db.Enum(*STATE_VALUES), index=True, default='using')
+    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default='using')
 
     # 反向指向充值列表信息
     recharge_query = db.relationship('Recharge', backref='user', lazy='dynamic')
@@ -57,7 +57,7 @@ class User(ModelBase):
 
     # 改变用户使用状态
     def change_state(self, state):
-        if state not in self.STATE_VALUES:
+        if state not in self.STATUS_VALUES:
             return False
         self.state = state
         return self.save()

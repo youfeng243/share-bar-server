@@ -66,7 +66,7 @@ def delete_devices():
             log.warn("当前ID设备信息不存在: {}".format(device_id))
             continue
 
-        if device.state == Device.STATE_BUSY:
+        if device.state == Device.STATUE_USE_BUSY:
             log.warn("当前设备忙碌，不能删除: device_id = {}".format(device_id))
             continue
 

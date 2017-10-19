@@ -38,7 +38,7 @@ class Admin(UserMixin, ModelBase):
     query_class = AdminQuery
 
     # 使用状态
-    STATE_VALUES = ('unused', 'using')
+    STATUS_VALUES = ('unused', 'using')
 
     # 用户名
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
@@ -54,7 +54,7 @@ class Admin(UserMixin, ModelBase):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
 
     # 管理员启用状态 using 启用 unused 停用
-    state = db.Column(db.Enum(*STATE_VALUES), index=True, default='using')
+    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default='using')
 
     @classmethod
     def create(cls, username, password, name, role_id):
