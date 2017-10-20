@@ -10,6 +10,7 @@
 import json
 from datetime import datetime
 
+import settings
 from exts.common import log, fail, HTTP_OK, success, cal_cost_time
 from exts.distributed_lock import DistributeLock
 from exts.redis_api import RedisClient
@@ -164,9 +165,9 @@ class WindowsService(object):
             redis_cache_client.set(device_key, record_key)
             # 根据设备机器码获得记录token
             redis_cache_client.set(device_code_key, record_key)
-            # 设置最新存活时间
+            # 设置最新存活时间 最多存活五分钟
             import time
-            redis_cache_client.set(user_online_key, int(time.time()))
+            redis_cache_client.setex(user_online_key, settings.MAX_LOST_HEART_TIME, int(time.time()))
 
             # 设置设备当前使用状态
             device.state = Device.STATUE_BUSY

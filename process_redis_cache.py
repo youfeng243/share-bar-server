@@ -175,23 +175,26 @@ def do_charging(record_key_list):
             user_online_key = RedisClient.get_user_online_key(record_key)
             last_timestamp = cache_client.get(user_online_key)
             if last_timestamp is None:
-                log.error("当前上线用户没有最后存活时间: user_id = {} device_id = {}".format(
+                log.info("没有收到任何心跳信息, 强制下机, 当前上线用户没有最后存活时间: user_id = {} device_id = {}".format(
                     user_id, device_id))
-                continue
-
-            # 获得当前时间戳
-            last_timestamp = int(last_timestamp)
-            now_timestamp = int(time.time())
-
-            # 如果当前丢失心跳的时间超过阈值，则默认离线，需要下机
-            if now_timestamp - last_timestamp >= settings.MAX_LOST_HEART_TIME:
-                # 下机
-                log.info("当前用户与机器没有收到任何心跳信息，强制下机: record_key = {} last_timestamp = {}".format(
-                    record_key, last_timestamp))
                 # 执行下机流程
                 do_offline(record_key)
                 log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
                 continue
+
+            # # 获得当前时间戳
+            # last_timestamp = int(last_timestamp)
+            # now_timestamp = int(time.time())
+            #
+            # # 如果当前丢失心跳的时间超过阈值，则默认离线，需要下机
+            # if now_timestamp - last_timestamp >= settings.MAX_LOST_HEART_TIME:
+            #     # 下机
+            #     log.info("当前用户与机器没有收到任何心跳信息，强制下机: record_key = {} last_timestamp = {}".format(
+            #         record_key, last_timestamp))
+            #     # 执行下机流程
+            #     do_offline(record_key)
+            #     log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
+            #     continue
 
             # charge_dict = {
             #     'id': self.id,
@@ -228,6 +231,7 @@ def do_charging(record_key_list):
                 log.error("没有关键信息 balance_account: charge_str = {}".format(charge_str))
                 continue
 
+            now_timestamp = int(time.time())
             start_time = int(time.mktime(time.strptime(ctime, "%Y-%m-%d %H:%M:%S")))
             cost_time = cal_cost_time(now_timestamp - start_time)
             cost_money = cost_time * int(charge_mode)

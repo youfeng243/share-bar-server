@@ -16,6 +16,7 @@ from flask import request
 from flask import session
 from flask import url_for
 
+import settings
 from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERROR_DELETE, LOGIN_ERROR_FORBID, \
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id, ATTENTION_URL
@@ -234,8 +235,8 @@ def keep_alive():
     # 获得keep_alive_key 更新最新存活时间
     user_online_key = RedisClient.get_user_online_key(record_key)
 
-    # 设置最新存活时间
-    redis_cache_client.set(user_online_key, int(time.time()))
+    # 设置最新存活时间 最多存在五分钟
+    redis_cache_client.setex(user_online_key, settings.MAX_LOST_HEART_TIME, int(time.time()))
 
     # try:
     return success({

@@ -22,6 +22,7 @@ class RedisClient(object):
     def set(self, key, value):
         return self._client.set(key, value)
 
+    # 设置过期时间
     def setex(self, key, ttl, value):
         return self._client.setex(key, ttl, value)
 
