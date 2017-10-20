@@ -20,7 +20,7 @@ from exts.redis_api import RedisClient
 # log = Logger('process_redis_cache.log').get_logger()
 
 try:
-    cache_client = RedisClient()
+    cache_client = RedisClient(db=0)
 except Exception as ex:
     log.error("启动redis失败..")
     log.exception(ex)
