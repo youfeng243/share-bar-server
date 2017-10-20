@@ -37,7 +37,7 @@ class WindowsService(object):
             record.end_time = datetime.now()
 
             # 设置设备为空闲状态
-            device.state = Device.STATUE_USE_FREE
+            device.state = Device.STATUE_FREE
 
             log.info("本次上机时间: {} 下机时间: {} 使用记录ID: {} 当前设备: {}".format(
                 record.ctime.strftime('%Y-%m-%d %H:%M:%S'),
@@ -169,7 +169,7 @@ class WindowsService(object):
             redis_client.set(keep_alive_key, int(time.time()))
 
             # 设置设备当前使用状态
-            device.state = Device.STATUE_USE_BUSY
+            device.state = Device.STATUE_BUSY
             device.save()
 
             is_success = True

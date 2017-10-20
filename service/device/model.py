@@ -24,18 +24,18 @@ class Device(ModelBase):
     __tablename__ = 'device'
 
     # 空闲状态
-    STATUE_USE_FREE = 'free'
+    STATUE_FREE = 'free'
     # 用户正在使用状态
-    STATUE_USE_BUSY = 'busy'
+    STATUE_BUSY = 'busy'
     # 锁定状态，或称 维护状态，锁定状态非 busy状态，因为busy状态用户正在上机
-    STATUE_USE_LOCK = 'lock'
+    STATUE_LOCK = 'lock'
 
     # 当前设备存活状态
     ALIVE_OFFLINE = 'offline'
     ALIVE_ONLINE = 'online'
 
     # 使用状态
-    STATUS_VALUES = (STATUE_USE_FREE, STATUE_USE_BUSY, STATUE_USE_LOCK)
+    STATUS_VALUES = (STATUE_FREE, STATUE_BUSY, STATUE_LOCK)
 
     # 存活状态
     ALIVE_VALUES = (ALIVE_OFFLINE, ALIVE_ONLINE)
@@ -53,7 +53,7 @@ class Device(ModelBase):
     income = db.Column(db.Integer, nullable=False, default=0)
 
     # 设备当前使用状态 free 空闲 busy 忙碌 lock 锁定
-    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUE_USE_FREE)
+    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUE_FREE)
 
     # 存活状态
     alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=ALIVE_OFFLINE)
