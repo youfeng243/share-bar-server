@@ -6,11 +6,13 @@ order_by: - 降序， + 升序
 ctime: 投放时间
 state: 状态
 参数:
-state: ('free', 'busy', 'offline')
+state: ('free', 'busy', 'lock')
+alive: ('online', 'offline'))
 json = {
      "page": 1,
      "size": 10,
      "state": "free", //这个是可选字段，可不填，空闲状态
+     "alive": "online", // 这个是可选字段，可不填，在线或者离线状态
      "city": xxxx, //这个可选字段
      "area": xxxx  //这个可选字段，如不填则搜索city字段指定所有地址信息
      "start_time": "2017-07-01 23:23:23", //可选字段 时间格式一定不能错 '%Y-%m-%d %H:%M:%S'
@@ -85,6 +87,7 @@ device_id
             "device_num": 20
         },
         "state": "free",
+        "alive": "online",
         "income": 0,
         "id": 30,
         "utime": "2017-09-13 09:39:20"
@@ -136,6 +139,7 @@ json = {
                         "device_num": 20
                     },
                     "state": "free",
+                    "alive": "online",
                     "income": 0,
                     "id": 1,
                     "utime": "2017-09-17 22:45:53"

@@ -128,6 +128,7 @@ class Device(ModelBase):
             'address': self.address.to_dict(),
             'income': self.income,
             'state': self.state,
+            'alive': self.alive,
             'charge_mode': self.charge_mode,
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
