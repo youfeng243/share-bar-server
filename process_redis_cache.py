@@ -20,7 +20,7 @@ from exts.redis_api import RedisClient
 # log = Logger('process_redis_cache.log').get_logger()
 
 try:
-    redis_client = RedisClient()
+    cache_client = RedisClient()
 except Exception as ex:
     log.error("启动redis失败..")
     log.exception(ex)
@@ -53,7 +53,7 @@ def update_access_token():
         log.info("成功获取token: access_token = {} expires_in = {}".format(access_token, expires_in))
 
         # 设置redis
-        redis_client.setex(WECHAT_ACCESS_TOKEN_KEY, expires_in, access_token)
+        cache_client.setex(WECHAT_ACCESS_TOKEN_KEY, expires_in, access_token)
 
         return True
     except Exception as e:
@@ -64,7 +64,7 @@ def update_access_token():
 
 
 def update_ticket():
-    access_token = redis_client.get(WECHAT_ACCESS_TOKEN_KEY)
+    access_token = cache_client.get(WECHAT_ACCESS_TOKEN_KEY)
     url = 'https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token={}&type=jsapi'.format(access_token)
 
     try:
@@ -92,7 +92,7 @@ def update_ticket():
         log.info("成功获取ticket: ticket = {} expires_in = {}".format(ticket, expires_in))
 
         # 设置redis
-        redis_client.setex(WECHAT_JSAPI_TICKET_KEY, expires_in, ticket)
+        cache_client.setex(WECHAT_JSAPI_TICKET_KEY, expires_in, ticket)
 
         return True
     except Exception as e:
@@ -107,14 +107,14 @@ def access_token_thread():
     SLEEP_TIME = 30
     while True:
         try:
-            ttl = redis_client.ttl(WECHAT_ACCESS_TOKEN_KEY)
+            ttl = cache_client.ttl(WECHAT_ACCESS_TOKEN_KEY)
             log.info("当前key存活时间: key = {} ttl = {}".format(WECHAT_ACCESS_TOKEN_KEY, ttl))
             if ttl <= WX_CACHE_LAST_TIME:
                 log.info("开始获取token...")
                 update_access_token()
                 log.info("获取token结束...")
 
-            ttl = redis_client.ttl(WECHAT_JSAPI_TICKET_KEY)
+            ttl = cache_client.ttl(WECHAT_JSAPI_TICKET_KEY)
             log.info("当前key存活时间: key = {} ttl = {}".format(WECHAT_JSAPI_TICKET_KEY, ttl))
             if ttl <= WX_CACHE_LAST_TIME:
                 log.info("开始获取jsapi_ticket...")
@@ -151,7 +151,7 @@ def do_charging(record_key_list):
     # 开始针对用户进行扣费
     for record_key in record_key_list:
 
-        charge_str = redis_client.get(record_key)
+        charge_str = cache_client.get(record_key)
         if charge_str is None:
             log.info("当前用户已经下线，不需要再计费: record_key = {}".format(record_key))
             continue
@@ -173,7 +173,7 @@ def do_charging(record_key_list):
 
             # 判断是否已经有5分钟没有收到心跳
             keep_alive_key = RedisClient.get_keep_alive_key(record_key)
-            last_timestamp = redis_client.get(keep_alive_key)
+            last_timestamp = cache_client.get(keep_alive_key)
             if last_timestamp is None:
                 log.error("当前上线用户没有最后存活时间: user_id = {} device_id = {}".format(
                     user_id, device_id))
@@ -256,7 +256,7 @@ def charging_thread():
         try:
             start_time = time.time()
             # 找出所有用户
-            record_key_list = redis_client.keys(pattern=REDIS_PRE_RECORD_KEY + '*')
+            record_key_list = cache_client.keys(pattern=REDIS_PRE_RECORD_KEY + '*')
 
             # 给当前线上用户进行计费
             do_charging(record_key_list)
