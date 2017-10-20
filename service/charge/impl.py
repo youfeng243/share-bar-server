@@ -12,7 +12,7 @@ import json
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log, REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, DEFAULT_CHARGE_MODE
-from exts.resource import db, redis_client
+from exts.resource import db, redis_cache_client
 from service.charge.model import Charge
 
 
@@ -28,7 +28,7 @@ class ChargeService(object):
             db.session.commit()
 
             # 更新redis中最新的费率
-            redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge.to_dict()))
+            redis_cache_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge.to_dict()))
 
             log.info("存储最新费率成功: name = {} charge_mode = {}".format(name, charge_mode))
         except IntegrityError:
@@ -59,7 +59,7 @@ class ChargeService(object):
             return charge
 
         # 设置费率到redis
-        redis_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge_item.to_dict()))
+        redis_cache_client.setex(REDIS_NEWEST_CHARGE_MODE, DEFAULT_CHARGE_EXPIRED, json.dumps(charge_item.to_dict()))
 
         log.info("加载当前最新费率到redis: charge_mode = {} time = {}".format(
             charge_item.charge_mode, charge_item.ctime.strftime('%Y-%m-%d %H:%M:%S')))
@@ -69,7 +69,7 @@ class ChargeService(object):
     @staticmethod
     def get_newest_charge_mode():
         # 先从redis中获取
-        charge_str = redis_client.get(REDIS_NEWEST_CHARGE_MODE)
+        charge_str = redis_cache_client.get(REDIS_NEWEST_CHARGE_MODE)
         if charge_str is not None:
             try:
                 charge = json.loads(charge_str)

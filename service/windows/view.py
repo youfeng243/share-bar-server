@@ -20,7 +20,7 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
     LOGIN_ERROR_NOT_FIND, LOGIN_ERROR_NOT_SUFFICIENT_FUNDS, LOGIN_ERROR_UNKNOW, LOGIN_ERROR_DEVICE_IN_USING, \
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id, ATTENTION_URL
 from exts.redis_api import RedisClient
-from exts.resource import redis_client
+from exts.resource import redis_cache_client
 from service.charge.impl import ChargeService
 from service.device.model import Device
 from service.windows.impl import WindowsService
@@ -128,16 +128,16 @@ def qr_code_online(device_code):
     device_key = RedisClient.get_device_key(device.id)
 
     # 判断是否已经登录了
-    charging = redis_client.get(record_key)
+    charging = redis_cache_client.get(record_key)
     if charging is None:
 
         # 判断当前设备是否已经在使用了
-        if redis_client.get(device_key):
+        if redis_cache_client.get(device_key):
             log.warn("当前设备{}已经在被使用，但是用户ID = {}又在申请".format(device.id, user.id))
             return fail(HTTP_OK, u"当前设备已经在使用上线了，但是不是当前用户在使用!", LOGIN_ERROR_DEVICE_IN_USING)
 
         # 判断当前用户是否已经上线了
-        if redis_client.get(user_key):
+        if redis_cache_client.get(user_key):
             log.warn("当前用户{}已经在上线，但是又在申请当前设备ID = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
 
@@ -159,13 +159,13 @@ def qr_code_online(device_code):
 @bind_required
 def wechat_offline():
     user_key = RedisClient.get_user_key(g.user_id)
-    record_key = redis_client.get(user_key)
+    record_key = redis_cache_client.get(user_key)
     if record_key is None:
         return success({
             'status': 0,
             'msg': "logout failed! reason: user device is already offline"})
 
-    charging = redis_client.get(record_key)
+    charging = redis_cache_client.get(record_key)
     if charging is None:
         return success({
             'status': 0,
@@ -179,11 +179,11 @@ def wechat_offline():
 @bind_required
 def get_online_status():
     user_key = RedisClient.get_user_key(g.user_id)
-    record_key = redis_client.get(user_key)
+    record_key = redis_cache_client.get(user_key)
     if record_key is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
 
-    charging = redis_client.get(record_key)
+    charging = redis_cache_client.get(record_key)
     if charging is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
 
@@ -204,7 +204,7 @@ def check_connect():
         return fail(HTTP_OK, u"not have device_code!!!")
 
     device_code_key = RedisClient.get_device_code_key(device_code)
-    record_key = redis_client.get(device_code_key)
+    record_key = redis_cache_client.get(device_code_key)
     if record_key is None:
         return success({
             'status': 0,
@@ -225,7 +225,7 @@ def keep_alive():
     if record_key is None:
         return fail(HTTP_OK, u"not have token!!!")
 
-    charging = redis_client.get(record_key)
+    charging = redis_cache_client.get(record_key)
     if charging is None:
         return success({
             "status": 0,
@@ -235,7 +235,7 @@ def keep_alive():
     keep_alive_key = RedisClient.get_keep_alive_key(record_key)
 
     # 设置最新存活时间
-    redis_client.set(keep_alive_key, int(time.time()))
+    redis_cache_client.set(keep_alive_key, int(time.time()))
 
     # try:
     return success({
@@ -260,7 +260,7 @@ def windows_offline():
     if token is None:
         return fail(HTTP_OK, u"not have token!!!")
 
-    charging = redis_client.get(token)
+    charging = redis_cache_client.get(token)
     if charging is None:
         return success({
             'status': 0,

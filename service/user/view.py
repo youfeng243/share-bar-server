@@ -15,7 +15,7 @@ from flask_login import login_required
 
 from exts.common import log, fail, HTTP_OK, success
 from exts.redis_api import RedisClient
-from exts.resource import redis_client
+from exts.resource import redis_cache_client
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
 from service.user.model import User
@@ -161,13 +161,13 @@ def user_offline():
 
     if user_id is not None:
         user_key = RedisClient.get_user_key(user_id)
-        record_key = redis_client.get(user_key)
+        record_key = redis_cache_client.get(user_key)
         if record_key is None:
             return success({
                 'status': 0,
                 'msg': "logout failed! reason: user device is already offline"})
 
-        charging = redis_client.get(record_key)
+        charging = redis_cache_client.get(record_key)
         if charging is None:
             return success({
                 'status': 0,
@@ -177,9 +177,9 @@ def user_offline():
 
     if device_code is not None:
         device_code_key = RedisClient.get_device_code_key(device_code)
-        record_key = redis_client.get(device_code_key)
+        record_key = redis_cache_client.get(device_code_key)
         if record_key is not None:
-            charging = redis_client.get(record_key)
+            charging = redis_cache_client.get(record_key)
             if charging is None:
                 return success({
                     'status': 0,
@@ -190,13 +190,13 @@ def user_offline():
     if device_id is not None:
         device_key = RedisClient.get_device_key(device_id)
 
-        record_key = redis_client.get(device_key)
+        record_key = redis_cache_client.get(device_key)
         if record_key is None:
             return success({
                 'status': 0,
                 'msg': "logout failed! reason: user device is already offline"})
 
-        charging = redis_client.get(record_key)
+        charging = redis_cache_client.get(record_key)
         if charging is None:
             return success({
                 'status': 0,

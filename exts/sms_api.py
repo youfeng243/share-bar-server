@@ -11,8 +11,8 @@ from exts.tx_sms.tools import SmsSenderUtil
 
 # 发送短信对象封装
 class SmsClient(object):
-    def __init__(self, redis_client, sms_app_id, sms_app_key, sms_text_temp_id):
-        self.__redis = redis_client
+    def __init__(self, redis_cache_client, sms_app_id, sms_app_key, sms_text_temp_id):
+        self.__redis = redis_cache_client
         self.tx_sms_sender = sender.SmsSingleSender(sms_app_id, sms_app_key)
         self.sms_text_temp_id = sms_text_temp_id
 

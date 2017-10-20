@@ -7,7 +7,7 @@ from setuptools import find_packages
 
 import settings
 from app import create_app
-from exts.resource import db, redis_client
+from exts.resource import db, redis_cache_client
 from service.address.mock import gen_address
 from service.admin.mock import gen_admin
 from service.admin.model import Admin
@@ -88,7 +88,7 @@ def dropdb():
         db.drop_all()
         db.session.commit()
         # 删除redis所有数据
-        redis_client.flushdb()
+        redis_cache_client.flushdb()
         print '数据库删除完成...'
 
 

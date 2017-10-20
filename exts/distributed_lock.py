@@ -15,8 +15,8 @@ from exts.common import log
 
 
 class DistributeLock(object):
-    def __init__(self, key, redis_client, lock_timeout=3):
-        self.__redis = redis_client
+    def __init__(self, key, redis_cache_client, lock_timeout=3):
+        self.__redis = redis_cache_client
         self.lock_timeout = lock_timeout
         self.lock_flag = 0
         self.lock_key = 'lock#' + key

@@ -15,7 +15,7 @@ from sqlalchemy.exc import IntegrityError
 from exts.distributed_lock import DistributeLock
 from exts.common import log
 from exts.redis_api import RedisClient
-from exts.resource import db, redis_client
+from exts.resource import db, redis_cache_client
 from service.recharge.model import Recharge
 from service.template.impl import TemplateService
 from service.user.model import User
@@ -71,16 +71,16 @@ class RechargeService(object):
         user_key = RedisClient.get_user_key(user_id)
 
         # todo 这里需要加锁, 否则扣费下机时会有影响
-        lock = DistributeLock(user_key, redis_client)
+        lock = DistributeLock(user_key, redis_cache_client)
 
         try:
             lock.acquire()
-            record_key = redis_client.get(user_key)
+            record_key = redis_cache_client.get(user_key)
             if record_key is None:
                 log.info("当前用户没有在线 record_key = None, 不需要同步在线数据: user_id = {}".format(user_id))
                 return
 
-            charge_str = redis_client.get(record_key)
+            charge_str = redis_cache_client.get(record_key)
             if charge_str is None:
                 log.info("当前用户没有在线 charging = None, 不需要同步在线数据: user_id = {}".format(user_id))
                 return
@@ -97,7 +97,7 @@ class RechargeService(object):
                     return
 
                 charge_dict['balance_account'] = balance_account + total_fee
-                redis_client.set(record_key, json.dumps(charge_dict))
+                redis_cache_client.set(record_key, json.dumps(charge_dict))
 
                 log.info(
                     "同步修改redis中用户余额信息成功! user_id = {} account = {}".format(user_id, balance_account + total_fee))
