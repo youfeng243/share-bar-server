@@ -10,8 +10,10 @@ from exts.common import log, REDIS_PRE_RECORD_KEY, REDIS_PRE_USER_KEY, REDIS_PRE
 
 
 class RedisClient(object):
-    def __init__(self):
-        self._client = redis.StrictRedis.from_url(settings.REDIS_URI, max_connections=settings.REDIS_MAX_CONNECTIONS)
+    def __init__(self, db=0):
+        self._client = redis.StrictRedis.from_url(settings.REDIS_URI,
+                                                  db=db,
+                                                  max_connections=settings.REDIS_MAX_CONNECTIONS)
         log.info("redis 初始化完成!!")
 
     def get(self, key):
