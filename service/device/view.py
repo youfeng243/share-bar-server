@@ -67,7 +67,7 @@ def delete_devices():
             continue
 
         # 当前设备在线，且设备正在被用户使用，则不能够删除
-        if device.alive == Device.STATUS_ALIVE_ONLINE and \
+        if device.alive == Device.ALIVE_ONLINE and \
                         device.state == Device.STATUE_USE_BUSY:
             log.warn("当前设备忙碌，不能删除: device_id = {}".format(device_id))
             continue

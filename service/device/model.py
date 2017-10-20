@@ -31,14 +31,14 @@ class Device(ModelBase):
     STATUE_USE_LOCK = 'lock'
 
     # 当前设备存活状态
-    STATUE_ALIVE_OFFLINE = 'offline'
-    STATUS_ALIVE_ONLINE = 'online'
+    ALIVE_OFFLINE = 'offline'
+    ALIVE_ONLINE = 'online'
 
     # 使用状态
     STATUS_VALUES = (STATUE_USE_FREE, STATUE_USE_BUSY, STATUE_USE_LOCK)
 
     # 存活状态
-    ALIVE_VALUES = (STATUE_ALIVE_OFFLINE, STATUS_ALIVE_ONLINE)
+    ALIVE_VALUES = (ALIVE_OFFLINE, ALIVE_ONLINE)
 
     # 设备机器码
     device_code = db.Column(db.String(128), unique=True, index=True)
@@ -56,7 +56,7 @@ class Device(ModelBase):
     state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUE_USE_FREE)
 
     # 存活状态
-    alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=STATUE_ALIVE_OFFLINE)
+    alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=ALIVE_OFFLINE)
 
     # 计费方式 分/分钟
     charge_mode = db.Column(db.Integer, default=DEFAULT_CHARGE_MODE)

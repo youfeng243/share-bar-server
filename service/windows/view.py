@@ -142,7 +142,7 @@ def qr_code_online(device_code):
             return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
 
         # 判断当前设备是否处于空闲状态 且设备必须处于在线状态
-        if device.state != Device.STATUE_USE_FREE or device.alive != Device.STATUS_ALIVE_ONLINE:
+        if device.state != Device.STATUE_USE_FREE or device.alive != Device.ALIVE_ONLINE:
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {}".format(device.id, device.state))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，或者当前设备不在线，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
