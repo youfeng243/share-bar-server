@@ -232,10 +232,10 @@ def keep_alive():
             "msg": "keepalive failed!reason:token invalid"})
 
     # 获得keep_alive_key 更新最新存活时间
-    keep_alive_key = RedisClient.get_keep_alive_key(record_key)
+    user_online_key = RedisClient.get_user_online_key(record_key)
 
     # 设置最新存活时间
-    redis_cache_client.set(keep_alive_key, int(time.time()))
+    redis_cache_client.set(user_online_key, int(time.time()))
 
     # try:
     return success({

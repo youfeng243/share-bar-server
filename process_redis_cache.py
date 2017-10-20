@@ -172,8 +172,8 @@ def do_charging(record_key_list):
             record_key = RedisClient.get_record_key(user_id, device_id)
 
             # 判断是否已经有5分钟没有收到心跳
-            keep_alive_key = RedisClient.get_keep_alive_key(record_key)
-            last_timestamp = cache_client.get(keep_alive_key)
+            user_online_key = RedisClient.get_user_online_key(record_key)
+            last_timestamp = cache_client.get(user_online_key)
             if last_timestamp is None:
                 log.error("当前上线用户没有最后存活时间: user_id = {} device_id = {}".format(
                     user_id, device_id))

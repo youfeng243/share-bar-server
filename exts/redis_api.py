@@ -71,7 +71,7 @@ class RedisClient(object):
         return "{}{}".format(REDIS_PRE_OPENID_KEY, openid)
 
     @staticmethod
-    def get_keep_alive_key(record_key):
+    def get_user_online_key(record_key):
         return "{}{}".format(REDIS_PRE_KEEP_ALIVE_KEY, record_key)
 
     # 获得存储在redis中的手机信息key
@@ -114,7 +114,7 @@ class RedisClient(object):
 #     return "{}{}".format(REDIS_PRE_OPENID_KEY, openid)
 #
 #
-# def get_keep_alive_key(record_key):
+# def get_user_online_key(record_key):
 #     return "{}{}".format(REDIS_PRE_KEEP_ALIVE_KEY, record_key)
 #
 #
