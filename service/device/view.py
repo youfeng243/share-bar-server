@@ -73,13 +73,15 @@ def delete_devices():
 @bp.route('/device/<device_id>', methods=['GET'])
 @login_required
 def get_device_by_id(device_id):
+    device = None
     while True:
-        # 先通过设备mac地址查找
-        device = DeviceService.get_device_by_code(device_id)
-        if device is not None:
-            break
-
         try:
+
+            # 先通过设备mac地址查找
+            device = DeviceService.get_device_by_code(device_id)
+            if device is not None:
+                break
+
             a_id = int(device_id)
             device = Device.get(a_id)
         except Exception as e:
