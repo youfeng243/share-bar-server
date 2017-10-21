@@ -7,6 +7,7 @@
 @file: impl.py
 @time: 2017/10/21 11:20
 """
+import json
 import time
 
 from sqlalchemy.exc import IntegrityError
@@ -72,3 +73,28 @@ class DeviceService(object):
 
         log.info("当前设备状态从数据库中加载, 缓存到redis中: device_code = {}".format(device_code))
         return device.state
+
+    # shanchu 设备
+    @staticmethod
+    def delete_device(device_id):
+
+        device = Device.get(device_id)
+
+        if device is None:
+            log.warn("当前需要删除的设备不存在: device_id = {}".format(device_id))
+            return False
+
+        # 当前设备在线，且设备正在被用户使用，则不能够删除
+        if device.alive == Device.ALIVE_ONLINE and \
+                        device.state != Device.STATUE_FREE:
+            log.warn("当前设备不处于空闲状态，不能删除: device_id = {}".format(device.id))
+            return False
+
+        device_status_key = RedisClient.get_device_status_key(device.device_code)
+        if not device.delete():
+            log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
+            return False
+
+        # 删除缓存信息
+        redis_device_client.delete(device_status_key)
+        return True

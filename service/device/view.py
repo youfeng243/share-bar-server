@@ -7,7 +7,6 @@
 @file: view.py
 @time: 2017/9/7 20:32
 """
-import json
 
 from flask import Blueprint
 from flask import request
@@ -62,19 +61,8 @@ def delete_devices():
 
     result_list = []
     for device_id in id_list:
-        device = Device.get(device_id)
-        if device is None:
-            log.warn("当前ID设备信息不存在: {}".format(device_id))
-            continue
-
-        # 当前设备在线，且设备正在被用户使用，则不能够删除
-        if device.alive == Device.ALIVE_ONLINE and \
-                        device.state == Device.STATUE_BUSY:
-            log.warn("当前设备忙碌，不能删除: device_id = {}".format(device_id))
-            continue
-
-        if not device.delete():
-            log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
+        if not DeviceService.delete_device(device_id):
+            log.warn("当前设备删除失败: device_id = {}".format(device_id))
             continue
 
         result_list.append(device_id)
