@@ -18,3 +18,7 @@ CMS based on Flask
 
 #### 2.Restart server
 `sh run.sh restart`
+
+## Deploy
+* weixin.doumihuyu.com:22
+* /root/share-bar-server
