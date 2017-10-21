@@ -1,0 +1,13 @@
+1. 设备心跳缓存记录(记录心跳时间戳, machine-code:int(time.time())):  [最后同步时间指针: 5分钟同步一次]
+(1). windows/check
+(2). windows/keepalive
+
+2. 设备状态存储(记录设备当前最新使用状态: machine-code: use_status) [最后同步时间指针: 5分钟同步一次]
+读:
+(1). windows/check
+(2). windows/keepalive
+(3). 后台读取
+写:
+(1). 上线
+(2). 下线
+(3). 锁定
