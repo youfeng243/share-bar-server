@@ -25,15 +25,18 @@ class Device(ModelBase):
     STATUE_FREE = 'free'
     # 用户正在使用状态
     STATUE_BUSY = 'busy'
-    # 锁定状态，或称 维护状态，锁定状态非 busy状态，因为busy状态用户正在上机
+    # 锁定状态: 后台主动锁定，或称 维护状态，锁定状态必须由空闲状态转入，因为busy状态用户正在上机， 维护状态客户端正在操作
     STATUE_LOCK = 'lock'
+
+    # 维护状态 客户端维护人员登录 则进入这个状态
+    STATUS_MAINTAIN = 'maintain'
 
     # 当前设备存活状态
     ALIVE_OFFLINE = 'offline'
     ALIVE_ONLINE = 'online'
 
     # 使用状态
-    STATUS_VALUES = (STATUE_FREE, STATUE_BUSY, STATUE_LOCK)
+    STATUS_VALUES = (STATUE_FREE, STATUE_BUSY, STATUE_LOCK, STATUS_MAINTAIN)
 
     # 存活状态
     ALIVE_VALUES = (ALIVE_OFFLINE, ALIVE_ONLINE)
