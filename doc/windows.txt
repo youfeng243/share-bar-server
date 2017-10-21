@@ -66,6 +66,7 @@ json = {
 
 3. 心跳接口
 http://weixin.doumihuyu.com/windows/keepalive, POST
+device_status = ('lock', 'busy', 'free')
 参数:
 json = {
 'token': xxxx
@@ -77,12 +78,14 @@ json = {
     'success': True,
     'result': {"status": 1,
                 "msg": "keepalive success",
+                "device_status": "lock",
                 "data": json.loads(record_json)}
     'error': None
 }
 
 4. 校验是否登录接口
 http://weixin.doumihuyu.com/windows/check, POST
+device_status = ('lock', 'busy', 'free')
 参数:
 json = {
 device_code: 机器mac地址
@@ -91,6 +94,9 @@ device_code: 机器mac地址
 {"status": 1, "token": record_key, "msg": "login successed!"}
 {
     'success': True,
-    'result': {"status": 1, "token": record_key, "msg": "login successed!"}
+    'result': {"status": 1,
+                "token": record_key,
+                "device_status": "lock",
+                "msg": "login successed!"}
     'error': None
 }
