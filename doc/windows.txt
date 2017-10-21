@@ -65,7 +65,7 @@ json = {
 }
 
 3. 心跳接口
-http://weixin.doumihuyu.com/windows/keepalive/<token>, GET
+http://weixin.doumihuyu.com/windows/keepalive, POST
 参数:
 json = {
 'token': xxxx
@@ -82,7 +82,7 @@ json = {
 }
 
 4. 校验是否登录接口
-http://weixin.doumihuyu.com/windows/check/<device_code>, GET
+http://weixin.doumihuyu.com/windows/check, POST
 参数:
 json = {
 device_code: 机器mac地址
