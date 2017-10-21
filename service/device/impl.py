@@ -106,8 +106,8 @@ class DeviceService(object):
                                   DEFAULT_EXPIRED_DEVICE_ALIVE_SYNC,
                                   get_now_time())
 
-        log.info("同步设备数目为: count = {}".format(len(device_list)))
-        log.info("同步设备信息花费时间: start_time = {} use time = {} s".format(start_time, time.time() - start_time))
+        log.info("同步设备存活状态数目为: count = {}".format(len(device_list)))
+        log.info("同步设备存活信息花费时间: start_time = {} use time = {} s".format(start_time, time.time() - start_time))
 
     # 获得设备使用状态
     @staticmethod
