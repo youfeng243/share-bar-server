@@ -14,6 +14,7 @@ from flask import request
 from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success
+from service.device.impl import DeviceService
 from service.device.model import Device
 from service.use_record.model import UseRecord
 
@@ -85,7 +86,7 @@ def delete_devices():
 @login_required
 def get_device_by_id(device_id):
     # 先通过设备mac地址查找
-    device = Device.get_device_by_code(device_id)
+    device = DeviceService.get_device_by_code(device_id)
     if device is not None:
         return success(device.to_dict())
 

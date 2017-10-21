@@ -9,8 +9,6 @@
 """
 import json
 
-from sqlalchemy.exc import IntegrityError
-
 from exts.common import log, package_result
 from exts.model_base import ModelBase
 from exts.resource import db
@@ -57,30 +55,6 @@ class Device(ModelBase):
 
     # 存活状态
     alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=ALIVE_OFFLINE)
-
-    @classmethod
-    def create(cls, device_code, address_id):
-        device = cls(device_code=device_code, address_id=address_id)
-
-        try:
-            db.session.add(device)
-            db.session.commit()
-        except IntegrityError:
-            log.error("主键重复: device_code = {} address_id = {}".format(
-                device_code, address_id))
-            db.session.rollback()
-            return None, False
-        except Exception as e:
-            log.error("未知插入错误: device_code = {} address_id = {}".format(
-                device_code, address_id))
-            log.exception(e)
-            return None, False
-        return device, True
-
-    # 通过设备编号获取设备信息
-    @classmethod
-    def get_device_by_code(cls, device_code):
-        return cls.query.filter_by(device_code=device_code).first()
 
     def __repr__(self):
         return '<Device {}>'.format(self.name)

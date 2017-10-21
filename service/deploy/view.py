@@ -14,6 +14,7 @@ from flask_login import login_required
 from exts.common import log, fail, HTTP_OK, success
 from service.address.model import Address
 from service.deploy.model import Deploy
+from service.device.impl import DeviceService
 from service.device.model import Device
 
 bp = Blueprint('deploy', __name__, url_prefix='/admin')
@@ -64,10 +65,10 @@ def deploy_device():
             return fail(HTTP_OK, u"新建地址信息失败了!")
 
     # 先判断设备是否已经存在设备列表中
-    device = Device.get_device_by_code(device_code)
+    device = DeviceService.get_device_by_code(device_code)
     if device is None:
         # 如果没有找到设备信息则新建设备信息
-        device, is_success = Device.create(device_code, address.id)
+        device, is_success = DeviceService.create(device_code, address.id)
         if device is None:
             log.warn("新建设备信息失败了!!")
             return fail(HTTP_OK, u"新建设备信息失败了!")

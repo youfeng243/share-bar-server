@@ -23,6 +23,7 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
 from exts.redis_api import RedisClient
 from exts.resource import redis_cache_client
 from service.charge.impl import ChargeService
+from service.device.impl import DeviceService
 from service.device.model import Device
 from service.windows.impl import WindowsService
 from tools.wechat_api import get_current_user, bind_required, get_wechat_user_info
@@ -107,7 +108,7 @@ def qr_code_online(device_code):
         return fail(HTTP_OK, u"当前用户已经被禁用了，不能上线", LOGIN_ERROR_FORBID)
 
     # 获得设备信息
-    device = Device.get_device_by_code(device_code=device_code)
+    device = DeviceService.get_device_by_code(device_code=device_code)
     if device is None:
         log.warn("当前设备号没有对应的设备信息: device_code = {}".format(device_code))
         return fail(HTTP_OK, u"设备信息异常，设备不存在", LOGIN_ERROR_NOT_FIND)
