@@ -189,8 +189,6 @@ def get_online_status():
     if charging is None:
         return fail(HTTP_OK, u'当前用户没有上机信息', 0)
 
-    # charge_dict = json.loads(charging)
-    # charge_dict['cur_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return success(WindowsService.get_current_time_charging(charging))
 
 
@@ -239,16 +237,10 @@ def keep_alive():
     # 设置最新存活时间 最多存在五分钟
     redis_cache_client.setex(user_online_key, settings.MAX_LOST_HEART_TIME, int(time.time()))
 
-    # try:
     return success({
         "status": 1,
         "msg": "keepalive success",
         "data": WindowsService.get_current_time_charging(charging)})
-    # except Exception as e:
-    #     log.error("json 加载失败: {}".format(charging))
-    #     log.exception(e)
-    #
-    # return fail(HTTP_OK, u"json 数据解析失败!")
 
 
 # Windows端下线，使用的是 user_id#device_id
