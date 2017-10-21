@@ -73,21 +73,26 @@ def delete_devices():
 @bp.route('/device/<device_id>', methods=['GET'])
 @login_required
 def get_device_by_id(device_id):
-    # 先通过设备mac地址查找
-    device = DeviceService.get_device_by_code(device_id)
-    if device is not None:
-        return success(device.to_dict())
-
-    try:
-        a_id = int(device_id)
-        device = Device.get(a_id)
+    while True:
+        # 先通过设备mac地址查找
+        device = DeviceService.get_device_by_code(device_id)
         if device is not None:
-            return success(device.to_dict())
-    except Exception as e:
-        log.error("设备信息无法转换为 int 类型: device_id = {}".format(device_id))
-        log.exception(e)
+            break
 
-    return success(None)
+        try:
+            a_id = int(device_id)
+            device = Device.get(a_id)
+        except Exception as e:
+            log.error("设备信息无法转换为 int 类型: device_id = {}".format(device_id))
+            log.exception(e)
+        break
+
+    if device is None:
+        return success(None)
+
+    # 获取设备最新存活状态
+    device.alive = DeviceService.get_device_alive_status(device.device_code)
+    return success(device.to_dict())
 
 
 # 通过城市  区域 时间 区间 状态获取地址列表

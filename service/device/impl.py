@@ -51,6 +51,17 @@ class DeviceService(object):
 
         redis_device_client.setex(device_heart_key, DEFAULT_EXPIRED_DEVICE_HEART, int(time.time()))
 
+    # 获得设备最新存活状态
+    @staticmethod
+    def get_device_alive_status(device_code):
+        # 先获得心跳的主键
+        device_heart_key = RedisClient.get_device_heart_key(device_code)
+        last_heart_time = redis_device_client.get(device_heart_key)
+        if last_heart_time is None:
+            return Device.ALIVE_OFFLINE
+
+        return Device.ALIVE_ONLINE
+
     # 获得设备使用状态
     @staticmethod
     def get_device_status(device_code):
