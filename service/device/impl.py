@@ -121,7 +121,8 @@ class DeviceService(object):
         if isinstance(device, basestring):
             device_code = device
         elif isinstance(device, Device):
-            device_code = device.device_code
+            # 如果传入的是设备信息直接返回设备使用状态即可， 缓存和数据库中的设备信息是保持严格一致的，只要写入则同时写入缓存和数据库
+            return device.state
         else:
             log.error("当前参数数据类型不正确: device = {} type = {}".format(device, type(device)))
             return None
@@ -134,17 +135,39 @@ class DeviceService(object):
             return device_status
 
         # 没有从缓存中找到设备状态 则去数据库中找
-        if isinstance(device, basestring):
-            device = DeviceService.get_device_by_code(device_code)
-            if device is None:
-                log.error("当前设备码没有从缓存中找到，也不存在于数据库中: device_code = {}".format(device_code))
-                return None
+        device = DeviceService.get_device_by_code(device_code)
+        if device is None:
+            log.error("当前设备码没有从缓存中找到，也不存在于数据库中: device_code = {}".format(device_code))
+            return None
 
         # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
         redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
 
         log.info("当前设备状态从数据库中加载, 缓存到redis中: device_code = {}".format(device_code))
         return device.state
+
+    # 设置设备状态
+    @staticmethod
+    def set_device_status(device, device_status):
+        '''
+        :param device: Device 类型
+        :param device_status:
+        :return:
+        '''
+        if not isinstance(device, Device):
+            log.error("当前设置设备状态传入参数错误: device = {} type = {}".format(
+                device, type(device)))
+            return
+
+        if device_status not in Device.STATUS_VALUES:
+            log.error("当前设置设备状态传入参数错误: device_status = {}".format(device_status))
+            return
+
+        device.state = device_status
+        device_status_key = RedisClient.get_device_status_key(device.device_code)
+
+        # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
+        redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
 
     # shanchu 设备
     @staticmethod
@@ -157,8 +180,8 @@ class DeviceService(object):
             return False
 
         # 当前设备在线，且设备正在被用户使用，则不能够删除
-        if device.alive == Device.ALIVE_ONLINE and \
-                        device.state != Device.STATUE_FREE:
+        if DeviceService.get_device_alive_status(device) == Device.ALIVE_ONLINE and \
+                        DeviceService.get_device_status(device) != Device.STATUE_FREE:
             log.warn("当前设备不处于空闲状态，不能删除: device_id = {}".format(device.id))
             return False
 
