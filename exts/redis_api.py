@@ -6,7 +6,8 @@ import redis
 
 import settings
 from exts.common import log, REDIS_PRE_RECORD_KEY, REDIS_PRE_USER_KEY, REDIS_PRE_DEVICE_KEY, \
-    REDIS_PRE_DEVICE_CODE_KEY, REDIS_PRE_OPENID_KEY, REDIS_PRE_USER_ONLINE_KEY
+    REDIS_PRE_DEVICE_CODE_KEY, REDIS_PRE_OPENID_KEY, REDIS_PRE_USER_ONLINE_KEY, REDIS_PRE_MOBILE_EX_KEY, \
+    REDIS_PRE_CAPTCHA_EX_KEY, REDIS_PRE_DEVICE_HEART_KEY
 
 
 class RedisClient(object):
@@ -78,9 +79,14 @@ class RedisClient(object):
     # 获得存储在redis中的手机信息key
     @staticmethod
     def get_mobile_redis_key(mobile):
-        return 'bar:ratelimit:mobile:{}'.format(mobile)
+        return '{}{}'.format(REDIS_PRE_MOBILE_EX_KEY, mobile)
 
     # 获得存储在redis中的验证码信息key
     @staticmethod
     def get_captcha_redis_key(mobile):
-        return 'bar:ratelimit:captcha:{}'.format(mobile)
+        return '{}{}'.format(REDIS_PRE_CAPTCHA_EX_KEY, mobile)
+
+    # 设备心跳的key
+    @staticmethod
+    def get_device_heart_key(device_code):
+        return '{}{}'.format(REDIS_PRE_DEVICE_HEART_KEY, device_code)

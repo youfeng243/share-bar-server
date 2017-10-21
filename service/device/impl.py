@@ -7,10 +7,13 @@
 @file: impl.py
 @time: 2017/10/21 11:20
 """
+import time
+
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log
-from exts.resource import db
+from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART
+from exts.redis_api import RedisClient
+from exts.resource import db, redis_device_client
 from service.device.model import Device
 
 
@@ -38,3 +41,11 @@ class DeviceService(object):
     @staticmethod
     def get_device_by_code(device_code):
         return Device.query.filter_by(device_code=device_code).first()
+
+    # 保持心跳
+    @staticmethod
+    def keep_device_heart(device_code):
+        # 先获得心跳的主键
+        device_heart_key = RedisClient.get_device_heart_key(device_code)
+
+        redis_device_client.setex(device_heart_key, DEFAULT_EXPIRED_DEVICE_HEART, int(time.time()))

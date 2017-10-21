@@ -203,6 +203,9 @@ def check_connect():
     if device_code is None:
         return fail(HTTP_OK, u"not have device_code!!!")
 
+    # 保持心跳
+    DeviceService.keep_device_heart(device_code)
+
     device_code_key = RedisClient.get_device_code_key(device_code)
     record_key = redis_cache_client.get(device_code_key)
     if record_key is None:
@@ -224,6 +227,14 @@ def keep_alive():
     record_key = request.json.get('token')
     if record_key is None:
         return fail(HTTP_OK, u"not have token!!!")
+
+    device_code = request.json.get('device_code')
+    if device_code is None:
+        log.error("无法保持心跳, 没有传入device_code: record_key = {}".format(record_key))
+        return fail(HTTP_OK, u"not have device_code!!!")
+
+    # 保持心跳
+    DeviceService.keep_device_heart(device_code)
 
     charging = redis_cache_client.get(record_key)
     if charging is None:

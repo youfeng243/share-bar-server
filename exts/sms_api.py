@@ -4,7 +4,7 @@ import json
 
 import exts.tx_sms.sms as sender
 import settings
-from exts.common import log, DEFAULT_MOBILE_EXPIRED, DEFAULT_CAPTCHA_EXPIRED
+from exts.common import log, DEFAULT_EXPIRED_MOBILE, DEFAULT_EXPIRED_CAPTCHA
 from exts.redis_api import RedisClient
 from exts.tx_sms.tools import SmsSenderUtil
 
@@ -34,7 +34,7 @@ class SmsClient(object):
 
             # 存储验证码到redis中 只保留五分钟有效
             key = RedisClient.get_captcha_redis_key(mobile)
-            self.__redis.setex(key, DEFAULT_CAPTCHA_EXPIRED, captcha)
+            self.__redis.setex(key, DEFAULT_EXPIRED_CAPTCHA, captcha)
 
             log.info("验证码发送成功: mobile = {} captcha = {}".format(mobile, captcha))
             return True
@@ -81,5 +81,5 @@ class SmsClient(object):
         if value is not None:
             return True
 
-        self.__redis.setex(key, DEFAULT_MOBILE_EXPIRED, mobile)
+        self.__redis.setex(key, DEFAULT_EXPIRED_MOBILE, mobile)
         return False

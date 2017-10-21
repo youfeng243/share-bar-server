@@ -56,31 +56,40 @@ redis 缓存公共前缀管理
 '''
 
 # 最新费率
-REDIS_NEWEST_CHARGE_MODE = 'charge#newest'
+REDIS_NEWEST_CHARGE_MODE = 'bar#charge#newest'
 
 # 上线记录关联前缀
-REDIS_PRE_RECORD_KEY = 'online#record#'
+REDIS_PRE_RECORD_KEY = 'bar#online#record#'
 
 # 用户上线前缀
-REDIS_PRE_USER_KEY = 'online#player#'
+REDIS_PRE_USER_KEY = 'bar#online#player#'
 
 # 设备上线前缀
-REDIS_PRE_DEVICE_KEY = 'online#device#'
+REDIS_PRE_DEVICE_KEY = 'bar#online#device#'
 
 # 上线token前缀
-REDIS_PRE_DEVICE_CODE_KEY = 'online#device_code#'
+REDIS_PRE_DEVICE_CODE_KEY = 'bar#online#device_code#'
 
 # 上线保持连接key前缀
-REDIS_PRE_USER_ONLINE_KEY = 'user#online#'
+REDIS_PRE_USER_ONLINE_KEY = 'bar#user#online#'
+
+# 手机号验证码验证码过期时间, 控制手机请求验证码的频率 60s
+REDIS_PRE_MOBILE_EX_KEY = 'bar#ratelimit#mobile#'
+
+# 手机验证码保存在redis中的时间
+REDIS_PRE_CAPTCHA_EX_KEY = 'bar#ratelimit#captcha#'
+
+# 设备心跳key
+REDIS_PRE_DEVICE_HEART_KEY = 'bar#device#heart#'
 
 # 网页token存储缓存前缀
-REDIS_PRE_OPENID_KEY = 'access#openid#'
+REDIS_PRE_OPENID_KEY = 'bar#access#openid#'
 
 # 在redis中的key
-WECHAT_ACCESS_TOKEN_KEY = "global:access_token"
+WECHAT_ACCESS_TOKEN_KEY = "bar#global#access_token"
 
 # 在redis中的key
-WECHAT_JSAPI_TICKET_KEY = "global:jsapi_ticket"
+WECHAT_JSAPI_TICKET_KEY = "bar#global#jsapi_ticket"
 
 '''
 前端相对路径URL
@@ -98,14 +107,22 @@ ERROR_MSG = {
     HTTP_NOT_IMPLEMENTED: 'not implemented',
 }
 
+'''
+redis 过期时间管理
+'''
 # 手机请求验证码时间间隔
-DEFAULT_MOBILE_EXPIRED = 60  # 1 minute
+DEFAULT_EXPIRED_MOBILE = 60  # 1 minute
+
 # 短信验证码存储时间
-DEFAULT_CAPTCHA_EXPIRED = 300  # 5 分钟
+DEFAULT_EXPIRED_CAPTCHA = 300  # 5 分钟
 
 # 费率过期时间
-DEFAULT_CHARGE_EXPIRED = 3600  # 一个小时过期
+DEFAULT_EXPIRED_CHARGE = 3600  # 一个小时过期
 
+# 设备心跳过期时间
+DEFAULT_EXPIRED_DEVICE_HEART = 300  # 5 分钟
+
+# 日志管理
 log = Logger('share-bar-server.log').get_logger()
 
 
