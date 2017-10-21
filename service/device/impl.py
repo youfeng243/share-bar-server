@@ -20,6 +20,7 @@ from exts.resource import db, redis_device_client
 from service.device.model import Device
 
 
+# 设备操作接口
 class DeviceService(object):
     @staticmethod
     def create(device_code, address_id):
