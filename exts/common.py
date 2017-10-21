@@ -82,6 +82,9 @@ REDIS_PRE_CAPTCHA_EX_KEY = 'bar#ratelimit#captcha#'
 # 设备心跳key
 REDIS_PRE_DEVICE_HEART_KEY = 'bar#device#heart#'
 
+# 设备状态key
+REDIS_PRE_DEVICE_STATUS_KEY = 'bar#device#status#'
+
 # 网页token存储缓存前缀
 REDIS_PRE_OPENID_KEY = 'bar#access#openid#'
 

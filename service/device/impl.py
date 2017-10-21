@@ -49,3 +49,26 @@ class DeviceService(object):
         device_heart_key = RedisClient.get_device_heart_key(device_code)
 
         redis_device_client.setex(device_heart_key, DEFAULT_EXPIRED_DEVICE_HEART, int(time.time()))
+
+    # 获得设备使用状态
+    @staticmethod
+    def get_device_status(device_code):
+
+        # 先判断是否在缓存中
+        device_status_key = RedisClient.get_device_status_key(device_code)
+
+        device_status = redis_device_client.get(device_status_key)
+        if device_status is not None:
+            return device_status
+
+        # 没有从缓存中找到设备状态 则去数据库中找
+        device = DeviceService.get_device_by_code(device_code)
+        if device is None:
+            log.error("当前设备码没有从缓存中找到，也不存在于数据库中: device_code = {}".format(device_code))
+            return None
+
+        # 存储状态到redis中
+        redis_device_client.set(device_status_key, device.state)
+
+        log.info("当前设备状态从数据库中加载, 缓存到redis中: device_code = {}".format(device_code))
+        return device.state
