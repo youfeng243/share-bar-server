@@ -125,6 +125,9 @@ DEFAULT_EXPIRED_CHARGE = 3600  # 一个小时过期
 # 设备心跳过期时间
 DEFAULT_EXPIRED_DEVICE_HEART = 300  # 5 分钟
 
+# 设备状态缓存时间
+DEFAULT_EXPIRED_DEVICE_STATUS = 24 * 3600  # 缓存设备状态 1天
+
 # 日志管理
 log = Logger('share-bar-server.log').get_logger()
 

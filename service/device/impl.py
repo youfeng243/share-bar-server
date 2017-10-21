@@ -11,7 +11,7 @@ import time
 
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART
+from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVICE_STATUS
 from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.device.model import Device
@@ -67,8 +67,8 @@ class DeviceService(object):
             log.error("当前设备码没有从缓存中找到，也不存在于数据库中: device_code = {}".format(device_code))
             return None
 
-        # 存储状态到redis中
-        redis_device_client.set(device_status_key, device.state)
+        # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
+        redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
 
         log.info("当前设备状态从数据库中加载, 缓存到redis中: device_code = {}".format(device_code))
         return device.state
