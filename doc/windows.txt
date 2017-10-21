@@ -69,6 +69,8 @@ http://weixin.doumihuyu.com/windows/keepalive/<token>, GET
 参数:
 json = {
 'token': xxxx
+# 设备机器码
+'device_code': 机器mac地址
 }
 返回:
 {
