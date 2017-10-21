@@ -55,7 +55,16 @@ class DeviceService(object):
 
     # 获得设备最新存活状态
     @staticmethod
-    def get_device_alive_status(device_code):
+    def get_device_alive_status(device):
+
+        if isinstance(device, basestring):
+            device_code = device
+        elif isinstance(device, Device):
+            device_code = device.device_code
+        else:
+            log.error("当前设备参数获取存活状态不正确: device = {} type = {}".format(device, type(device)))
+            return Device.ALIVE_OFFLINE
+
         # 先获得心跳的主键
         device_heart_key = RedisClient.get_device_heart_key(device_code)
         last_heart_time = redis_device_client.get(device_heart_key)
@@ -101,7 +110,21 @@ class DeviceService(object):
 
     # 获得设备使用状态
     @staticmethod
-    def get_device_status(device_code):
+    def get_device_status(device):
+
+        '''
+        获取设备使用状态
+        :param device: basestring or Device 类型
+        :return:
+        '''
+
+        if isinstance(device, basestring):
+            device_code = device
+        elif isinstance(device, Device):
+            device_code = device.device_code
+        else:
+            log.error("当前参数数据类型不正确: device = {} type = {}".format(device, type(device)))
+            return None
 
         # 先判断是否在缓存中
         device_status_key = RedisClient.get_device_status_key(device_code)
@@ -111,10 +134,11 @@ class DeviceService(object):
             return device_status
 
         # 没有从缓存中找到设备状态 则去数据库中找
-        device = DeviceService.get_device_by_code(device_code)
-        if device is None:
-            log.error("当前设备码没有从缓存中找到，也不存在于数据库中: device_code = {}".format(device_code))
-            return None
+        if isinstance(device, basestring):
+            device = DeviceService.get_device_by_code(device_code)
+            if device is None:
+                log.error("当前设备码没有从缓存中找到，也不存在于数据库中: device_code = {}".format(device_code))
+                return None
 
         # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
         redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
