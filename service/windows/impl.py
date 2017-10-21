@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 import settings
-from exts.common import log, fail, HTTP_OK, success, cal_cost_time
+from exts.common import log, fail, HTTP_OK, success, cal_cost_time, get_now_time
 from exts.distributed_lock import DistributeLock
 from exts.redis_api import RedisClient
 from exts.resource import redis_cache_client, db
@@ -273,7 +273,7 @@ class WindowsService(object):
     def get_current_time_charging(charging_str):
         try:
             charge_dict = json.loads(charging_str)
-            charge_dict['cur_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            charge_dict['cur_time'] = get_now_time()
             return charge_dict
         except Exception as e:
             log.error("json转换失败: charging = {}".format(charging_str))

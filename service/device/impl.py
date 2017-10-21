@@ -9,10 +9,12 @@
 """
 import json
 import time
+from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVICE_STATUS
+from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVICE_STATUS, \
+    REDIS_PRE_DEVICE_ALIVE_SYNC_LAST_TIME_KEY, DEFAULT_EXPIRED_DEVICE_ALIVE_SYNC, get_now_time
 from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.device.model import Device
@@ -61,6 +63,41 @@ class DeviceService(object):
             return Device.ALIVE_OFFLINE
 
         return Device.ALIVE_ONLINE
+
+    # 同步redis中设备状态, 5分钟全量同步一次，防止反复同步性能低下
+    @staticmethod
+    def sync_device_alive_status():
+
+        # 先获得全体设备最后同步时间
+        sync_last_time = redis_device_client.get(REDIS_PRE_DEVICE_ALIVE_SYNC_LAST_TIME_KEY)
+        if sync_last_time is not None:
+            log.info("当前设备存活状态不需要更新到数据库, 上次同步时间: {}".format(sync_last_time))
+            return
+
+        start_time = time.time()
+
+        # 获得全部设备信息
+        device_list = Device.get_all()
+        for device in device_list:
+            # 更新设备存活状态
+            device.alive = DeviceService.get_device_alive_status(device.device_code)
+            device.utime = datetime.now()
+            db.session.add(device)
+
+        if len(device_list) > 0:
+            try:
+                db.session.commit()
+            except Exception as e:
+                log.error("提交存储设备信息错误:")
+                log.exception(e)
+
+        # 存入最新同步时间
+        redis_device_client.setex(REDIS_PRE_DEVICE_ALIVE_SYNC_LAST_TIME_KEY,
+                                  DEFAULT_EXPIRED_DEVICE_ALIVE_SYNC,
+                                  get_now_time())
+
+        log.info("同步设备数目为: count = {}".format(len(device_list)))
+        log.info("同步设备信息花费时间: start_time = {} use time = {} s".format(start_time, time.time() - start_time))
 
     # 获得设备使用状态
     @staticmethod

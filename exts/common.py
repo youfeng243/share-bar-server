@@ -85,6 +85,9 @@ REDIS_PRE_DEVICE_HEART_KEY = 'bar#device#heart#'
 # 设备状态key
 REDIS_PRE_DEVICE_STATUS_KEY = 'bar#device#status#'
 
+# 设备存活状态最后同步时间
+REDIS_PRE_DEVICE_ALIVE_SYNC_LAST_TIME_KEY = 'bar#device#alive#sync#lasttime'
+
 # 网页token存储缓存前缀
 REDIS_PRE_OPENID_KEY = 'bar#access#openid#'
 
@@ -124,6 +127,9 @@ DEFAULT_EXPIRED_CHARGE = 3600  # 一个小时过期
 
 # 设备心跳过期时间
 DEFAULT_EXPIRED_DEVICE_HEART = 300  # 5 分钟
+
+# 设备存活信息同步周期
+DEFAULT_EXPIRED_DEVICE_ALIVE_SYNC = 300  # 5 分钟
 
 # 设备状态缓存时间
 DEFAULT_EXPIRED_DEVICE_STATUS = 24 * 3600  # 缓存设备状态 1天
@@ -208,3 +214,9 @@ def cal_cost_time(seconds):
     minutes = seconds // 60 + (1 if seconds % 60 != 0 else 0)
     log.info("计算后的时间: minutes = {}".format(minutes))
     return minutes
+
+
+# 获得当前最新时间
+def get_now_time():
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
