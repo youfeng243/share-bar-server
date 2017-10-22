@@ -246,14 +246,10 @@ def keep_alive():
     # 保持心跳
     DeviceService.keep_device_heart(device_code)
 
-    # 获得设备使用状态
-    device_status = DeviceService.get_device_status(device_code)
-
     charging = redis_cache_client.get(record_key)
     if charging is None:
         return success({
             "status": 0,
-            'device_status': device_status,
             "msg": "keepalive failed!reason:token invalid"})
 
     # 获得keep_alive_key 更新最新存活时间
@@ -265,7 +261,6 @@ def keep_alive():
     return success({
         "status": 1,
         "msg": "keepalive success",
-        'device_status': device_status,
         "data": WindowsService.get_current_time_charging(charging)})
 
 
