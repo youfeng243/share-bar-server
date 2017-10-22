@@ -39,7 +39,7 @@ class WindowsService(object):
             record.end_time = datetime.now()
 
             # 设置设备为空闲状态
-            DeviceService.set_device_status(device, Device.STATUE_FREE)
+            DeviceService.set_device_status(device, Device.STATUE_FREE, save=False)
 
             log.info("本次上机时间: {} 下机时间: {} 使用记录ID: {} 当前设备: {}".format(
                 record.ctime.strftime('%Y-%m-%d %H:%M:%S'),
@@ -172,7 +172,6 @@ class WindowsService(object):
 
             # 设置设备当前使用状态
             DeviceService.set_device_status(device, Device.STATUE_BUSY)
-            device.save()
 
             is_success = True
         except Exception as e:

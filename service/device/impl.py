@@ -147,10 +147,24 @@ class DeviceService(object):
         log.info("当前设备状态从数据库中加载, 缓存到redis中: device_code = {}".format(device_code))
         return device.state
 
+    # 状态转移 这个接口目前只用于 从 维护状态转移到空闲状态
+    @staticmethod
+    def status_transfer(device_code, from_status, to_status):
+        if from_status == to_status:
+            return
+
+        device = DeviceService.get_device_by_code(device_code)
+        if device is None:
+            log.error("当前设备码不正确, 找不到设备: device_code = {}".format(device_code))
+            return
+
+        DeviceService.set_device_status(device, to_status)
+
     # 设置设备状态
     @staticmethod
-    def set_device_status(device, device_status):
+    def set_device_status(device, device_status, save=True):
         '''
+        :param save: 是否存储
         :param device: Device 类型
         :param device_status:
         :return:
@@ -169,6 +183,9 @@ class DeviceService(object):
 
         # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
         redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
+
+        if save:
+            device.save()
 
     # shanchu 设备
     @staticmethod

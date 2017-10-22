@@ -212,6 +212,10 @@ def check_connect():
     # 获得设备使用状态
     device_status = DeviceService.get_device_status(device_code)
 
+    # 从维护状态跳转到空闲状态
+    if device_status == Device.STATUS_MAINTAIN:
+        DeviceService.status_transfer(device_code, device_status, Device.STATUE_FREE)
+
     device_code_key = RedisClient.get_device_code_key(device_code)
     record_key = redis_cache_client.get(device_code_key)
     if record_key is None:
