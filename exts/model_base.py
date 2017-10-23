@@ -50,7 +50,11 @@ class ModelBase(db.Model):
         return True
 
     @classmethod
-    def find_list(cls, province, city, area, start_time, end_time, state, page, size, filters=None, order_by=None):
+    def find_list(cls, province, city, area,
+                  start_time, end_time,
+                  state, alive,
+                  page, size,
+                  filters=None, order_by=None):
         # 条件查询
         total = 0
         query = cls.query
@@ -64,9 +68,13 @@ class ModelBase(db.Model):
         if hasattr(cls, 'deleted'):
             query = query.filter(cls.deleted == False)
 
-        # 根据状态查询
+        # 根据使用状态查询
         if hasattr(cls, 'state') and state is not None:
             query = query.filter(cls.state == state)
+
+        # 根据存活状态查询
+        if hasattr(cls, 'alive') and alive is not None:
+            query = query.filter(cls.alive == alive)
 
         # 根据省份查询
         if province is not None and hasattr(cls, 'province'):
@@ -189,7 +197,7 @@ class ModelBase(db.Model):
             log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
             size = 50
         total, item_list = cls.find_list(province, city, area, start_time,
-                                         end_time, state, page,
+                                         end_time, state, alive, page,
                                          size, filters=filters,
                                          order_by=order_by)
         if total <= 0 or item_list is None:
