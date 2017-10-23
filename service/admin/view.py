@@ -66,6 +66,15 @@ def login():
     return fail(HTTP_OK, u'用户名或密码错误，请重新登陆!')
 
 
+# 判断session是否还有效
+@bp.route('/check_sign_in', methods=['GET'])
+def check_session():
+    if g.admin is not None and g.admin.is_authenticated:
+        return success(u"账户已经登录!")
+
+    return fail(HTTP_OK, u'当前用户还未登录!')
+
+
 # 编辑管理员信息
 @bp.route('', methods=['PUT'])
 @login_required
