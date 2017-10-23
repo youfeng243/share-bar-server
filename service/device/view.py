@@ -108,6 +108,7 @@ def lock_device():
     if not lock:
         if use_status == Device.STATUE_LOCK:
             DeviceService.set_device_status(device, Device.STATUE_FREE)
+            log.info("解锁设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
             return success(u'解锁设备成功')
         return success(u'当前设备未锁定，不需要解锁!')
 
@@ -129,11 +130,13 @@ def lock_device():
         if not DeviceService.set_device_status(device, Device.STATUE_LOCK):
             log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
             return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
+        log.info("锁定设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
         return success(u'当前设备有用户在使用，强制用户下机，锁定设备成功')
 
     if not DeviceService.set_device_status(device, Device.STATUE_LOCK):
         log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
         return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
+    log.info("锁定设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
     return success(u'锁定设备成功')
 
 
