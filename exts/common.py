@@ -11,7 +11,7 @@
 import json
 
 from flask import Response
-from flask.ext.login.utils import _cookie_digest
+from flask_login.utils import _cookie_digest
 from werkzeug.security import safe_str_cmp
 
 from logger import Logger

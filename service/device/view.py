@@ -46,7 +46,7 @@ def get_device_list():
 
     # 同步设备存活状态到mysql中
     DeviceService.sync_device_alive_status()
-    return Device.search_list()
+    return DeviceService.search_list()
 
 
 # 批量删除设备
