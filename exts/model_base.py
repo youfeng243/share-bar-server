@@ -79,14 +79,17 @@ class ModelBase(db.Model):
         # 根据省份查询
         if province is not None and hasattr(cls, 'province'):
             query = query.filter(cls.province == province)
+            log.info("当前按省份筛选: province = {}".format(province))
 
             # 根据城市查询
             if city is not None and hasattr(cls, 'city'):
                 query = query.filter(cls.city == city)
+                log.info("当前按城市筛选: city = {}".format(city))
 
                 # 在有城市的前提下按区域查询
                 if area is not None and hasattr(cls, 'area'):
                     query = query.filter(cls.area == area)
+                    log.info("当前按区域筛选: area = {}".format(area))
 
         # 根据时间查询
         if start_time is not None and end_time is not None:
