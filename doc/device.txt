@@ -6,7 +6,7 @@ order_by: - 降序， + 升序
 ctime: 投放时间
 state: 状态
 参数:
-state: ('free', 'busy', 'lock')
+state: ('free', 'busy', 'lock', 'maintain')
 alive: ('online', 'offline'))
 json = {
      "page": 1,
