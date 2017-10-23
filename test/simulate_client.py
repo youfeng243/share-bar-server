@@ -22,7 +22,7 @@ from logger import Logger
 MYSQL_CONFIG = {
     'host': '39.108.60.25',
     'username': 'root',
-    'password': '000000',
+    'password': 'doumihuyuqaz',
     'db': 'share_bar_db',
 }
 
