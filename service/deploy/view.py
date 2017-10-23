@@ -136,7 +136,7 @@ def get_deploy_list():
         return fail(HTTP_OK, u"没有设备ID信息，无法获取设备记录")
 
     # 查找对应的设备
-    device = Device.get(device_id)
+    device = DeviceService.get_device_by_id(device_id)
     if device is None:
         return fail(HTTP_OK, u"没有对应的设备信息...")
 

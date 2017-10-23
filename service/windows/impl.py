@@ -10,6 +10,8 @@
 import json
 from datetime import datetime
 
+import requests
+
 import settings
 from exts.common import log, fail, HTTP_OK, success, cal_cost_time, get_now_time
 from exts.distributed_lock import DistributeLock
@@ -30,7 +32,7 @@ class WindowsService(object):
             user = User.get(user_id)
 
             # 获得设备信息
-            device = Device.get(device_id)
+            device = DeviceService.get_device_by_id(device_id)
 
             # 获得试用记录
             record = UseRecord.get(record_id)
@@ -279,3 +281,31 @@ class WindowsService(object):
             log.error("json转换失败: charging = {}".format(charging_str))
             log.exception(e)
         return {'error': '计费json数据格式转换失败', 'status': -1}
+
+    # 发送下机命令
+    @staticmethod
+    def do_offline_order(record_key):
+        url = 'http://localhost:8080/windows/logout'
+        try:
+            r = requests.post(url, json={'token': record_key}, timeout=10)
+            log.info("当前处理状态status_code = {}".format(r.status_code))
+            log.info("当前处理返回信息: {}".format(r.content))
+            if r is not None and r.status_code == 200:
+                return True
+        except Exception as e:
+            log.error("发送下机指令异常: ")
+            log.exception(e)
+
+        return False
+
+    # 通过设备号发送下机信息
+    @staticmethod
+    def do_offline_order_by_device_code(device_code):
+        device_code_key = RedisClient.get_device_code_key(device_code)
+        record_key = redis_cache_client.get(device_code_key)
+        if record_key is None:
+            log.error("当前通过device_code = {} 下机失败, 没有在redis中找到对应的上机信息".format(device_code))
+            return False
+
+        # 发送下机指令
+        return WindowsService.do_offline_order(record_key)

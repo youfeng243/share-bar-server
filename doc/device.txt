@@ -156,3 +156,19 @@ json = {
     "success": true,
     "error": null
 }
+
+5. 锁定设备
+/admin/device/lock, method=POST
+Content-Type: application/json
+lock: True 锁定设备 False 解锁设备
+参数
+json = {
+       "id": 1,
+        "lock": True or False
+    }
+返回:
+{
+    "result": '锁定成功xxx' or '解锁成功xxx'
+    "success": true or false  # True 操作成功  False 操作失败
+    "error": null
+}

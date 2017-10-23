@@ -16,8 +16,7 @@ import requests
 import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time
 from exts.redis_api import RedisClient
-
-# log = Logger('process_redis_cache.log').get_logger()
+from service.windows.impl import WindowsService
 
 try:
     cache_client = RedisClient(db=0)
@@ -127,18 +126,6 @@ def access_token_thread():
         time.sleep(SLEEP_TIME)
 
 
-# 发送下机命令
-def do_offline(record_key):
-    url = 'http://localhost:8080/windows/logout'
-    try:
-        r = requests.post(url, json={'token': record_key}, timeout=10)
-        log.info("当前处理状态status_code = {}".format(r.status_code))
-        log.info("当前处理返回信息: {}".format(r.content))
-    except Exception as e:
-        log.error("发送下机指令异常: ")
-        log.exception(e)
-
-
 def do_charging(record_key_list):
     if not isinstance(record_key_list, list):
         log.error("当前传入参数不正确: type = {}".format(type(record_key_list)))
@@ -178,8 +165,10 @@ def do_charging(record_key_list):
                 log.info("没有收到任何心跳信息, 强制下机, 当前上线用户没有最后存活时间: user_id = {} device_id = {}".format(
                     user_id, device_id))
                 # 执行下机流程
-                do_offline(record_key)
-                log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
+                if WindowsService.do_offline_order(record_key):
+                    log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
+                else:
+                    log.error("强制下机失败: record_key = {}".format(record_key))
                 continue
 
             # # 获得当前时间戳
@@ -192,7 +181,7 @@ def do_charging(record_key_list):
             #     log.info("当前用户与机器没有收到任何心跳信息，强制下机: record_key = {} last_timestamp = {}".format(
             #         record_key, last_timestamp))
             #     # 执行下机流程
-            #     do_offline(record_key)
+            #     do_offline_order(record_key)
             #     log.info("没有收到任何心跳信息,强制下机完成: record_key = {}".format(record_key))
             #     continue
 
@@ -241,8 +230,10 @@ def do_charging(record_key_list):
                          "cost_time = {}分钟 cost_money = {} start_time = {} now_time = {}".
                          format(record_key, balance_account, cost_time, cost_money, start_time, now_timestamp))
                 # 执行下机流程
-                do_offline(record_key)
-                log.info("当前用户余额不足, 强制下机完成: record_key = {}".format(record_key))
+                if WindowsService.do_offline_order(record_key):
+                    log.info("当前用户余额不足, 强制下机完成: record_key = {}".format(record_key))
+                else:
+                    log.error("强制下机失败: record_key = {}".format(record_key))
                 continue
 
         except Exception as e:

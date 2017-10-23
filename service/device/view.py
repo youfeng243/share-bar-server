@@ -16,6 +16,7 @@ from exts.common import fail, HTTP_OK, log, success
 from service.device.impl import DeviceService
 from service.device.model import Device
 from service.use_record.model import UseRecord
+from service.windows.impl import WindowsService
 
 bp = Blueprint('device', __name__, url_prefix='/admin')
 
@@ -71,6 +72,71 @@ def delete_devices():
     return success(result_list)
 
 
+@bp.route('/device/lock', methods=['POST'])
+@login_required
+def lock_device():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_id = request.json.get('id')
+    lock = request.json.get('lock')
+
+    if device_id is None or lock is None:
+        log.error("传入参数不正确: id = {} lock = {}".format(device_id, lock))
+        return fail(HTTP_OK, u"传入参数错误!")
+
+    # 获得设备信息
+    device = DeviceService.get_device_by_id(device_id)
+    if device is None:
+        log.error("当前设备ID没有找到设备信息: device_id = {}".format(device_id))
+        return fail(HTTP_OK, u"当前设备ID没有找到设备信息!")
+
+    # 获取当前设备存活状态
+    alive = DeviceService.get_device_alive_status(device)
+    if alive == Device.ALIVE_OFFLINE:
+        log.info("当前设备不在线，无法锁定设备: device_id = {} alive = {}".format(device_id, alive))
+        return fail(HTTP_OK, u"当前设备不在线，无法锁定设备!")
+
+    # 获取设备当前使用状态
+    use_status = DeviceService.get_device_status(device)
+    if use_status is None:
+        log.error("获取当前设备状态错误, 无法操作设备: device_id = {}".format(device_id))
+        return fail(HTTP_OK, u'获取当前设备状态错误, 无法操作设备')
+
+    # 当前是否是想解锁设备
+    if not lock:
+        if use_status == Device.STATUE_LOCK:
+            DeviceService.set_device_status(device, Device.STATUE_FREE)
+            return success(u'解锁设备成功')
+        return success(u'当前设备未锁定，不需要解锁!')
+
+    # 判断设备是否处于维护状态
+    if use_status == Device.STATUS_MAINTAIN:
+        log.info("当前设备维护人员已登录，无法锁定设备: device_id = {} use_status = {}".format(device_id, use_status))
+        return fail(HTTP_OK, u"当前设备维护人员已登录，无法锁定设备!")
+
+    if use_status == Device.STATUE_LOCK:
+        log.info("当前设备已被锁定，不需要再锁定: device_id = {} use_status = {}".format(device_id, use_status))
+        return success(u"当前设备已被锁定，不需要再锁定")
+
+    # 当前设备处于忙碌状态，锁定设备
+    if use_status == Device.STATUE_BUSY:
+        log.info("当前设备有用户在使用，强制用户下机，锁定设备: device_id = {} use_status = {}".format(device_id, use_status))
+        if not WindowsService.do_offline_order_by_device_code(device.device_code):
+            return fail(HTTP_OK, u"强制用户下机失败，无法锁定设备!")
+
+        if not DeviceService.set_device_status(device, Device.STATUE_LOCK):
+            log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
+            return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
+        return success(u'当前设备有用户在使用，强制用户下机，锁定设备成功')
+
+    if not DeviceService.set_device_status(device, Device.STATUE_LOCK):
+        log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
+        return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
+    return success(u'锁定设备成功')
+
+
 # 根据设备ID 查找 设备信息
 @bp.route('/device/<device_id>', methods=['GET'])
 @login_required
@@ -85,7 +151,7 @@ def get_device_by_id(device_id):
                 break
 
             a_id = int(device_id)
-            device = Device.get(a_id)
+            device = DeviceService.get_device_by_id(a_id)
         except Exception as e:
             log.error("设备信息无法转换为 int 类型: device_id = {}".format(device_id))
             log.exception(e)

@@ -41,6 +41,11 @@ class DeviceService(object):
             return None, False
         return device, True
 
+    # 根据设备ID 获取设备信息
+    @staticmethod
+    def get_device_by_id(device_id):
+        return Device.get(device_id)
+
     # 通过设备编号获取设备信息
     @staticmethod
     def get_device_by_code(device_code):
@@ -172,11 +177,11 @@ class DeviceService(object):
         if not isinstance(device, Device):
             log.error("当前设置设备状态传入参数错误: device = {} type = {}".format(
                 device, type(device)))
-            return
+            return False
 
         if device_status not in Device.STATUS_VALUES:
             log.error("当前设置设备状态传入参数错误: device_status = {}".format(device_status))
-            return
+            return False
 
         device.state = device_status
         device_status_key = RedisClient.get_device_status_key(device.device_code)
@@ -187,11 +192,13 @@ class DeviceService(object):
         if save:
             device.save()
 
+        return True
+
     # shanchu 设备
     @staticmethod
     def delete_device(device_id):
 
-        device = Device.get(device_id)
+        device = DeviceService.get_device_by_id(device_id)
 
         if device is None:
             log.warn("当前需要删除的设备不存在: device_id = {}".format(device_id))

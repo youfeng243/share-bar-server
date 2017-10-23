@@ -12,9 +12,9 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
-from exts.resource import db
 from exts.model_base import ModelBase
-from service.device.model import Device
+from exts.resource import db
+from service.device.impl import DeviceService
 from service.user.model import User
 
 
@@ -111,7 +111,7 @@ class UseRecord(ModelBase):
         item = User.get(self.user_id)
         if item is not None:
             to_json['user'] = item.to_dict()
-        item = Device.get(self.device_id)
+        item = DeviceService.get_device_by_id(self.device_id)
         if item is not None:
             to_json['device'] = item.to_dict()
 
