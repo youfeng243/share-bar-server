@@ -137,3 +137,17 @@ class MaintainService(object):
             result = u'密码错误!'
             log.warn("当前维护人员密码错误: username = {} password = {}".format(username, password))
         return is_success, result
+
+    @staticmethod
+    def delete_maintain(maintain_id):
+        maintain = Maintain.get(maintain_id)
+        if maintain is None:
+            log.error("当前维护人员不存在: maintain_id = {}".format(maintain_id))
+            return False
+
+        if not maintain.delete():
+            log.error("当前维护人员删除失败: maintain_id = {}".format(maintain_id))
+            return False
+
+        log.error("当前维护人员删除成功: maintain_id = {}".format(maintain_id))
+        return True
