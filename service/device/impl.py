@@ -198,6 +198,8 @@ class DeviceService(object):
 
         # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
         redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
+        log.info("设备状态设置成功: device_id = {} device_code = {} state = {} state_version = {}".format(
+            device.id, device.device_code, device.state, device.state_version + 1))
         return True
 
     # shanchu 设备
