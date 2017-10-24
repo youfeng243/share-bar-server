@@ -22,9 +22,12 @@ from exts.common import fail, HTTP_OK, log, success, LOGIN_ERROR_BIND, LOGIN_ERR
     LOGIN_ERROR_USER_IN_USING, LOGIN_ERROR_DEVICE_NOT_FREE, decode_user_id, ATTENTION_URL
 from exts.redis_api import RedisClient
 from exts.resource import redis_cache_client
+from service.address.model import Address
 from service.charge.impl import ChargeService
 from service.device.impl import DeviceService
 from service.device.model import Device
+from service.maintain.impl import MaintainService
+from service.maintain.model import Maintain
 from service.windows.impl import WindowsService
 from tools.wechat_api import get_current_user, bind_required, get_wechat_user_info
 
@@ -286,3 +289,71 @@ def windows_offline():
             'msg': "logout failed! reason: user device is already offline"})
 
     return WindowsService.do_offline(charging)
+
+
+@bp.route("/maintain/login", methods=['POST'])
+def maintain_login():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_code = request.json.get('device_code')
+    username = request.json.get('username')
+    password = request.json.get('password')
+
+    if device_code is None or username is None or password is None:
+        log.error("参数错误，无法登录维修账号: device_code = {} username = {} password = {}".format(
+            device_code, username, password))
+        return fail(HTTP_OK, u"参数错误!!")
+
+    # 判断维修人员用户密码是否正确
+    maintain = MaintainService.get_maintain_by_username(username)
+    if maintain is None:
+        log.error("当前维修人员账号不存在: username = {} password = {}".format(
+            username, password))
+        return fail(HTTP_OK, u"当前维修人员账号不存在，维修人员无法登录!!")
+
+    # 判断密码是否正确
+    if not maintain.verify_password(password):
+        log.error("当前维护人员密码错误: username = {} password = {}".format(username, password))
+        return fail(HTTP_OK, u"密码错误，维修人员无法登录!!")
+
+    # 判断当前设备信息是否存在
+    device = DeviceService.get_device_by_code(device_code)
+    if device is None:
+        log.error("当前设备号没有设备信息: device_code = {}".format(device_code))
+        return fail(HTTP_OK, u"当前设备号没有设备信息!!")
+
+    # 判断当前设备存活状态
+    if DeviceService.get_device_alive_status(device) == Device.ALIVE_ONLINE:
+        log.error("当前设备离线，维修人员无法登录: device_code = {}".format(device_code))
+        return fail(HTTP_OK, u"当前设备离线，维修人员无法登录!!")
+
+    # 判断当前设备使用状态
+    if DeviceService.get_device_status(device) == Device.STATUE_BUSY:
+        log.error("当前设备用户正在使用，维修人员无法登录: device_code = {}".format(device_code))
+        return fail(HTTP_OK, u"当前设备用户正在使用，维修人员无法登录!!")
+
+    # 判断当前维护人员账号能否登录当前地址
+    if maintain.address_id != Maintain.ALL_ADDRESS_ID:
+        address = Address.get(maintain.address_id)
+        if address is None:
+            log.error("当前维护人员管理的地址信息不存在，无法登录")
+            return fail(HTTP_OK, u"当前维护人员管理的地址信息不存在，无法登录!")
+        device_address = device.address.get_full_address()
+        maintain_address = address.get_full_address()
+        if device_address != maintain_address:
+            log.error("当前维护人员管理的地址与设备所在地址不一致，无法登录: maintain_id = {} device_id = {}"
+                      " device_address = {} maintain_address = {}".format(
+                maintain.id, device.id, device_address, maintain_address))
+            return fail(HTTP_OK, u"当前维护人员管理的地址与设备所在地址不一致，无法登录!")
+
+    # 开始登录，先设置设备状态
+    if not DeviceService.set_device_status(device, Device.STATUS_MAINTAIN):
+        log.error("设备状态切换错误, 维修人员无法登录: device_code = {} username = {} password = {}".format(
+            device_code, username, password))
+        return fail(HTTP_OK, u"设备状态切换异常, 维修人员无法登录!")
+
+    log.info("维修人员登录设备成功: device_code = {} username = {} password = {}".format(
+        device_code, username, password))
+    return success(u"登录成功")
