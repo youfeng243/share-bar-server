@@ -328,7 +328,7 @@ def maintain_login():
         return fail(HTTP_OK, u"当前设备号没有设备信息!!")
 
     # 判断当前设备存活状态
-    if DeviceService.get_device_alive_status(device) == Device.ALIVE_ONLINE:
+    if DeviceService.get_device_alive_status(device) == Device.ALIVE_OFFLINE:
         log.error("当前设备离线，维修人员无法登录: device_code = {}".format(device_code))
         return fail(HTTP_OK, u"当前设备离线，维修人员无法登录!!")
 
