@@ -163,6 +163,8 @@ class DeviceService(object):
             return
 
         DeviceService.set_device_status(device, to_status)
+        log.info("设备状态切换完成: device_code = {} from_status = {} to_status = {}".format(
+            device_code, from_status, to_status))
 
     # 设置设备状态
     @staticmethod
