@@ -186,22 +186,21 @@ class DeviceService(object):
 
         # 先更新数据库，确保数据更新成功
         update_info = {
-            Device.state: device.state,
+            Device.state: device_status,
             Device.state_version: device.state_version + 1
         }
         rowcount = Device.query.filter_by(id=device.id, state_version=device.state_version).update(update_info)
         if rowcount <= 0:
             log.error("更新设备状态失败，版本信息已经被修改: id = {} state_version = {} state = {}".format(
-                device.id, device.state_version, device.state))
+                device.id, device.state_version, device_status))
             return False
 
-        device.state = device_status
         device_status_key = RedisClient.get_device_status_key(device.device_code)
 
         # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
-        redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
+        redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device_status)
         log.info("设备状态设置成功: device_id = {} device_code = {} state = {} state_version = {}".format(
-            device.id, device.device_code, device.state, device.state_version + 1))
+            device.id, device.device_code, device_status, device.state_version + 1))
         return True
 
     # shanchu 设备
