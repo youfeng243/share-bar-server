@@ -90,3 +90,25 @@ or
     "success": false,
     "error": "更新失败!"
 }
+
+5. 修改维护人员使用状态
+http://127.0.0.1:8080/admin/maintain/state PUT
+Content-Type: application/json
+参数:
+{
+	"id": 5,
+	"state": "using"
+}
+返回:
+{
+    "id": 5,
+    "result": "维护人员使用状态设置成功!",
+    "success": true,
+    "error": null
+}
+or
+{
+    "result": null,
+    "success": false,
+    "error": "参数不正确!"
+}

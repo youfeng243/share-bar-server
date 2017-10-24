@@ -13,6 +13,7 @@ from flask_login import login_required
 
 from exts.common import log, HTTP_OK, fail, success
 from service.maintain.impl import MaintainService
+from service.maintain.model import Maintain
 
 bp = Blueprint('maintain', __name__, url_prefix='/admin')
 
@@ -103,3 +104,25 @@ def delete_maintain():
 
         result_list.append(maintain_id)
     return success(result_list)
+
+
+# 增加维护人员状态接口
+@bp.route('/maintain/state', methods=['PUT'])
+@login_required
+def state_maintain():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    state = request.json.get('state')
+    if state not in Maintain.STATUS_VALUES:
+        return fail(HTTP_OK, u"参数不正确!")
+
+    maintain_id = request.json.get('id')
+    if not isinstance(maintain_id, int):
+        return fail(HTTP_OK, u"参数不正确!")
+
+    if not MaintainService.state_maintain(maintain_id, state):
+        return fail(HTTP_OK, u"维护人员使用状态设置失败!")
+
+    return success(u"维护人员使用状态设置成功!", id=maintain_id)

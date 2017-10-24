@@ -26,7 +26,7 @@ class Maintain(ModelBase):
     __tablename__ = 'maintain'
 
     # 使用状态
-    STATUS_VALUES = ('unused', 'using')
+    STATUS_VALUES = ('forbid', 'using')
 
     # 用户名
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)

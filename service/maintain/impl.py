@@ -156,3 +156,21 @@ class MaintainService(object):
 
         log.error("当前维护人员删除成功: maintain_id = {}".format(maintain_id))
         return True
+
+    # 设置维护人员状态
+    @staticmethod
+    def state_maintain(maintain_id, state):
+
+        maintain = Maintain.get(maintain_id)
+        if maintain is None:
+            log.error("当前ID没有找到对应的维护人员信息: maintain_id = {}".format(maintain_id))
+            return False
+
+        maintain.state = state
+        is_success = maintain.save()
+        if not is_success:
+            log.error("维护人员状态修改失败: maintain_id = {} state = {}".format(maintain_id, maintain.state))
+        else:
+            log.info("维护人员状态修改成功: maintain_id = {} state = {}".format(maintain_id, maintain.state))
+
+        return is_success
