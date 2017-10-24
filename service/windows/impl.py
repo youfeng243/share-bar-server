@@ -41,7 +41,9 @@ class WindowsService(object):
             record.end_time = datetime.now()
 
             # 设置设备为空闲状态
-            DeviceService.set_device_status(device, Device.STATUE_FREE, save=False)
+            if not DeviceService.set_device_status(device, Device.STATUE_FREE):
+                log.error("设置设备状态异常，下机失败!")
+                return False, None, None
 
             log.info("本次上机时间: {} 下机时间: {} 使用记录ID: {} 当前设备: {}".format(
                 record.ctime.strftime('%Y-%m-%d %H:%M:%S'),
@@ -162,6 +164,11 @@ class WindowsService(object):
         try:
             lock.acquire()
 
+            # 设置设备当前使用状态
+            if not DeviceService.set_device_status(device, Device.STATUE_BUSY):
+                log.error("设置设备状态失败, 上机异常！！！")
+                return False
+
             # 开始上线 把上线信息存储redis
             redis_cache_client.set(record_key, charge_str)
             redis_cache_client.set(user_key, record_key)
@@ -171,9 +178,6 @@ class WindowsService(object):
             # 设置最新存活时间 最多存活五分钟
             import time
             redis_cache_client.setex(user_online_key, settings.MAX_LOST_HEART_TIME, int(time.time()))
-
-            # 设置设备当前使用状态
-            DeviceService.set_device_status(device, Device.STATUE_BUSY)
 
             is_success = True
         except Exception as e:

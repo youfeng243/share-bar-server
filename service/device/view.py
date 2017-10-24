@@ -107,7 +107,8 @@ def lock_device():
     # 当前是否是想解锁设备
     if not lock:
         if use_status == Device.STATUE_LOCK:
-            DeviceService.set_device_status(device, Device.STATUE_FREE)
+            if not DeviceService.set_device_status(device, Device.STATUE_FREE):
+                return fail(HTTP_OK, u'设备解锁失败，多进程写入设备状态异常!')
             log.info("解锁设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
             return success(u'解锁设备成功')
         return success(u'当前设备未锁定，不需要解锁!')

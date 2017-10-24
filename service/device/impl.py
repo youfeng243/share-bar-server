@@ -171,7 +171,7 @@ class DeviceService(object):
 
     # 设置设备状态
     @staticmethod
-    def set_device_status(device, device_status, save=True):
+    def set_device_status(device, device_status):
         '''
         :param save: 是否存储
         :param device: Device 类型
@@ -187,15 +187,22 @@ class DeviceService(object):
             log.error("当前设置设备状态传入参数错误: device_status = {}".format(device_status))
             return False
 
+        # 先更新数据库，确保数据更新成功
+        update_info = {
+            Device.state: device.state,
+            Device.state_version: device.state_version + 1
+        }
+        rowcount = Device.query.filter_by(id=device.id, state_version=device.state_version).update(update_info)
+        if rowcount <= 0:
+            log.error("更新设备状态失败，版本信息已经被修改: id = {} state_version = {} state = {}".format(
+                device.id, device.state_version, device.state))
+            return False
+
         device.state = device_status
         device_status_key = RedisClient.get_device_status_key(device.device_code)
 
         # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
         redis_device_client.setex(device_status_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.state)
-
-        if save:
-            device.save()
-
         return True
 
     # shanchu 设备

@@ -56,6 +56,9 @@ class Device(ModelBase):
     # 设备当前使用状态 free 空闲 busy 忙碌 lock 锁定
     state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUE_FREE)
 
+    # 状态版本信息 乐观锁
+    state_version = db.Column(db.Integer, default=0)
+
     # 存活状态
     alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=ALIVE_OFFLINE)
 
