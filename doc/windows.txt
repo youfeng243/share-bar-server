@@ -98,3 +98,20 @@ device_code: 机器mac地址
                 "msg": "login successed!"}
     'error': None
 }
+
+5. 维护人员登录接口
+http://weixin.doumihuyu.com/windows/maintain/login POST
+Content-Type: application/json
+参数:
+{
+	"device_code": "11-22-33-44-55-66-77-86",
+	"username": "youfeng243",
+	"password": "123456"
+}
+
+返回:
+{
+    "result": "登录成功",
+    "success": true,
+    "error": null
+}
