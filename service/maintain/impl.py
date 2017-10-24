@@ -7,6 +7,8 @@
 @file: impl.py
 @time: 2017/10/24 10:10
 """
+from datetime import datetime
+
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log, package_result, success
@@ -100,26 +102,29 @@ class MaintainService(object):
         #     return False
 
         update_info = {}
-        if name is not None:
-            update_info['name'] = name
-        if password is not None:
-            update_info['password'] = password
-        if address_id is not None:
-            update_info['address_id'] = address_id
+        if isinstance(name, basestring) and name.strip() != "":
+            update_info[Maintain.name] = name.strip()
+        if isinstance(password, basestring) and password.strip() != "":
+            update_info[Maintain.hashed_password] = Maintain.generate_password(password.strip())
+        if isinstance(address_id, int):
+            update_info[Maintain.address_id] = address_id
 
-        rowcount = Maintain.query.filter_by(id == maintain_id).update(update_info)
+        update_info[Maintain.utime] = datetime.now()
+
+        rowcount = Maintain.query.filter_by(id=maintain_id).update(update_info)
         # 不确定是否需要commit
         # db.session.commit()
         if rowcount <= 0:
             log.warn("更新失败: rowcount = {}".format(rowcount))
             return False
 
+        # 更新
         log.info("维护人员信息更新成功: maintain_id = {} rowcount = {}".format(maintain_id, rowcount))
         return True
 
     @staticmethod
     def get_maintain_by_username(username):
-        return Maintain.query.filter_by(username == username).first()
+        return Maintain.query.filter_by(username=username).first()
 
     # 校验密码是否正确
     @staticmethod

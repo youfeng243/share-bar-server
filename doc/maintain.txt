@@ -1,0 +1,92 @@
+1. 创建维护人员信息
+http://127.0.0.1:8080/admin/maintain  POST
+Content-Type: application/json
+参数:
+{
+	"username": "youfeng243",
+	"password": "123456",
+	"name": "游丰",
+	"address_id": -1
+}
+返回
+{
+    "id": 4,
+    "result": "创建维护人员成功!",
+    "success": true
+    "error": null
+}
+or
+{
+    "result": null,
+    "success": false,
+    "error": "创建维护人员失败!!!"
+}
+
+2. 删除维护人员信息
+http://127.0.0.1:8080/admin/maintain DELETE
+Content-Type: application/json
+参数:
+{
+	"list": [1, 2, 3]
+}
+返回:
+{
+    "result": [
+        4
+    ],
+    "success": true,
+    "error": null
+}
+
+3. 获得维护人员列表信息
+http://127.0.0.1:8080/admin/maintain/list POST
+Content-Type: application/json
+参数:
+{
+	"page": 1,
+	"size": 50
+}
+返回:
+{
+    "result": {
+        "total": 1,
+        "data": [
+            {
+                "username": "youfeng243",
+                "address_id": -1,
+                "ctime": "2017-10-24 15:42:29",
+                "name": "游丰",
+                "state": "using",
+                "address": "所有大厅",
+                "id": 5,
+                "utime": "2017-10-24 15:42:29"
+            }
+        ]
+    },
+    "success": true,
+    "error": null
+}
+
+4. 编辑维护人员信息
+http://127.0.0.1:8080/admin/maintain PUT
+Content-Type: application/json
+参数:
+{
+	"id": 5,
+	"password": "123456", # 可选
+	"name": "lzz", # 可选
+	"address_id": -1  # 可选  地址信息ID -1 代表所有大厅
+}
+返回:
+{
+    "id": 5,
+    "result": "更新维护人员信息成功!",
+    "success": true,
+    "error": null
+}
+or
+{
+    "result": null,
+    "success": false,
+    "error": "更新失败!"
+}

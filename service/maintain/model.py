@@ -49,7 +49,11 @@ class Maintain(ModelBase):
 
     @password.setter
     def password(self, password):  # 写入密码
-        self.hashed_password = generate_password_hash(password)
+        self.hashed_password = self.generate_password(password)
+
+    @classmethod
+    def generate_password(cls, password):
+        return generate_password_hash(password)
 
     def verify_password(self, password):  # 认证密码
         return check_password_hash(self.hashed_password, password)

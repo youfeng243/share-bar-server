@@ -26,6 +26,7 @@ from service.role.view import bp as role_bp
 from service.user.view import bp as user_bp
 from service.wechat.view import bp as wechat_bp
 from service.windows.view import bp as windows_bp
+from service.maintain.view import bp as maintain_bp
 
 
 def create_app(name=None):
@@ -67,6 +68,7 @@ def register_bp(app):
     app.register_blueprint(recharge_bp)
     app.register_blueprint(windows_bp)
     app.register_blueprint(charge_bp)
+    app.register_blueprint(maintain_bp)
 
 
 def _get_remote_addr():

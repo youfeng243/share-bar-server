@@ -9,7 +9,7 @@
 """
 from flask import Blueprint
 from flask import request
-from flask.ext.login import login_required
+from flask_login import login_required
 
 from exts.common import log, HTTP_OK, fail, success
 from service.maintain.impl import MaintainService
@@ -79,7 +79,7 @@ def update_maintain():
     if not is_success:
         return fail(HTTP_OK, u"更新失败!")
 
-    return success(u'创建维护人员成功!', id=maintain_id)
+    return success(u'更新维护人员信息成功!', id=maintain_id)
 
 
 # 删除维护人员接口
