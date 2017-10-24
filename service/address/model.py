@@ -178,6 +178,10 @@ class Address(ModelBase):
             self.device_num += device_num
         return self.save()
 
+    # 获得全路径地址信息
+    def get_full_address(self):
+        return self.province + self.city + self.area + self.location
+
     def to_dict(self):
         return {
             'id': self.id,

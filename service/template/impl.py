@@ -15,7 +15,6 @@ from service.template.wechat_template import WechatTemplate
 
 
 class TemplateService(object):
-
     # 上机提醒
     @classmethod
     def online(cls, openid,
@@ -32,7 +31,7 @@ class TemplateService(object):
             log.error("access_token 为None，刷新token进程异常！！！")
             return
         online_time = ctime.strftime('%Y-%m-%d %H:%M:%S')
-        address_str = address.province + address.city + address.area + address.location
+        address_str = address.get_full_address()
 
         account_url = url_for("wechat.menu", name="account", _external=True)
         log.info("当前用户中心地址: url = {}".format(account_url))
@@ -52,8 +51,9 @@ class TemplateService(object):
         if access_token is None:
             log.error("access_token 为None，刷新token进程异常！！！")
             return
+
         offline_time = record.end_time.strftime('%Y-%m-%d %H:%M:%S')
-        address_str = record.province + record.city + record.area + record.location
+        address_str = record.get_full_address()
         if WechatTemplate.offline(access_token, openid, offline_time, address_str, balance, record.cost_time):
             log.info("发送微信下机通知成功: openid = {}".format(openid))
         else:

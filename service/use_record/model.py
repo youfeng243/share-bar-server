@@ -91,6 +91,10 @@ class UseRecord(ModelBase):
             'cost_time': self.cost_time
         }
 
+    # 获得全路径地址信息
+    def get_full_address(self):
+        return self.province + self.city + self.area + self.location
+
     def to_dict(self):
 
         to_json = {

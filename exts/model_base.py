@@ -114,10 +114,9 @@ class ModelBase(db.Model):
         # 获取数据总数目
         return pagination.total, pagination.items
 
-    # 根据条件进行搜索
+    # 搜索获取数据项
     @classmethod
-    def search_list(cls, _user_id=None):
-
+    def search_item_list(cls, _user_id=None):
         if not has_request_context():
             log.warn("上下文异常")
             return fail(HTTP_OK, u"服务器未知!")
@@ -203,6 +202,13 @@ class ModelBase(db.Model):
                                          end_time, state, alive, page,
                                          size, filters=filters,
                                          order_by=order_by)
+        return total, item_list
+
+    # 根据条件进行搜索
+    @classmethod
+    def search_list(cls, _user_id=None):
+
+        total, item_list = cls.search_item_list(_user_id=_user_id)
         if total <= 0 or item_list is None:
             return success(package_result(0, []))
         return success(package_result(total, [item.to_dict() for item in item_list]))

@@ -13,9 +13,13 @@ from exts.model_base import ModelBase
 from exts.resource import db
 
 
+# 维护人员表定义
 class Maintain(ModelBase):
     # 所有地点
-    ALL_ADDRESS = -1
+    ALL_ADDRESS_ID = -1
+
+    # 所有大厅
+    ALL_ADDRESS_STR = u'所有大厅'
 
     __tablename__ = 'maintain'
 
@@ -31,8 +35,19 @@ class Maintain(ModelBase):
     # 姓名
     name = db.Column(db.String(64), nullable=False)
 
-    # 管理员启用状态 using 启用 unused 停用
+    # 启用状态 using 启用 unused 停用
     state = db.Column(db.Enum(*STATUS_VALUES), index=True, default='using')
 
     # 管理地址ID
-    address_id = db.Column(db.Integer, default=ALL_ADDRESS)
+    address_id = db.Column(db.Integer, default=ALL_ADDRESS_ID)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'name': self.name,
+            'state': self.state,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+            'address_id': self.address_id,
+        }
