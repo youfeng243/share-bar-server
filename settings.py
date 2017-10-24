@@ -10,8 +10,8 @@
 DEBUG = False
 MOCK = False
 SECRET_KEY = "4&^^%%$%BJHGFGHHVVBN%$$#^"
-# SQLALCHEMY_DATABASE_URI = 'mysql://root:doumihuyuqaz@localhost:3306/share_bar_db?charset=utf8mb4'
-SQLALCHEMY_DATABASE_URI = 'mysql://root:doumihuyuqaz@39.108.60.25:3306/share_bar_db?charset=utf8mb4'
+SQLALCHEMY_DATABASE_URI = 'mysql://root:doumihuyuqaz@localhost:3306/share_bar_db?charset=utf8mb4'
+# SQLALCHEMY_DATABASE_URI = 'mysql://root:doumihuyuqaz@39.108.60.25:3306/share_bar_db?charset=utf8mb4'
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 REDIS_URI = "redis://localhost:6379"
