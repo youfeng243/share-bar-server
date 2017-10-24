@@ -217,6 +217,7 @@ def check_connect():
 
     # 从维护状态跳转到空闲状态
     if device_status == Device.STATUS_MAINTAIN:
+        log.info("当前状态为维护状态，设备已经有心跳需要重新设置空闲状态!")
         DeviceService.status_transfer(device_code, device_status, Device.STATUE_FREE)
 
     device_code_key = RedisClient.get_device_code_key(device_code)
