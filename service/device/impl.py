@@ -195,6 +195,7 @@ class DeviceService(object):
                 device.id, device.state_version, device_status))
             return False
 
+        log.info("设备状态写入数据库完成: rowcount = {} ".format(rowcount))
         device_status_key = RedisClient.get_device_status_key(device.device_code)
 
         # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
