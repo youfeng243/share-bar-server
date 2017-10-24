@@ -116,3 +116,24 @@ class MaintainService(object):
 
         log.info("维护人员信息更新成功: maintain_id = {} rowcount = {}".format(maintain_id, rowcount))
         return True
+
+    @staticmethod
+    def get_maintain_by_username(username):
+        return Maintain.query.filter_by(username == username).first()
+
+    # 校验密码是否正确
+    @staticmethod
+    def verify_password(username, password):
+        result = u'登录成功!'
+        maintain = MaintainService.get_maintain_by_username(username)
+        if maintain is None:
+            result = u'账户不存在!'
+            log.error("当前维护人员ID没有找到相关信息: username = {}".format(username))
+            return False, result
+        is_success = maintain.verify_password(password)
+        if is_success:
+            log.info("当前维护人员登录成功: username = {} password = {}".format(username, password))
+        else:
+            result = u'密码错误!'
+            log.warn("当前维护人员密码错误: username = {} password = {}".format(username, password))
+        return is_success, result

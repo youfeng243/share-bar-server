@@ -9,6 +9,8 @@
 """
 
 # 设备信息
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from exts.model_base import ModelBase
 from exts.resource import db
 
@@ -40,6 +42,17 @@ class Maintain(ModelBase):
 
     # 管理地址ID
     address_id = db.Column(db.Integer, default=ALL_ADDRESS_ID)
+
+    @property
+    def password(self):  # 设置属性不可读.
+        raise AttributeError("Password is not a readable attribute.")
+
+    @password.setter
+    def password(self, password):  # 写入密码
+        self.hashed_password = generate_password_hash(password)
+
+    def verify_password(self, password):  # 认证密码
+        return check_password_hash(self.hashed_password, password)
 
     def to_dict(self):
         return {
