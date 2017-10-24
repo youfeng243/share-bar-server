@@ -99,16 +99,11 @@ class DeviceService(object):
         device_list = Device.get_all()
         for device in device_list:
             # 更新设备存活状态
-            device.alive = DeviceService.get_device_alive_status(device.device_code)
-            device.utime = datetime.now()
-            db.session.add(device)
-
-        if len(device_list) > 0:
-            try:
-                db.session.commit()
-            except Exception as e:
-                log.error("提交存储设备信息错误:")
-                log.exception(e)
+            update_info = {
+                Device.alive: DeviceService.get_device_alive_status(device.device_code),
+                Device.utime: datetime.now()
+            }
+            Device.query.filter_by(id=device.id).update(update_info)
 
         # 存入最新同步时间
         redis_device_client.setex(REDIS_PRE_DEVICE_ALIVE_SYNC_LAST_TIME_KEY,
