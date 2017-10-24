@@ -50,6 +50,29 @@ class MaintainService(object):
             return None, False
         return maintain, True
 
+    @staticmethod
+    def to_address_dict(item):
+        item_dict = item.to_dict()
+        while True:
+
+            # 判断是否所有大厅
+            if item.address_id == Maintain.ALL_ADDRESS_ID:
+                full_address = Maintain.ALL_ADDRESS_STR
+                break
+
+            # 获取地址信息
+            address = Address.get(item.address_id)
+            if address is None:
+                log.warn("当前地址不存在: maintain_id = {} address_id = {}".format(item.id, item.address_id))
+                full_address = '当前地址不存在!'
+                break
+
+            full_address = address.get_full_address()
+            break
+
+        item_dict['address'] = full_address
+        return item_dict
+
     # 获取维护人员列表信息
     @staticmethod
     def search_list():
@@ -61,26 +84,26 @@ class MaintainService(object):
 
         result_list = []
         for item in item_list:
-            item_dict = item.to_dict()
-            while True:
-
-                # 判断是否所有大厅
-                if item.address_id == Maintain.ALL_ADDRESS_ID:
-                    full_address = Maintain.ALL_ADDRESS_STR
-                    break
-
-                # 获取地址信息
-                address = Address.get(item.address_id)
-                if address is None:
-                    log.warn("当前地址不存在: maintain_id = {} address_id = {}".format(item.id, item.address_id))
-                    full_address = '当前地址不存在!'
-                    break
-
-                full_address = address.get_full_address()
-                break
-
-            item_dict['address'] = full_address
-            result_list.append(item_dict)
+            # item_dict = item.to_dict()
+            # while True:
+            #
+            #     # 判断是否所有大厅
+            #     if item.address_id == Maintain.ALL_ADDRESS_ID:
+            #         full_address = Maintain.ALL_ADDRESS_STR
+            #         break
+            #
+            #     # 获取地址信息
+            #     address = Address.get(item.address_id)
+            #     if address is None:
+            #         log.warn("当前地址不存在: maintain_id = {} address_id = {}".format(item.id, item.address_id))
+            #         full_address = '当前地址不存在!'
+            #         break
+            #
+            #     full_address = address.get_full_address()
+            #     break
+            #
+            # item_dict['address'] = full_address
+            result_list.append(MaintainService.to_address_dict(item))
 
         return success(package_result(total, result_list))
 
@@ -174,3 +197,38 @@ class MaintainService(object):
             log.info("维护人员状态修改成功: maintain_id = {} state = {}".format(maintain_id, maintain.state))
 
         return is_success
+
+    @staticmethod
+    def find_list(keyword):
+        query = Maintain.query
+
+        # 先通过ID查找
+        try:
+            maintain_id = int(keyword)
+            total = query.filter(Maintain.id == maintain_id).count()
+            if total > 0:
+                return total, query.filter(Maintain.id == maintain_id).all()
+        except Exception as e:
+            log.warn("通过ID查找失败: keyword = {}".format(keyword))
+            log.exception(e)
+
+        # 再通过用户名查找
+        total = query.filter(Maintain.username == keyword).count()
+        if total > 0:
+            return total, query.filter(Maintain.username == keyword).all()
+
+        # 再通过姓名查找
+        total = query.filter(Maintain.name == keyword).count()
+        if total > 0:
+            return total, query.filter(Maintain.name == keyword).all()
+
+        return 0, []
+
+    # 通过关键字搜索维护人员信息
+    @staticmethod
+    def search_by_keyword(keyword):
+        total, item_list = MaintainService.find_list(keyword)
+        if total <= 0 or not isinstance(item_list, list):
+            return success(package_result(0, []))
+
+        return success(package_result(total, [MaintainService.to_address_dict(item) for item in item_list]))

@@ -112,3 +112,31 @@ or
     "success": false,
     "error": "参数不正确!"
 }
+
+6. 通过关键字 搜索维护人员信息  用户名 名称 ID
+http://127.0.0.1:8080/admin/maintain/search POST
+Content-Type: application/json
+参数:
+{
+	"keyword": "youfeng243"
+}
+返回:
+{
+    "result": {
+        "total": 1,
+        "data": [
+            {
+                "username": "youfeng243",
+                "address_id": -1,
+                "ctime": "2017-10-24 17:15:18",
+                "name": "游丰",
+                "state": "using",
+                "address": "所有大厅",
+                "id": 1,
+                "utime": "2017-10-24 17:15:18"
+            }
+        ]
+    },
+    "success": true,
+    "error": null
+}

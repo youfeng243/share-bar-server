@@ -25,6 +25,21 @@ def get_maintain_list():
     return MaintainService.search_list()
 
 
+# 根据用户名 姓名 ID进行查询
+@bp.route('/maintain/search', methods=['POST'])
+@login_required
+def search_maintain():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    keyword = request.json.get('keyword')
+    if not isinstance(keyword, basestring) and not isinstance(keyword, int):
+        return fail(HTTP_OK, u"参数错误!")
+
+    return MaintainService.search_by_keyword(keyword)
+
+
 # 创建维护人员信息
 @bp.route('/maintain', methods=['POST'])
 @login_required
