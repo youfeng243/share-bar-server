@@ -129,3 +129,33 @@ class Device(ModelBase):
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }
+
+
+# 游戏信息管理
+class Game(ModelBase):
+    __tablename__ = 'game'
+
+    # 设备ID
+    device_id = db.Column(db.Integer, index=True, nullable=False)
+
+    # 游戏名称
+    name = db.Column(db.String(128), index=True, nullable=False)
+
+    # 当前版本
+    current_version = db.Column(db.String(32), nullable=False)
+
+    # 最新版本
+    newest_version = db.Column(db.String(32), nullable=False)
+
+    # 是否可以更新
+    need_update = db.Column(db.Boolean, default=False)
+
+    # 创建联合索引
+    __table_args__ = (
+        # 第一句与第二句是同义的，但是第二句需要多加一个参数index=True， UniqueConstraint 唯一性索引创建方式
+        # db.UniqueConstraint('province', 'city', 'area', 'location', name='location_index'),
+        db.Index('name_index_key', 'device_id', 'name', unique=True),
+    )
+
+    def to_dict(self):
+        pass
