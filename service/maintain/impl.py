@@ -199,7 +199,7 @@ class MaintainService(object):
         return is_success
 
     @staticmethod
-    def find_list(keyword):
+    def find_list_by_keyword(keyword):
         query = Maintain.query
 
         # 先通过ID查找
@@ -227,7 +227,7 @@ class MaintainService(object):
     # 通过关键字搜索维护人员信息
     @staticmethod
     def search_by_keyword(keyword):
-        total, item_list = MaintainService.find_list(keyword)
+        total, item_list = MaintainService.find_list_by_keyword(keyword)
         if total <= 0 or not isinstance(item_list, list):
             return success(package_result(0, []))
 
