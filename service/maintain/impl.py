@@ -11,7 +11,7 @@ from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
-from exts.common import log, package_result, success
+from exts.common import log, package_result, success, fail, HTTP_OK
 from exts.resource import db
 from service.address.model import Address
 from service.maintain.model import Maintain
@@ -199,35 +199,53 @@ class MaintainService(object):
         return is_success
 
     @staticmethod
-    def find_list_by_keyword(keyword):
+    def find_list_by_keyword(page, size, keyword):
         query = Maintain.query
 
         # 先通过ID查找
         try:
             maintain_id = int(keyword)
-            total = query.filter(Maintain.id == maintain_id).count()
-            if total > 0:
-                return total, query.filter(Maintain.id == maintain_id).all()
+            pagination = query.filter(Maintain.id == maintain_id).paginate(page=page,
+                                                                           per_page=size,
+                                                                           error_out=False)
+            if pagination is not None and pagination.total > 0:
+                return pagination.total, pagination.items
         except Exception as e:
             log.warn("通过ID查找失败: keyword = {}".format(keyword))
             log.exception(e)
 
         # 再通过用户名查找
-        total = query.filter(Maintain.username == keyword).count()
-        if total > 0:
-            return total, query.filter(Maintain.username == keyword).all()
+        pagination = query.filter(Maintain.username == keyword).paginate(page=page,
+                                                                         per_page=size,
+                                                                         error_out=False)
+        if pagination is not None and pagination.total > 0:
+            return pagination.total, pagination.items
 
         # 再通过姓名查找
-        total = query.filter(Maintain.name == keyword).count()
-        if total > 0:
-            return total, query.filter(Maintain.name == keyword).all()
+        pagination = query.filter(Maintain.name == keyword).paginate(page=page,
+                                                                     per_page=size,
+                                                                     error_out=False)
+        if pagination is not None and pagination.total > 0:
+            return pagination.total, pagination.items
 
         return 0, []
 
     # 通过关键字搜索维护人员信息
     @staticmethod
-    def search_by_keyword(keyword):
-        total, item_list = MaintainService.find_list_by_keyword(keyword)
+    def search_by_keyword(page, size, keyword):
+
+        # 请求参数必须为正数
+        if page <= 0 or size <= 0:
+            msg = "请求参数错误: page = {} size = {}".format(
+                page, size)
+            log.error(msg)
+            return fail(HTTP_OK, msg)
+
+        if size > 50:
+            log.info("翻页最大数目只支持50个, 当前size超过50 size = {}!".format(size))
+            size = 50
+
+        total, item_list = MaintainService.find_list_by_keyword(page, size, keyword)
         if total <= 0 or not isinstance(item_list, list):
             return success(package_result(0, []))
 

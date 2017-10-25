@@ -37,7 +37,12 @@ def search_maintain():
     if not isinstance(keyword, basestring) and not isinstance(keyword, int):
         return fail(HTTP_OK, u"参数错误!")
 
-    return MaintainService.search_by_keyword(keyword)
+    page = request.json.get('page')
+    size = request.json.get('size')
+    if not isinstance(page, int) or not isinstance(size, int):
+        return fail(HTTP_OK, u"参数错误!")
+
+    return MaintainService.search_by_keyword(page, size, keyword)
 
 
 # 创建维护人员信息
