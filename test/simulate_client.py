@@ -60,17 +60,22 @@ def get_all_device_code():
 def main():
     url = 'http://weixin.doumihuyu.com/windows/check'
     while True:
-        device_list = get_all_device_code()
+        try:
+            device_list = get_all_device_code()
 
-        for device_code in device_list:
-            try:
-                r = requests.post(url, json={'device_code': device_code})
-                log.info("当前请求状态: device_code = {} status_code = {}".format(
-                    device_code, r.status_code))
-                log.info("请求内容: text = {}".format(r.text))
-            except Exception as e:
-                log.error("发送请求失败: device_code = {}".format(device_code))
-                log.exception(e)
+            for device_code in device_list:
+                try:
+                    r = requests.post(url, json={'device_code': device_code})
+                    log.info("当前请求状态: device_code = {} status_code = {}".format(
+                        device_code, r.status_code))
+                    log.info("请求内容: text = {}".format(r.text))
+                except Exception as e:
+                    log.error("发送请求失败: device_code = {}".format(device_code))
+                    log.exception(e)
+        except Exception as e1:
+            log.error("读取数据库异常: ")
+            log.exception(e1)
+            time.sleep(60)
 
         log.info("发送完成，休眠10s")
         time.sleep(10)
