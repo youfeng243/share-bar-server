@@ -8,6 +8,7 @@
 @time: 2017/8/29 20:59
 """
 import json
+from datetime import datetime
 
 from exts.common import log, package_result
 from exts.model_base import ModelBase
@@ -35,8 +36,16 @@ class Device(ModelBase):
     ALIVE_OFFLINE = 'offline'
     ALIVE_ONLINE = 'online'
 
+    # 游戏更新状态
+    UPDATE_WAIT = 'wait'
+    UPDATE_FINISH = 'finish'
+    UPDATE_ING = 'ing'
+
     # 使用状态
     STATUS_VALUES = (STATUE_FREE, STATUE_BUSY, STATUE_LOCK, STATUS_MAINTAIN)
+
+    # 更新状态
+    UPDATE_STATUS_VALUES = (UPDATE_WAIT, UPDATE_FINISH, UPDATE_ING)
 
     # 存活状态
     ALIVE_VALUES = (ALIVE_OFFLINE, ALIVE_ONLINE)
@@ -61,6 +70,15 @@ class Device(ModelBase):
 
     # 存活状态
     alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=ALIVE_OFFLINE)
+
+    # 更新状态
+    update_state = db.Column(db.Enum(*UPDATE_STATUS_VALUES), default=UPDATE_FINISH)
+
+    # 更新状态版本信息
+    update_state_version = db.Column(db.Integer, default=0)
+
+    # 最后更新成功时间
+    last_update_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     def __repr__(self):
         return '<Device {}>'.format(self.name)
@@ -106,6 +124,8 @@ class Device(ModelBase):
             'income': self.income,
             'state': self.state,
             'alive': self.alive,
+            'update_state': self.update_state,
+            'last_update_time': self.last_update_time.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }
