@@ -94,6 +94,7 @@ or
 5. 修改维护人员使用状态
 http://127.0.0.1:8080/admin/maintain/state PUT
 Content-Type: application/json
+使用状态 state:('forbid', 'using')
 参数:
 {
 	"id": 5,
