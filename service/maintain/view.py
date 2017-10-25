@@ -72,6 +72,11 @@ def create_maintain():
             username, name, password))
         return fail(HTTP_OK, u"参数不能为空字符串!!")
 
+    if MaintainService.get_maintain_by_username(username) is not None:
+        log.error("当前用户已存在: username = {} password = {} name = {} address_id = {}".format(
+            username, password, name, address_id))
+        return fail(HTTP_OK, u"当前用户名已存在!")
+
     maintain, is_success = MaintainService.create(username, password, name, address_id)
     if not is_success or maintain is None:
         log.error("创建维护人员失败: username = {} password = {} name = {} address_id = {}".format(
