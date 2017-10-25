@@ -274,7 +274,12 @@ def notify():
     user_id = int(data_dict.attach)
 
     try:
-        log.info("当前查询订单: user_id = {} transaction_id = {}".format(user_id, transaction_id))
+        # 如果充值记录已经存在则不再存储
+        if RechargeService.find_by_transaction_id(transaction_id) is not None:
+            log.info("当前记录已经存储过，不在进行存储: {}".format(transaction_id))
+            return success()
+
+        log.info("当前通过微信查询订单: user_id = {} transaction_id = {}".format(user_id, transaction_id))
         result = wx_pay.order_query(transaction_id=transaction_id)
         if result is None:
             log.warn("查询订单失败: {}".format(transaction_id))
@@ -303,11 +308,6 @@ def notify():
 
         # 支付时间
         pay_time = datetime.strptime(result.get('time_end', "20170926111841"), '%Y%m%d%H%M%S')
-
-        # 如果充值记录已经存在则不再存储
-        if RechargeService.find_by_transaction_id(transaction_id) is not None:
-            log.info("当前记录已经存储过，不在进行存储: {}".format(transaction_id))
-            return success()
 
         log.info("当前充值记录还未存在，存储记录: transaction_id = {}".format(transaction_id))
         # 创建充值记录
