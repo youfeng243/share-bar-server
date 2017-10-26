@@ -158,4 +158,25 @@ class Game(ModelBase):
     )
 
     def to_dict(self):
-        pass
+        return {
+            'id': self.id,
+            'device_id': self.device_id,
+            'name': self.name,
+            'current_version': self.current_version,
+            'newest_version': self.newest_version,
+            'need_update': self.need_update,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
+    def to_full_dict(self):
+        game_dict = self.to_dict()
+        device = Device.get(self.device_id)
+        if device is None:
+            game_dict['device'] = {}
+        else:
+            game_dict['device'] = device.to_dict()
+        return game_dict
+
+    def __repr__(self):
+        return '<Game {}>'.format(self.id)
