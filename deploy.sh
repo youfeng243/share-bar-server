@@ -3,7 +3,7 @@
 HOST_NAME="127.0.0.1"
 PORT="3306"
 USERNAME="root"
-PASSWORD="000000"
+PASSWORD="doumihuyuqaz"
 
 DBNAME="share_bar_db"
 create_db_sql="create database IF NOT EXISTS ${DBNAME} default character set utf8mb4 collate utf8mb4_unicode_ci"
