@@ -21,7 +21,7 @@ from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVIC
 from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.address.model import Address
-from service.device.model import Device
+from service.device.model import Device, Game
 
 
 # 设备操作接口
@@ -372,3 +372,27 @@ class DeviceService(object):
         if total <= 0 or item_list is None:
             return success(package_result(0, []))
         return success(package_result(total, [item.to_dict() for item in item_list]))
+
+
+# 游戏列表接口
+class GameService(object):
+    # 获取游戏列表
+    @staticmethod
+    def get_device_game_list(device_id, page=0, size=0):
+
+        # 如果page 和 size为0 则返回全部游戏数据
+        if page <= 0 or size <= 0:
+            item_list = Game.query.filter(Game.device_id == device_id).all()
+            return success(package_result(len(item_list), [item.to_full_dict() for item in item_list]))
+
+        query = Game.query
+
+        # 再通过用户名查找
+        pagination = query.filter(Game.device_id == device_id).paginate(page=page,
+                                                                        per_page=size,
+                                                                        error_out=False)
+        if pagination is None or pagination.total <= 0:
+            return success(package_result(0, []))
+            # return pagination.total, pagination.items
+
+        return success(package_result(pagination.total, [item.to_full_dict() for item in pagination.items]))

@@ -13,7 +13,7 @@ from flask import request
 from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success
-from service.device.impl import DeviceService
+from service.device.impl import DeviceService, GameService
 from service.device.model import Device
 from service.use_record.model import UseRecord
 from service.windows.impl import WindowsService
@@ -187,3 +187,33 @@ def get_device_use_records():
     #     "device_id": 100
     # }
     return UseRecord.search_list()
+
+
+# 获取游戏列表
+@bp.route('/device/game/list', methods=['POST'])
+@login_required
+def device_game_list():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    page = request.json.get('page')
+    size = request.json.get('size')
+    device_id = request.json.get('device_id')
+
+    if not isinstance(page, int) or \
+            not isinstance(size, int) or \
+            not isinstance(device_id, int):
+        log.error("获取游戏列表参数错误: page = {} size = {} device_id = {}".format(
+            page, size, device_id))
+        return fail(HTTP_OK, u"参数错误!!")
+
+    if page <= 0 or size <= 0:
+        log.error("获取游戏列表参数错误, 不能小于0: page = {} size = {} device_id = {}".format(
+            page, size, device_id))
+        return fail(HTTP_OK, u"参数错误!!")
+
+    return GameService.get_device_game_list(device_id, page, size)
+
+# 添加游戏 或者更新游戏版本
+

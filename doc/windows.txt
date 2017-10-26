@@ -115,3 +115,14 @@ Content-Type: application/json
     "success": true,
     "error": null
 }
+
+6. 获取需要更新的游戏列表
+http://weixin.doumihuyu.com/windows/game/list POST
+Content-Type: application/json
+参数:
+{
+	"device_code": "11-22-33-44-55-66-77-86",
+}
+返回:
+{
+}

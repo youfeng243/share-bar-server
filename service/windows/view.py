@@ -24,7 +24,7 @@ from exts.redis_api import RedisClient
 from exts.resource import redis_cache_client
 from service.address.model import Address
 from service.charge.impl import ChargeService
-from service.device.impl import DeviceService
+from service.device.impl import DeviceService, GameService
 from service.device.model import Device
 from service.maintain.impl import MaintainService
 from service.maintain.model import Maintain
@@ -360,3 +360,30 @@ def maintain_login():
     log.info("维修人员登录设备成功: device_code = {} username = {} password = {}".format(
         device_code, username, password))
     return success(u"登录成功")
+
+
+# 获取游戏列表
+@bp.route('/game/list', methods=['POST'])
+def device_game_list():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_code = request.json.get('device_code')
+    device = DeviceService.get_device_by_code(device_code)
+    if device is None:
+        log.error("当前设备号没有获取到任何设备信息: {}".format(device_code))
+        return fail(HTTP_OK, u"参数错误!!")
+
+    # if not isinstance(page, int) or \
+    #         not isinstance(size, int):
+    #     log.error("获取游戏列表参数错误: page = {} size = {} device_code = {}".format(
+    #         page, size, device_code))
+    #     return fail(HTTP_OK, u"参数错误!!")
+    #
+    # if page <= 0 or size <= 0:
+    #     log.error("获取游戏列表参数错误, 不能小于0: page = {} size = {} device_code = {}".format(
+    #         page, size, device_code))
+    #     return fail(HTTP_OK, u"参数错误!!")
+
+    return GameService.get_device_game_list(device.id)

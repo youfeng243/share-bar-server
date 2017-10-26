@@ -172,3 +172,18 @@ json = {
     "success": true or false  # True 操作成功  False 操作失败
     "error": null
 }
+
+6. 获得设备中游戏列表
+/admin/device/game/list, method=POST
+Content-Type: application/json
+参数
+json = {
+         "page": 1,
+         "size": 10,
+         "device_id": 100
+    }
+返回:
+{
+
+}
+
