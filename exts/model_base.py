@@ -221,6 +221,10 @@ class ModelBase(db.Model):
     def get_all(cls):
         return cls.query.all()
 
+    @classmethod
+    def get_yield_per(cls, count):
+        return cls.query.yield_per(count)
+
     def save(self):
         self.utime = datetime.now()
 

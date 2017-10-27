@@ -376,6 +376,49 @@ class DeviceService(object):
 
 # 游戏列表接口
 class GameService(object):
+    # 创建游戏列表
+    @staticmethod
+    def create(device_id, name, newest_version):
+        game = Game(device_id=device_id,
+                    name=name, newest_version=newest_version,
+                    need_update=True)
+        try:
+            db.session.add(game)
+            db.session.commit()
+        except IntegrityError:
+            log.error("主键重复: device_id = {} name = {}".format(
+                device_id, name))
+            db.session.rollback()
+            return None, False
+        except Exception as e:
+            log.error("未知插入错误: device_id = {} name = {}".format(
+                device_id, name))
+            log.exception(e)
+            return None, False
+        return game, True
+
+    # 更新游戏
+    @staticmethod
+    def update(device_id, name, newest_version):
+
+        game = Game.query.filter_by(device_id=device_id, name=name).first()
+        if game is None:
+            return GameService.create(device_id, game, newest_version)
+
+        game.newest_version = newest_version
+        if game.newest_version != game.current_version:
+            game.need_update = True
+        try:
+            db.session.add(game)
+            db.session.commit()
+        except Exception as e:
+            log.error("当前设备游戏更新失败: device_id = {} name = {} newest_version = {}".format(
+                device_id, name, newest_version))
+            log.exception(e)
+            return None, False
+
+        return game, True
+
     # 获取游戏列表
     @staticmethod
     def get_device_game_list(device_id, page=0, size=0):
@@ -396,3 +439,21 @@ class GameService(object):
             # return pagination.total, pagination.items
 
         return success(package_result(pagination.total, [item.to_full_dict() for item in pagination.items]))
+
+    # 更新所有设备
+    @staticmethod
+    def update_device_game(name, version):
+        start_time = time.time()
+        is_success = True
+        while True:
+            for device in Device.get_yield_per(50):
+                log.info('device_id = {}'.format(device.id))
+                game, is_success = GameService.update(device.id, name, version)
+                if not is_success or game is None:
+                    log.error("游戏更新失败，中断更新!")
+                    break
+
+            break
+
+        log.info("游戏更新耗时: {} s".format(time.time() - start_time))
+        return is_success

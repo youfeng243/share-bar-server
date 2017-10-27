@@ -13,6 +13,7 @@ from flask import request
 from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success
+from service.admin.impl import AdminService
 from service.device.impl import DeviceService, GameService
 from service.device.model import Device
 from service.use_record.model import UseRecord
@@ -215,5 +216,31 @@ def device_game_list():
 
     return GameService.get_device_game_list(device_id, page, size)
 
-# 添加游戏 或者更新游戏版本
 
+# 添加游戏 或者更新游戏版本
+@bp.route('/device/game/update', methods=['POST'])
+def device_game_update():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    username = request.json.get('username')
+    password = request.json.get('password')
+    name = request.json.get('name')
+    version = request.json.get('version')
+
+    if not isinstance(name, basestring) or not isinstance(version, basestring):
+        log.error("参数错误: username = {} password = {} name = {} version = {}".format(
+            username, password, name, version))
+        return fail(HTTP_OK, u"参数错误")
+
+    # 先判断能否登录
+    is_success, msg = AdminService.verify_authentication(username, password)
+    if not is_success:
+        return fail(HTTP_OK, msg)
+
+    # 开始更新游戏信息
+    if not GameService.update_device_game(name, version):
+        return fail(HTTP_OK, u"游戏更新失败，请重试!")
+
+    return success(u'游戏更新成功!')

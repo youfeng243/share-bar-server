@@ -142,7 +142,7 @@ class Game(ModelBase):
     name = db.Column(db.String(128), index=True, nullable=False)
 
     # 当前版本
-    current_version = db.Column(db.String(32), nullable=False)
+    current_version = db.Column(db.String(32), default='')
 
     # 最新版本
     newest_version = db.Column(db.String(32), nullable=False)
