@@ -403,12 +403,13 @@ class GameService(object):
 
         game = Game.query.filter_by(device_id=device_id, name=name).first()
         if game is None:
-            return GameService.create(device_id, game, newest_version)
+            return GameService.create(device_id, name, newest_version)
 
         game.newest_version = newest_version
         if game.newest_version != game.current_version:
             game.need_update = True
         try:
+            game.utime = datetime.now()
             db.session.add(game)
             db.session.commit()
         except Exception as e:
@@ -446,7 +447,7 @@ class GameService(object):
         start_time = time.time()
         is_success = True
         while True:
-            for device in Device.get_yield_per(50):
+            for device in Device.get_all():
                 log.info('device_id = {}'.format(device.id))
                 game, is_success = GameService.update(device.id, name, version)
                 if not is_success or game is None:
