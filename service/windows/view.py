@@ -387,3 +387,47 @@ def device_game_list():
     #     return fail(HTTP_OK, u"参数错误!!")
 
     return GameService.get_device_game_list(device.id)
+
+
+# 修改游戏更新状态
+@bp.route('/game/state', methods=['POST'])
+def device_game_state():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_code = request.json.get('device_code')
+    update_state = request.json.get('update_state')
+
+    if update_state != Device.UPDATE_ING or update_state != Device.UPDATE_FINISH:
+        return fail(HTTP_OK, u"参数错误!")
+
+    device = DeviceService.get_device_by_code(device_code)
+    if device is None:
+        log.error("当前设备号没有获取到任何设备信息: {}".format(device_code))
+        return fail(HTTP_OK, u"参数错误,获取设备信息失败!!")
+
+    if update_state == Device.UPDATE_ING:
+        # device.update_state = update_state
+        if DeviceService.set_update_state(device.id, update_state):
+            return success(u"设备游戏更新状态设置成功!")
+        return fail(HTTP_OK, u"更新状态设置失败")
+
+    # 设置游戏更新完成。。
+    GameService.update_device_game(device_id=device.id)
+    if DeviceService.set_update_state(device.id, update_state):
+        return success(u"设备游戏更新状态设置成功!")
+    return fail(HTTP_OK, u"更新状态设置失败")
+
+    # if not isinstance(page, int) or \
+    #         not isinstance(size, int):
+    #     log.error("获取游戏列表参数错误: page = {} size = {} device_code = {}".format(
+    #         page, size, device_code))
+    #     return fail(HTTP_OK, u"参数错误!!")
+    #
+    # if page <= 0 or size <= 0:
+    #     log.error("获取游戏列表参数错误, 不能小于0: page = {} size = {} device_code = {}".format(
+    #         page, size, device_code))
+    #     return fail(HTTP_OK, u"参数错误!!")
+
+    # return success(u"设备游戏更新状态设置成功!")

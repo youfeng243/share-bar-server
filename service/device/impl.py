@@ -373,6 +373,19 @@ class DeviceService(object):
             return success(package_result(0, []))
         return success(package_result(total, [item.to_dict() for item in item_list]))
 
+    @staticmethod
+    def set_update_state(device_id, update_state):
+        update_info = {
+            Device.update_state: update_state
+        }
+        rowcount = Device.query.filter_by(id=device_id).update(update_info)
+        if rowcount <= 0:
+            log.error("设备游戏更新状态更新失败: device_id = {} update_state = {}".format(
+                device_id, update_state))
+            return False
+
+        return True
+
 
 # 游戏列表接口
 class GameService(object):
@@ -478,6 +491,29 @@ class GameService(object):
         log.info("游戏更新耗时: game = {} {} s".format(name, time.time() - start_time))
         return is_success
 
+    # 更新游戏版本到最新版本
+    @staticmethod
+    def update_device_game(device_id):
+        start_time = time.time()
+        is_success = True
+
+        while True:
+            for game in Game.query.filter_by(device_id=device_id):
+                # game, is_success = GameService.add(device.id, name, version)
+                # if not is_success or game is None:
+                #     log.error("游戏更新失败，中断更新: device_id = {}".format(device.id))
+                #     break
+                game.current_version = game.newest_version
+                game.need_update = False
+                db.session.add(game)
+                log.info("当前修改版本游戏信息: device_id = {} name = {} current_version = {} newest_version = {}".format(
+                    device_id, game.name, game.current_version, game.newest_version))
+            db.session.commit()
+            break
+
+        log.info("游戏版本修改耗时: device_id = {} {} s".format(device_id, time.time() - start_time))
+        return is_success
+
     # 删除游戏
     @staticmethod
     def delete_device_game(name):
@@ -514,16 +550,18 @@ class GameService(object):
                 device.id, device.update_state))
             return True
 
-        update_info = {
-            Device.update_state: Device.UPDATE_WAIT
-        }
-        rowcount = Device.query.filter_by(id=device.id).update(update_info)
-        if rowcount <= 0:
-            log.error("设备游戏更新状态更新失败: device_id = {} update_state = {}".format(
-                device.id, device.update_state))
-            return False
+        return DeviceService.set_update_state(device.id, Device.UPDATE_WAIT)
 
-        return True
+        # update_info = {
+        #     Device.update_state: Device.UPDATE_WAIT
+        # }
+        # rowcount = Device.query.filter_by(id=device.id).update(update_info)
+        # if rowcount <= 0:
+        #     log.error("设备游戏更新状态更新失败: device_id = {} update_state = {}".format(
+        #         device.id, device.update_state))
+        #     return False
+        #
+        # return True
 
     # 更新所有设备游戏状态
     @staticmethod
