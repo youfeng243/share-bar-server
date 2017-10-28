@@ -399,7 +399,8 @@ def device_game_state():
     device_code = request.json.get('device_code')
     update_state = request.json.get('update_state')
 
-    if update_state != Device.UPDATE_ING or update_state != Device.UPDATE_FINISH:
+    if update_state != Device.UPDATE_ING and update_state != Device.UPDATE_FINISH:
+        log.error("当前状态不允许: update_state = {}".format(update_state))
         return fail(HTTP_OK, u"参数错误!")
 
     device = DeviceService.get_device_by_code(device_code)
