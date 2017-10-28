@@ -12,10 +12,13 @@ import threading
 import time
 
 import requests
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import settings
-from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time
+from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time, \
+    DEFAULT_GAME_UPDATE_TIME
 from exts.redis_api import RedisClient
+from service.device.impl import GameService
 from service.windows.impl import WindowsService
 
 try:
@@ -264,6 +267,60 @@ def charging_thread():
         time.sleep(SLEEP_TIME)
 
 
+def parse_time(string):
+    hour, minute, second = string.split(":")
+    cron = {
+        "minute": minute,
+        "hour": hour,
+        "day": "*",
+        "month": "*",
+        "day_of_week": "*",
+    }
+    return cron
+
+
+# 更新游戏
+def update_game():
+    log.info("开始后台更新游戏...")
+
+    log.info("后台更新游戏完成...")
+
+
+# 后台更新游戏线程
+def update_game_thread():
+    log.info("开始启动定时更新游戏线程...")
+    pre_update_time = DEFAULT_GAME_UPDATE_TIME
+    update_job_id = "update_game"
+
+    parse_time(pre_update_time)
+
+    # 启动定时调度器框架
+    scheduler = BackgroundScheduler(logger=log, timezone="Asia/Shanghai")
+    scheduler.add_job(update_game, trigger="cron", id=update_job_id, **parse_time(pre_update_time))
+    scheduler.start()
+
+    SLEEP_TIME = 30
+    while True:
+
+        while True:
+            try:
+                # 获取当前游戏更新时间
+                time_str = GameService.get_game_update_time(cache_client)
+                if time_str == pre_update_time:
+                    log.info("当前定时更新游戏时间: {}".format(time_str))
+                    break
+
+                log.info("当前游戏更新时间发生变更: pre = {} cur = {}".format(pre_update_time, time_str))
+                pre_update_time = time_str
+                scheduler.reschedule_job(update_job_id, trigger="cron", **parse_time(time_str))
+            except Exception as e:
+                log.error("游戏更新调度周期异常:")
+                log.exception(e)
+            break
+
+        time.sleep(SLEEP_TIME)
+
+
 if __name__ == '__main__':
     # 刷新微信缓存线程
     access_token_handler = threading.Thread(target=access_token_thread)
@@ -273,5 +330,10 @@ if __name__ == '__main__':
     charging_handler = threading.Thread(target=charging_thread)
     charging_handler.start()
 
+    # 定时更新线程
+    game_update_handler = threading.Thread(target=update_game_thread)
+    game_update_handler.start()
+
     access_token_handler.join()
     charging_handler.join()
+    game_update_handler.join()

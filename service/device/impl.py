@@ -19,7 +19,7 @@ from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVIC
     REDIS_PRE_DEVICE_ALIVE_SYNC_LAST_TIME_KEY, DEFAULT_EXPIRED_DEVICE_ALIVE_SYNC, get_now_time, fail, HTTP_OK, success, \
     package_result
 from exts.redis_api import RedisClient
-from exts.resource import db, redis_device_client, redis_cache_client
+from exts.resource import db, redis_device_client
 from service.address.model import Address
 from service.device.model import Device, Game
 
@@ -546,13 +546,13 @@ class GameService(object):
 
     # 获得游戏更新时间
     @staticmethod
-    def get_game_update_time():
-        time_key = redis_cache_client.get_update_time_key()
-        time_str = redis_cache_client.get(time_key)
+    def get_game_update_time(redis_client):
+        time_key = redis_client.get_update_time_key()
+        time_str = redis_client.get(time_key)
         return time_str
 
     # 设置游戏更新时间
     @staticmethod
-    def set_game_update_time(time_str):
-        time_key = redis_cache_client.get_update_time_key()
-        redis_cache_client.set(time_key, time_str)
+    def set_game_update_time(time_str, redis_client):
+        time_key = redis_client.get_update_time_key()
+        redis_client.set(time_key, time_str)

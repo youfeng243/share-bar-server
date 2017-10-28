@@ -16,7 +16,7 @@ import settings
 from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR, \
     DEFAULT_GAME_UPDATE_TIME
 from exts.login_manager import setup_admin_login
-from exts.resource import db
+from exts.resource import db, redis_cache_client
 from service.address.view import bp as address_bp
 from service.admin.view import bp as admin_bp
 from service.charge.view import bp as charge_bp
@@ -55,7 +55,7 @@ def create_app(name=None):
     setup_hooks(app)
 
     # 设置更新时间
-    set_game_update_time()
+    confirm_game_update_time()
 
     log.info("flask 服务初始化完成...")
     return app
@@ -77,9 +77,9 @@ def register_bp(app):
 
 
 # 设置游戏更新时间
-def set_game_update_time():
-    if GameService.get_game_update_time() is None:
-        GameService.set_game_update_time(DEFAULT_GAME_UPDATE_TIME)
+def confirm_game_update_time():
+    if GameService.get_game_update_time(redis_cache_client) is None:
+        GameService.set_game_update_time(DEFAULT_GAME_UPDATE_TIME, redis_cache_client)
 
 
 def _get_remote_addr():

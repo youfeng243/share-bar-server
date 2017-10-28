@@ -13,3 +13,4 @@ requests==2.18.4
 Flask-Testing==0.6.2
 requests-futures==0.9.7
 lxml==3.8.0
+APScheduler==3.3.1

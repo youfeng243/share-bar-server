@@ -13,6 +13,7 @@ from flask import request
 from flask_login import login_required
 
 from exts.common import fail, HTTP_OK, log, success, is_valid_time
+from exts.resource import redis_cache_client
 from service.admin.impl import AdminService
 from service.device.impl import DeviceService, GameService
 from service.device.model import Device
@@ -276,7 +277,7 @@ def modify_game_update_time():
         return fail(HTTP_OK, u"时间格式错误: %H:%M:%S")
 
     # 设置时间
-    GameService.set_game_update_time(time_str)
+    GameService.set_game_update_time(time_str, redis_cache_client)
     return success(u"时间更新成功!")
 
 
@@ -284,7 +285,7 @@ def modify_game_update_time():
 @bp.route('/device/game/time', methods=['GET'])
 @login_required
 def get_game_update_time():
-    return success(GameService.get_game_update_time())
+    return success(GameService.get_game_update_time(redis_cache_client))
 
 
 # 添加游戏 或者更新游戏版本
