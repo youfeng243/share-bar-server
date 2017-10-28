@@ -217,6 +217,19 @@ def device_game_list():
     return GameService.get_device_game_list(device_id, page, size)
 
 
+# 设备游戏管理列表
+@bp.route('/device/game/manage', methods=['POST'])
+@login_required
+def get_device_game_manage():
+    '''
+    page: 当前页码
+    size: 每页读取数目, 最大不超过50项
+    :return:
+    '''
+
+    return DeviceService.search_list()
+
+
 # 添加游戏 或者更新游戏版本
 @bp.route('/device/game', methods=['POST'])
 def device_game_update():

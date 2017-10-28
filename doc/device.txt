@@ -187,3 +187,44 @@ json = {
 
 }
 
+7. 获得设备游戏更新状态列表
+/admin/device/game/manage, method=POST
+Content-Type: application/json
+参数:
+update_state: ('wait', 'finish', 'ing')
+json = {
+     "page": 1,
+     "size": 10
+}
+返回
+{
+    "success": true,
+    "error": null
+    "result": {
+        "total": 202,
+        "data": [
+            {
+                "device_code": "cfcd208495d565ef66e7dff9f98764da",
+                "ctime": "2017-09-13 09:39:20",
+                "address": {
+                    "province": "广东省",
+                    "city": "深圳市",
+                    "ctime": "2017-09-13 09:39:20",
+                    "location": "芒果网大厦0",
+                    "area": "南山区",
+                    "utime": "2017-09-13 09:39:23",
+                    "id": 115,
+                    "device_num": 20
+                },
+                "state": "free",
+                "income": 0,
+                "id": 1,
+                "utime": "2017-09-13 09:39:20"
+                "update_state": "finish",
+                "last_update_time": "2017-09-13 09:39:20"
+            },
+            {}.
+            ...
+        ]
+    }
+}
