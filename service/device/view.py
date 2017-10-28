@@ -218,7 +218,7 @@ def device_game_list():
 
 
 # 添加游戏 或者更新游戏版本
-@bp.route('/device/game/update', methods=['POST'])
+@bp.route('/device/game', methods=['POST'])
 def device_game_update():
     if not request.is_json:
         log.warn("参数错误...")
@@ -244,3 +244,31 @@ def device_game_update():
         return fail(HTTP_OK, u"游戏更新失败，请重试!")
 
     return success(u'游戏更新成功!')
+
+
+# 添加游戏 或者更新游戏版本
+@bp.route('/device/game', methods=['DELETE'])
+def device_game_delete():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    username = request.json.get('username')
+    password = request.json.get('password')
+    name = request.json.get('name')
+
+    if not isinstance(name, basestring):
+        log.error("参数错误: username = {} password = {} name = {}".format(
+            username, password, name))
+        return fail(HTTP_OK, u"参数错误")
+
+    # 先判断能否登录
+    is_success, msg = AdminService.verify_authentication(username, password)
+    if not is_success:
+        return fail(HTTP_OK, msg)
+
+    # 开始更新游戏信息
+    if not GameService.delete_device_game(name):
+        return fail(HTTP_OK, u"游戏删除失败，请重试!")
+
+    return success(u'游戏删除成功!')

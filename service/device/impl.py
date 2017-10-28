@@ -420,6 +420,25 @@ class GameService(object):
 
         return game, True
 
+    # 删除游戏
+    @staticmethod
+    def delete(device_id, name):
+        game = Game.query.filter_by(device_id=device_id, name=name).first()
+        if game is None:
+            log.info("当前设备没有找到游戏: device_id = {} game = {}".format(device_id, name))
+            return True
+
+        try:
+            db.session.delete(game)
+            db.session.commit()
+        except Exception as e:
+            log.error("当前设备游戏删除失败: device_id = {} name = {}".format(
+                device_id, name))
+            log.exception(e)
+            return False
+
+        return True
+
     # 获取游戏列表
     @staticmethod
     def get_device_game_list(device_id, page=0, size=0):
@@ -451,10 +470,29 @@ class GameService(object):
                 log.info('device_id = {}'.format(device.id))
                 game, is_success = GameService.update(device.id, name, version)
                 if not is_success or game is None:
-                    log.error("游戏更新失败，中断更新!")
+                    log.error("游戏更新失败，中断更新: device_id = {}".format(device.id))
                     break
 
             break
 
-        log.info("游戏更新耗时: {} s".format(time.time() - start_time))
+        log.info("游戏更新耗时: game = {} {} s".format(name, time.time() - start_time))
+        return is_success
+
+    # 删除游戏
+    @staticmethod
+    def delete_device_game(name):
+        start_time = time.time()
+
+        is_success = True
+        while True:
+            for device in Device.get_all():
+                log.info('device_id = {}'.format(device.id))
+                is_success = GameService.delete(device.id, name)
+                if not is_success:
+                    log.error("游戏删除失败，中断删除: device_id = {}".format(device.id))
+                    break
+
+            break
+
+        log.info("游戏删除耗时: game = {} {} s".format(name, time.time() - start_time))
         return is_success
