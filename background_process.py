@@ -282,7 +282,10 @@ def parse_time(string):
 # 更新游戏
 def update_game():
     log.info("开始后台更新游戏...")
-
+    if GameService.update_game_all_by_http():
+        log.info("游戏更新成功!")
+    else:
+        log.error("游戏更新失败!")
     log.info("后台更新游戏完成...")
 
 

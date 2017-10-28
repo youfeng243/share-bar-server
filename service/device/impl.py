@@ -11,6 +11,7 @@ import json
 import time
 from datetime import datetime
 
+import requests
 from flask import has_request_context
 from flask import request
 from sqlalchemy.exc import IntegrityError
@@ -556,3 +557,26 @@ class GameService(object):
     def set_game_update_time(time_str, redis_client):
         time_key = redis_client.get_update_time_key()
         redis_client.set(time_key, time_str)
+
+    # 通过http请求发送更新游戏
+    @staticmethod
+    def update_game_all_by_http():
+        url = 'http://localhost:8080/admin/backdoor/update/game'
+        try_times = 3
+        times = 0
+        while times < try_times:
+            times += 1
+            try:
+                r = requests.get(url, timeout=5 * 60)
+                if r.status_code != 200:
+                    continue
+                json_data = json.loads(r.text)
+                if not json_data.get('success'):
+                    log.error("请求更新游戏失败: text = {}".format(r.text))
+                    continue
+                return True
+            except Exception as e:
+                log.error("请求更新游戏失败:")
+                log.exception(e)
+
+        return False

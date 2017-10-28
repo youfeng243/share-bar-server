@@ -249,13 +249,24 @@ def device_game_update():
     log.info("当前设备更新参数为: device_id = {} is_all = {}".format(device_id, is_all))
     if is_all:
         if GameService.update_all():
+            log.info("所有设备游戏更新状态设置成功!")
             return success(u"设备游戏更新状态设置成功!")
         return fail(HTTP_OK, u"游戏更新设置失败，请重试!")
 
     if GameService.update(device_id):
+        log.info("设备游戏更新状态设置成功: device_id = {}".format(device_id))
         return success(u"设备游戏更新状态设置成功!")
 
     return fail(HTTP_OK, u"设备设置游戏更新失败!")
+
+
+# 更新游戏
+@bp.route('/backdoor/update/game', methods=['GET'])
+def device_game_update():
+    if GameService.update_all():
+        log.info("所有设备游戏更新状态设置成功!")
+        return success(u"设备游戏更新状态设置成功!")
+    return fail(HTTP_OK, u"游戏更新设置失败，请重试!")
 
 
 # 设置更新当前时间
