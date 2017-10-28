@@ -262,7 +262,7 @@ def device_game_update():
 
 # 更新游戏
 @bp.route('/backdoor/update/game', methods=['GET'])
-def device_game_update():
+def backdoor_game_update():
     if GameService.update_all():
         log.info("所有设备游戏更新状态设置成功!")
         return success(u"设备游戏更新状态设置成功!")
