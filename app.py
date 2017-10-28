@@ -13,20 +13,22 @@ from flask import Flask
 from flask import request
 
 import settings
-from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
+from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR, \
+    DEFAULT_GAME_UPDATE_TIME
 from exts.login_manager import setup_admin_login
 from exts.resource import db
 from service.address.view import bp as address_bp
 from service.admin.view import bp as admin_bp
 from service.charge.view import bp as charge_bp
 from service.deploy.view import bp as deploy_bp
+from service.device.impl import GameService
 from service.device.view import bp as device_bp
+from service.maintain.view import bp as maintain_bp
 from service.recharge.view import bp as recharge_bp
 from service.role.view import bp as role_bp
 from service.user.view import bp as user_bp
 from service.wechat.view import bp as wechat_bp
 from service.windows.view import bp as windows_bp
-from service.maintain.view import bp as maintain_bp
 
 
 def create_app(name=None):
@@ -52,6 +54,9 @@ def create_app(name=None):
     # 注册访问日志钩子
     setup_hooks(app)
 
+    # 设置更新时间
+    set_game_update_time()
+
     log.info("flask 服务初始化完成...")
     return app
 
@@ -69,6 +74,12 @@ def register_bp(app):
     app.register_blueprint(windows_bp)
     app.register_blueprint(charge_bp)
     app.register_blueprint(maintain_bp)
+
+
+# 设置游戏更新时间
+def set_game_update_time():
+    if GameService.get_game_update_time() is None:
+        GameService.set_game_update_time(DEFAULT_GAME_UPDATE_TIME)
 
 
 def _get_remote_addr():

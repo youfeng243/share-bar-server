@@ -31,6 +31,11 @@ HTTP_NOT_IMPLEMENTED = 501
 DEFAULT_CHARGE_MODE = 5
 
 '''
+默认游戏定时更新时间
+'''
+DEFAULT_GAME_UPDATE_TIME = '06:00:00'
+
+'''
 登录错误码
 '''
 # 当前用户没有登录
