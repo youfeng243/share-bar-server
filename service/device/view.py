@@ -230,9 +230,36 @@ def get_device_game_manage():
     return DeviceService.search_list()
 
 
+# 更新游戏
+@bp.route('/device/game/update', methods=['POST'])
+@login_required
+def device_game_update():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_id = request.json.get('device_id')
+    is_all = request.json.get('all')
+
+    if device_id is None and is_all is None:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"参数错误, device_id or all 必须有一个!")
+
+    log.info("当前设备更新参数为: device_id = {} is_all = {}".format(device_id, is_all))
+    if is_all:
+        if GameService.update_all():
+            return success(u"设备游戏更新状态设置成功!")
+        return fail(HTTP_OK, u"游戏更新设置失败，请重试!")
+
+    if GameService.update(device_id):
+        return success(u"设备游戏更新状态设置成功!")
+
+    return fail(HTTP_OK, u"设备设置游戏更新失败!")
+
+
 # 添加游戏 或者更新游戏版本
 @bp.route('/device/game', methods=['POST'])
-def device_game_update():
+def device_game_add():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
@@ -253,7 +280,7 @@ def device_game_update():
         return fail(HTTP_OK, msg)
 
     # 开始更新游戏信息
-    if not GameService.update_device_game(name, version):
+    if not GameService.add_device_game(name, version):
         return fail(HTTP_OK, u"游戏更新失败，请重试!")
 
     return success(u'游戏更新成功!')

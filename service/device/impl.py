@@ -170,7 +170,6 @@ class DeviceService(object):
     @staticmethod
     def set_device_status(device, device_status):
         '''
-        :param save: 是否存储
         :param device: Device 类型
         :param device_status:
         :return:
@@ -397,9 +396,9 @@ class GameService(object):
             return None, False
         return game, True
 
-    # 更新游戏
+    # 添加游戏
     @staticmethod
-    def update(device_id, name, newest_version):
+    def add(device_id, name, newest_version):
 
         game = Game.query.filter_by(device_id=device_id, name=name).first()
         if game is None:
@@ -462,13 +461,13 @@ class GameService(object):
 
     # 更新所有设备
     @staticmethod
-    def update_device_game(name, version):
+    def add_device_game(name, version):
         start_time = time.time()
         is_success = True
         while True:
             for device in Device.get_all():
                 log.info('device_id = {}'.format(device.id))
-                game, is_success = GameService.update(device.id, name, version)
+                game, is_success = GameService.add(device.id, name, version)
                 if not is_success or game is None:
                     log.error("游戏更新失败，中断更新: device_id = {}".format(device.id))
                     break
@@ -495,4 +494,52 @@ class GameService(object):
             break
 
         log.info("游戏删除耗时: game = {} {} s".format(name, time.time() - start_time))
+        return is_success
+
+    # 更新指定设备游戏状态
+    @staticmethod
+    def update(device_id):
+
+        if isinstance(device_id, Device):
+            device = device_id
+        else:
+            device = Device.get(device_id)
+        if device is None:
+            log.error("当前设备不存在，或者参数错误: device_id = {}".format(device_id))
+            return False
+
+        if device.update_state != Device.UPDATE_FINISH:
+            log.info("当前设备游戏更新状态不需要设置: device_id = {} update_state = {}".format(
+                device.id, device.update_state))
+            return True
+
+        update_info = {
+            Device.update_state: Device.UPDATE_WAIT
+        }
+        rowcount = Device.query.filter_by(id=device.id).update(update_info)
+        if rowcount <= 0:
+            log.error("设备游戏更新状态更新失败: device_id = {} update_state = {}".format(
+                device.id, device.update_state))
+            return False
+
+        return True
+
+    # 更新所有设备游戏状态
+    @staticmethod
+    def update_all():
+
+        start_time = time.time()
+        is_success = True
+        while True:
+
+            for device in Device.get_all():
+                log.info('设置游戏状态: device_id = {}'.format(device.id))
+                is_success = GameService.update(device.id)
+                if not is_success:
+                    log.error("游戏状态设置失败，中断设置: device_id = {}".format(device.id))
+                    break
+
+            break
+
+        log.info("游戏状态设置耗时: {} s".format(time.time() - start_time))
         return is_success

@@ -228,3 +228,18 @@ json = {
         ]
     }
 }
+
+8. 立即更新 或者 更新 设备游戏功能
+/admin/device/game/update
+Content-Type: application/json
+device_id 或者 all 参数必须有一个 all代表立即更新全部，存在all参数则 device_id 无效
+参数:
+{
+    "device_id": 1
+    or
+    "all": True
+}
+返回
+{
+    'success': True
+}
