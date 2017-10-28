@@ -9,6 +9,7 @@
 """
 
 import json
+import time
 
 from flask import Response
 from flask_login.utils import _cookie_digest
@@ -84,6 +85,9 @@ REDIS_PRE_DEVICE_HEART_KEY = 'bar#device#heart#'
 
 # 设备状态key
 REDIS_PRE_DEVICE_STATUS_KEY = 'bar#device#status#'
+
+# 游戏更新时间
+REDIS_PRE_UPDATE_TIME_KEY = 'bar#game#update#time'
 
 # 设备存活状态最后同步时间
 REDIS_PRE_DEVICE_ALIVE_SYNC_LAST_TIME_KEY = 'bar#device#alive#sync#lasttime'
@@ -220,3 +224,13 @@ def cal_cost_time(seconds):
 def get_now_time():
     from datetime import datetime
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+# 判断当前时间是否正确
+def is_valid_time(time_str):
+    '''判断是否是一个有效的日期字符串'''
+    try:
+        time.strptime(time_str, "%H:%M:%S")
+        return True
+    except:
+        return False

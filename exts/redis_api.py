@@ -7,7 +7,7 @@ import redis
 import settings
 from exts.common import log, REDIS_PRE_RECORD_KEY, REDIS_PRE_USER_KEY, REDIS_PRE_DEVICE_KEY, \
     REDIS_PRE_DEVICE_CODE_KEY, REDIS_PRE_OPENID_KEY, REDIS_PRE_USER_ONLINE_KEY, REDIS_PRE_MOBILE_EX_KEY, \
-    REDIS_PRE_CAPTCHA_EX_KEY, REDIS_PRE_DEVICE_HEART_KEY, REDIS_PRE_DEVICE_STATUS_KEY
+    REDIS_PRE_CAPTCHA_EX_KEY, REDIS_PRE_DEVICE_HEART_KEY, REDIS_PRE_DEVICE_STATUS_KEY, REDIS_PRE_UPDATE_TIME_KEY
 
 
 class RedisClient(object):
@@ -95,3 +95,8 @@ class RedisClient(object):
     @staticmethod
     def get_device_status_key(device_code):
         return '{}{}'.format(REDIS_PRE_DEVICE_STATUS_KEY, device_code)
+
+    # 获得游戏更新时间
+    @staticmethod
+    def get_update_time_key():
+        return REDIS_PRE_UPDATE_TIME_KEY

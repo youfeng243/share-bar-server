@@ -243,3 +243,28 @@ device_id 或者 all 参数必须有一个 all代表立即更新全部，存在a
 {
     'success': True
 }
+
+9. 修改设备定时更新游戏时间
+/admin/device/game/time PUT
+Content-Type: application/json
+参数:
+{
+    'time': '23:00:30'
+}
+返回
+{
+    'success': True
+}
+
+10. 获取设备定时更新游戏时间
+/admin/device/game/time GET
+参数:
+{
+    'time': '23:00:30'
+}
+返回
+{
+    "result": '23:00:30'
+    "success": true or false  # True 操作成功  False 操作失败
+    "error": null
+}

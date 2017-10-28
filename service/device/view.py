@@ -12,7 +12,7 @@ from flask import Blueprint
 from flask import request
 from flask_login import login_required
 
-from exts.common import fail, HTTP_OK, log, success
+from exts.common import fail, HTTP_OK, log, success, is_valid_time
 from service.admin.impl import AdminService
 from service.device.impl import DeviceService, GameService
 from service.device.model import Device
@@ -255,6 +255,36 @@ def device_game_update():
         return success(u"设备游戏更新状态设置成功!")
 
     return fail(HTTP_OK, u"设备设置游戏更新失败!")
+
+
+# 设置更新当前时间
+@bp.route('/device/game/time', methods=['PUT'])
+@login_required
+def modify_game_update_time():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    time_str = request.json.get('time')
+    if time_str is None:
+        log.error("修改时间参数错误: time = None")
+        return fail(HTTP_OK, u"参数错误")
+
+    # 判断时间格式是否正确
+    if not is_valid_time(time_str):
+        log.error("时间格式错误: time = {}".format(time_str))
+        return fail(HTTP_OK, u"时间格式错误: %H:%M:%S")
+
+    # 设置时间
+    GameService.set_game_update_time(time_str)
+    return success(u"时间更新成功!")
+
+
+# 获得设备游戏更新时间
+@bp.route('/device/game/time', methods=['GET'])
+@login_required
+def get_game_update_time():
+    return success(GameService.get_game_update_time())
 
 
 # 添加游戏 或者更新游戏版本
