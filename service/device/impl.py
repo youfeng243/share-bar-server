@@ -425,6 +425,8 @@ class GameService(object):
         game.newest_version = newest_version
         if game.newest_version != game.current_version:
             game.need_update = True
+        else:
+            game.need_update = False
         try:
             game.utime = datetime.now()
             db.session.add(game)
@@ -518,6 +520,22 @@ class GameService(object):
         log.info("游戏版本修改耗时: device_id = {} {} s".format(device_id, time.time() - start_time))
         return is_success
 
+    # 判断游戏是否需要更新
+    @staticmethod
+    def is_device_game_need_update(device_id):
+        start_time = time.time()
+        is_success = False
+
+        while True:
+            for game in Game.query.filter_by(device_id=device_id):
+                if game.current_version != game.newest_version:
+                    is_success = True
+                    break
+            break
+
+        log.info("判断游戏耗时: device_id = {} {} s".format(device_id, time.time() - start_time))
+        return is_success
+
     # 删除游戏
     @staticmethod
     def delete_device_game(name):
@@ -554,18 +572,13 @@ class GameService(object):
                 device.id, device.update_state))
             return True
 
-        return DeviceService.set_update_state(device.id, Device.UPDATE_WAIT)
+        # 判断是否有游戏需要更新
+        if not GameService.is_device_game_need_update(device.id):
+            log.info("当前游戏都是最新版, 不需要更新: device_id = {}".format(device.id))
+            return True
 
-        # update_info = {
-        #     Device.update_state: Device.UPDATE_WAIT
-        # }
-        # rowcount = Device.query.filter_by(id=device.id).update(update_info)
-        # if rowcount <= 0:
-        #     log.error("设备游戏更新状态更新失败: device_id = {} update_state = {}".format(
-        #         device.id, device.update_state))
-        #     return False
-        #
-        # return True
+        log.info("当前存在游戏需要更新，通知客户端更新: device_id = {}".format(device.id))
+        return DeviceService.set_update_state(device.id, Device.UPDATE_WAIT)
 
     # 更新所有设备游戏状态
     @staticmethod
