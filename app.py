@@ -94,11 +94,12 @@ def _get_remote_addr():
 def _request_log(resp, *args, **kwargs):
     log.info(
         '{addr} request: [{status}] {method}, '
-        'url: {url}'.format(addr=_get_remote_addr(),
-                            status=resp.status,
-                            method=request.method,
-                            url=request.url,
-                            )
+        'url: {url} header: {header}'.format(addr=_get_remote_addr(),
+                                             status=resp.status,
+                                             method=request.method,
+                                             url=request.url,
+                                             header=request.headers
+                                             )
     )
     # 不是debug模式下也需要打印数据信息
     if resp.mimetype == 'application/json':
@@ -119,9 +120,10 @@ def setup_error_handler(app):
     def http_bad_request(e):
         log.warn(
             '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
+            'url: {url} header: {header}'.format(addr=_get_remote_addr(),
+                                                 method=request.method,
+                                                 url=request.url,
+                                                 header=request.headers))
         log.exception(e)
         return fail(HTTP_BAD_REQUEST)
 
@@ -129,9 +131,10 @@ def setup_error_handler(app):
     def http_forbidden(e):
         log.warn(
             '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
+            'url: {url} header: {header}'.format(addr=_get_remote_addr(),
+                                                 method=request.method,
+                                                 url=request.url,
+                                                 header=request.headers))
         log.exception(e)
         return fail(HTTP_FORBIDDEN)
 
@@ -139,9 +142,10 @@ def setup_error_handler(app):
     def http_not_found(e):
         log.warn(
             '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
+            'url: {url} header: {header}'.format(addr=_get_remote_addr(),
+                                                 method=request.method,
+                                                 url=request.url,
+                                                 header=request.headers))
         log.exception(e)
         return fail(HTTP_NOT_FOUND)
 
@@ -150,8 +154,9 @@ def setup_error_handler(app):
     def http_server_error(e):
         log.warn(
             '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
+            'url: {url} header: {header}'.format(addr=_get_remote_addr(),
+                                                 method=request.method,
+                                                 url=request.url,
+                                                 header=request.headers))
         log.exception(e)
         return fail(HTTP_SERVER_ERROR)
