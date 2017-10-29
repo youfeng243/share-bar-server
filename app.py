@@ -83,7 +83,7 @@ def confirm_game_update_time():
 
 
 def _get_remote_addr():
-    return request.remote_addr
+    return request.headers.get('X-Real-Ip', request.remote_addr)
     # address = request.headers.get('X-Forwarded-For', request.remote_addr)
     # if address is not None:
     #     # An 'X-Forwarded-For' header includes a comma separated list of the
