@@ -1,0 +1,40 @@
+1. 添加游戏 或者更新游戏版本
+/admin/device/game  POST
+Content-Type: application/json
+
+参数:
+{
+    # 管理员账户密码
+    "username": "youfeng",
+    "password": "123456",
+    # 需要更新或者添加的游戏名称以及版本信息
+    "name": "英雄联盟",
+    "version": "V1.1"
+}
+
+返回:
+{
+    "result": '游戏更新成功' or '游戏更新失败'
+    "success": true or false  # True 操作成功  False 操作失败
+    "error": null
+}
+
+2. 删除游戏
+/admin/device/game  DELETE
+Content-Type: application/json
+参数:
+{
+    # 管理员账户密码
+    "username": "youfeng",
+    "password": "123456",
+    # 需要更新或者添加的游戏名称以及版本信息
+    "name": "英雄联盟",
+}
+
+返回:
+{
+    "result": '删除游戏成功' or '删除游戏失败'
+    "success": true or false  # True 操作成功  False 操作失败
+    "error": null
+}
+
