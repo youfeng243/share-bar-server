@@ -1,5 +1,5 @@
 1. 添加游戏 或者更新游戏版本
-/admin/device/game  POST
+http://weixin.doumihuyu.com/admin/device/game  POST
 Content-Type: application/json
 
 参数:
@@ -20,7 +20,7 @@ Content-Type: application/json
 }
 
 2. 删除游戏
-/admin/device/game  DELETE
+http://weixin.doumihuyu.com/admin/device/game  DELETE
 Content-Type: application/json
 参数:
 {
