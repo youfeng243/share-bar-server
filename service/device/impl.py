@@ -374,10 +374,14 @@ class DeviceService(object):
         return success(package_result(total, [item.to_dict() for item in item_list]))
 
     @staticmethod
-    def set_update_state(device_id, update_state):
+    def set_update_state(device_id, update_state, last_update_time=None):
         update_info = {
             Device.update_state: update_state
         }
+
+        if last_update_time is not None:
+            update_info[Device.last_update_time] = last_update_time
+
         rowcount = Device.query.filter_by(id=device_id).update(update_info)
         if rowcount <= 0:
             log.error("设备游戏更新状态更新失败: device_id = {} update_state = {}".format(

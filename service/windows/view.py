@@ -8,6 +8,7 @@
 @time: 2017/9/20 14:13
 """
 import time
+from datetime import datetime
 
 from flask import Blueprint
 from flask import g
@@ -390,8 +391,8 @@ def device_game_list():
 
 
 # 修改游戏更新状态
-@bp.route('/game/state', methods=['POST'])
-def device_game_state():
+@bp.route('/game/state', methods=['PUT'])
+def modify_device_game_state():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
@@ -414,21 +415,29 @@ def device_game_state():
             return success(u"设备游戏更新状态设置成功!")
         return fail(HTTP_OK, u"更新状态设置失败")
 
+    # 如果当前设备状态不为ing 则不进行更新设置
+    if device.update_state != Device.UPDATE_ING:
+        return success(u'当前状态不正确, 不能设置')
+
     # 设置游戏更新完成。。
     GameService.update_device_game(device_id=device.id)
-    if DeviceService.set_update_state(device.id, update_state):
+    if DeviceService.set_update_state(device.id, update_state, last_update_time=datetime.now()):
         return success(u"设备游戏更新状态设置成功!")
     return fail(HTTP_OK, u"更新状态设置失败")
 
-    # if not isinstance(page, int) or \
-    #         not isinstance(size, int):
-    #     log.error("获取游戏列表参数错误: page = {} size = {} device_code = {}".format(
-    #         page, size, device_code))
-    #     return fail(HTTP_OK, u"参数错误!!")
-    #
-    # if page <= 0 or size <= 0:
-    #     log.error("获取游戏列表参数错误, 不能小于0: page = {} size = {} device_code = {}".format(
-    #         page, size, device_code))
-    #     return fail(HTTP_OK, u"参数错误!!")
 
-    # return success(u"设备游戏更新状态设置成功!")
+# 获取游戏更新状态
+@bp.route('/game/state', methods=['POST'])
+def get_device_game_state():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_code = request.json.get('device_code')
+
+    device = DeviceService.get_device_by_code(device_code)
+    if device is None:
+        log.error("当前设备号没有获取到任何设备信息: {}".format(device_code))
+        return fail(HTTP_OK, u"参数错误,获取设备信息失败!!")
+
+    return success(device.update_state)

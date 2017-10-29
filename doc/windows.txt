@@ -128,9 +128,9 @@ Content-Type: application/json
 }
 
 7. 设置当前设备游戏更新状态
-http://weixin.doumihuyu.com/windows/game/state POST
+http://weixin.doumihuyu.com/windows/game/state PUT
 Content-Type: application/json
-update_state: finish or ing  正在更新中，或者 更新完成，如收到更新指令准备开始更新则给后台反馈正在更新，
+update_state: (finish,ing)  正在更新中，或者 更新完成，如收到更新指令准备开始更新则给后台反馈正在更新，
 更新完成后再告诉后台 已经更新完成 finish
 参数
 {
@@ -140,6 +140,24 @@ update_state: finish or ing  正在更新中，或者 更新完成，如收到�
 返回:
 {
     "result": "设备游戏更新状态设置成功!",
+    "success": true,
+    "error": null
+}
+
+8. 获取当前设备游戏更新状态
+http://weixin.doumihuyu.com/windows/game/state POST
+Content-Type: application/json
+update_state: (finish,ing,wait)
+finish: 更新完成
+ing: 正在更新中
+wait: 等待客户端更新
+参数
+{
+	"device_code": "11-22-33-44-55-66-77-88",
+}
+返回:
+{
+    "result": "wait",
     "success": true,
     "error": null
 }
