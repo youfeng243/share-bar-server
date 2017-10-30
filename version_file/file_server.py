@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# encoding: utf-8
 ''' The version file save and sync application '''
 import json
 import os
