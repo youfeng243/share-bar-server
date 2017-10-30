@@ -308,11 +308,11 @@ def device_game_add():
 
     username = request.json.get('username')
     password = request.json.get('password')
-    name = request.json.get('name')
+    name = request.json.get('game')
     version = request.json.get('version')
 
     if not isinstance(name, basestring) or not isinstance(version, basestring):
-        log.error("参数错误: username = {} password = {} name = {} version = {}".format(
+        log.error("参数错误: username = {} password = {} game = {} version = {}".format(
             username, password, name, version))
         return fail(HTTP_OK, u"参数错误")
 
@@ -337,10 +337,10 @@ def device_game_delete():
 
     username = request.json.get('username')
     password = request.json.get('password')
-    name = request.json.get('name')
+    name = request.json.get('game')
 
     if not isinstance(name, basestring):
-        log.error("参数错误: username = {} password = {} name = {}".format(
+        log.error("参数错误: username = {} password = {} game = {}".format(
             username, password, name))
         return fail(HTTP_OK, u"参数错误")
 
