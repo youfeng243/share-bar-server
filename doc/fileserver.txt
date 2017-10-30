@@ -8,7 +8,7 @@ Content-Type: application/json
     "username": "youfeng",
     "password": "123456",
     # 需要更新或者添加的游戏名称以及版本信息
-    "name": "英雄联盟",
+    "game": "英雄联盟",
     "version": "V1.1"
 }
 
@@ -28,7 +28,7 @@ Content-Type: application/json
     "username": "youfeng",
     "password": "123456",
     # 需要更新或者添加的游戏名称以及版本信息
-    "name": "英雄联盟",
+    "game": "英雄联盟",
 }
 
 返回:
