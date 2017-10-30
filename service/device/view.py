@@ -274,7 +274,7 @@ def device_need_update():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"参数错误!")
 
-    return success(need_update=GameService.is_device_need_update(device_id))
+    return success(GameService.is_device_need_update(device_id))
 
 
 # 更新游戏
