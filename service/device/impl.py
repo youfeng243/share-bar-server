@@ -522,7 +522,7 @@ class GameService(object):
 
     # 判断游戏是否需要更新
     @staticmethod
-    def is_device_game_need_update(device_id):
+    def is_device_need_update(device_id):
         start_time = time.time()
         is_success = False
 
@@ -573,7 +573,7 @@ class GameService(object):
             return True
 
         # 判断是否有游戏需要更新
-        if not GameService.is_device_game_need_update(device.id):
+        if not GameService.is_device_need_update(device.id):
             log.info("当前游戏都是最新版, 不需要更新: device_id = {}".format(device.id))
             return True
 

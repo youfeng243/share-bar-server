@@ -260,6 +260,23 @@ def device_game_update():
     return fail(HTTP_OK, u"设备设置游戏更新失败!")
 
 
+# 判断设备是否需要更新
+@bp.route('/device/need/update', methods=['POST'])
+@login_required
+def device_need_update():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_id = request.json.get('device_id')
+
+    if device_id is None:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"参数错误!")
+
+    return success(need_update=GameService.is_device_need_update(device_id))
+
+
 # 更新游戏
 @bp.route('/backdoor/update/game', methods=['GET'])
 def backdoor_game_update():

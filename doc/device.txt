@@ -268,3 +268,16 @@ Content-Type: application/json
     "success": true or false  # True 操作成功  False 操作失败
     "error": null
 }
+
+10. 判断当前设备是否需要更新
+/admin/device/need/update POST
+Content-Type: application/json
+参数:
+{
+    'device_id': 1
+}
+
+返回
+{
+    'need_update': True or False
+}
