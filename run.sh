@@ -16,10 +16,19 @@ start() {
     .venv/bin/pip install -U pip
     .venv/bin/pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
     .venv/bin/gunicorn -c ${config} wsgi:application
+    echo "启动share-bar-server"
 
     # 启动access_token进程
     nohup .venv/bin/python background_process.py > /dev/null 2>&1 &
+    echo "启动后台缓存处理进程.."
 
+    cd version_file
+    virtualenv .venv -p python2
+    .venv/bin/pip install -U pip
+    .venv/bin/pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+
+    nohup .venv/bin/python file_server.py > /dev/null 2>&1 &
+    echo "启动文件服务器.."
     echo "${project} start success..."
 }
 
@@ -34,6 +43,8 @@ stop() {
     rm -rf ${project}.pid
 
     ps -ef | grep -v grep | grep 'background_process' | grep python | awk '{print $2}' | xargs kill -9
+
+    ps -ef | grep -v grep | grep 'file_server' | grep python | awk '{print $2}' | xargs kill -9
 
 	echo "${project} stop success..."
 	return 1
