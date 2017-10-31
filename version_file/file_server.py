@@ -52,7 +52,7 @@ def delete(game):
     ''' Delete a game '''
     if json.loads(del_game(game))['success']:
         path = os.path.join(application.config['UPLOAD_FOLDER'], game)
-        for root, dir, files in os.walk(path):
+        for root, dirs, files in os.walk(path):
             for doc in files:
                 os.remove(os.path.join(path, doc))
         return '删除成功！'
@@ -61,29 +61,40 @@ def delete(game):
 
 @application.route('/data', methods=['POST'])
 def upload():
+    ''' Post a .db file and save it '''
+    temp_file_name = str(int(round(time.time() * 1000))) + '.db'
+    base_path = application.config['UPLOAD_FOLDER']
+    temp_file_path = os.path.join(base_path, temp_file_name)
     try:
-        ''' Post a .db file and save it '''
+
         upload_file = request.files.get('data')
         if upload_file and allowed_file(upload_file.filename):
-            path = application.config['UPLOAD_FOLDER']
-            if not os.path.exists(path):
-                os.makedirs(path)
-            temp_file_name = str(int(round(time.time() * 1000))) + '.db'
-            upload_file.save(os.path.join(path, temp_file_name))
-            conn = sqlite3.connect(os.path.join(path, temp_file_name))
+
+            if not os.path.exists(base_path):
+                os.makedirs(base_path)
+
+            upload_file.save(temp_file_path)
+            conn = sqlite3.connect(temp_file_path)
             res = conn.execute('SELECT game, version FROM config')
             for row in res:
                 game = row[0]
                 version = row[1]
             conn.close()
-            if not os.path.exists(os.path.join(path, game)):
-                os.makedirs(os.path.join(path, game))
-            os.rename(os.path.join(path, temp_file_name), os.path.join(path, game, version + '.db'))
-            syncres = json.loads(sync_game(game, version))['result']
-            return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + syncres
+            if not os.path.exists(os.path.join(base_path, game)):
+                os.makedirs(os.path.join(base_path, game))
+            os.rename(temp_file_path, os.path.join(base_path, game, version + '.db'))
+            sync_res = json.loads(sync_game(game, version))['result']
+            print '同步结果: sync_res = {}'.format(sync_res)
+            return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + sync_res
     except Exception as e:
+        if os.path.exists(temp_file_path):
+            try:
+                os.remove(temp_file_path)
+            except:
+                pass
+        print '异常结束!'
         return redirect('/')
-
+    print '异常结束!'
     return redirect('/')
 
 
