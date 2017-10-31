@@ -4,6 +4,7 @@
 import json
 import os
 import sqlite3
+import time
 
 import requests
 from flask import Flask, request, redirect, url_for, abort, send_from_directory, render_template
@@ -22,8 +23,7 @@ application.wsgi_app = ProxyFix(application.wsgi_app)
 
 def allowed_file(filename):
     ''' File type restriction '''
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @application.route('/data/<game>/<version>', methods=['GET'])
@@ -68,8 +68,9 @@ def upload():
             path = application.config['UPLOAD_FOLDER']
             if not os.path.exists(path):
                 os.makedirs(path)
-            upload_file.save(os.path.join(path, 'temp.db'))
-            conn = sqlite3.connect(os.path.join(path, 'temp.db'))
+            temp_file_name = str(int(round(time.time() * 1000))) + '.db'
+            upload_file.save(os.path.join(path, temp_file_name))
+            conn = sqlite3.connect(os.path.join(path, temp_file_name))
             res = conn.execute('SELECT game, version FROM config')
             for row in res:
                 game = row[0]
@@ -77,7 +78,7 @@ def upload():
             conn.close()
             if not os.path.exists(os.path.join(path, game)):
                 os.makedirs(os.path.join(path, game))
-            os.rename(os.path.join(path, 'temp.db'), os.path.join(path, game, version + '.db'))
+            os.rename(os.path.join(path, temp_file_name), os.path.join(path, game, version + '.db'))
             syncres = json.loads(sync_game(game, version))['result']
             return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + syncres
     except Exception as e:
