@@ -10,15 +10,74 @@ import requests
 from flask import Flask, request, redirect, url_for, abort, send_from_directory, render_template
 from werkzeug.contrib.fixers import ProxyFix
 
+from exts.common import get_remote_addr, HTTP_BAD_REQUEST, fail, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
+from logger import Logger
+
+log = Logger('file_server.log').get_logger()
+
 UPLOAD_FOLDER = 'uploaded_files'
 ALLOWED_EXTENSIONS = set(['db'])
 
 application = Flask(__name__)
+
 application.debug = False
 
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+application.config['SECRET_KEY'] = "4&^^%%$%BJHGFGHHVVBN%$$#^"
 
 application.wsgi_app = ProxyFix(application.wsgi_app)
+
+
+def setup_error_handler(app):
+    @app.errorhandler(400)
+    @app.errorhandler(ValueError)
+    def http_bad_request(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_BAD_REQUEST)
+
+    @app.errorhandler(403)
+    def http_forbidden(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_FORBIDDEN)
+
+    @app.errorhandler(404)
+    def http_not_found(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_NOT_FOUND)
+
+    @app.errorhandler(500)
+    @app.errorhandler(Exception)
+    def http_server_error(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_SERVER_ERROR)
+
+
+# 设置错误处理流程
+setup_error_handler(application)
 
 
 def allowed_file(filename):
@@ -37,14 +96,34 @@ def sync_game(game, version):
     ''' Synchronizing version with manage system '''
     url = 'http://weixin.doumihuyu.com/admin/device/game'
     payload = {'username': 'youfeng', 'password': '123456', 'game': game, 'version': version}
-    return requests.post(url, json=payload).text
+
+    try:
+        r = requests.post(url, json=payload)
+        if r.status_code != 200:
+            return '发送更新请求失败'
+        return r.text
+    except Exception as e:
+        log.error("发送游戏信息异常:")
+        log.exception(e)
+
+    return '发送更新请求失败'
 
 
 def del_game(game):
     ''' Delete on manage system '''
     url = 'http://weixin.doumihuyu.com/admin/device/game'
     payload = {'username': 'youfeng', 'password': '123456', 'game': game}
-    return requests.delete(url, json=payload).text
+
+    try:
+        r = requests.delete(url, json=payload)
+        if r.status_code != 200:
+            return '发送删除请求失败'
+        return r.text
+    except Exception as e:
+        log.error("删除游戏信息异常:")
+        log.exception(e)
+
+    return '发送删除请求失败'
 
 
 @application.route('/data/<game>', methods=['DELETE'])
@@ -66,7 +145,6 @@ def upload():
     base_path = application.config['UPLOAD_FOLDER']
     temp_file_path = os.path.join(base_path, temp_file_name)
     try:
-
         upload_file = request.files.get('data')
         if upload_file and allowed_file(upload_file.filename):
 
@@ -84,17 +162,19 @@ def upload():
                 os.makedirs(os.path.join(base_path, game))
             os.rename(temp_file_path, os.path.join(base_path, game, version + '.db'))
             sync_res = json.loads(sync_game(game, version))['result']
-            print '同步结果: sync_res = {}'.format(sync_res)
-            return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + sync_res
+            log.info('上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + sync_res)
+            return redirect('/')
+        log.info("没有提交任何文件!")
     except Exception as e:
+        log.error("上传游戏信息失败:")
+        log.exception(e)
         if os.path.exists(temp_file_path):
             try:
                 os.remove(temp_file_path)
-            except:
-                pass
-        print '异常结束!'
+            except Exception as e1:
+                log.error("临时文件删除失败: {}".format(temp_file_name))
+                log.exception(e1)
         return redirect('/')
-    print '异常结束!'
     return redirect('/')
 
 
