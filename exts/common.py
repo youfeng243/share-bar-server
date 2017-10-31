@@ -12,6 +12,7 @@ import json
 import time
 
 from flask import Response
+from flask import request
 from flask_login.utils import _cookie_digest
 from werkzeug.security import safe_str_cmp
 
@@ -239,3 +240,76 @@ def is_valid_time(time_str):
         return True
     except:
         return False
+
+
+def get_remote_addr():
+    return request.headers.get('X-Real-Ip', request.remote_addr)
+    # address = request.headers.get('X-Forwarded-For', request.remote_addr)
+    # if address is not None:
+    #     # An 'X-Forwarded-For' header includes a comma separated list of the
+    #     # addresses, the first address being the actual remote address.
+    #     address = address.encode('utf-8').split(b',')[0].strip()
+    # return address
+
+
+def print_request_log(resp, *args, **kwargs):
+    log.info('{addr} request: [{status}] {method}, '
+             'url: {url}'.format(addr=get_remote_addr(),
+                                 status=resp.status,
+                                 method=request.method,
+                                 url=request.url)
+             )
+    log.info("{}".format(request.headers))
+    # 不是debug模式下也需要打印数据信息
+    if resp.mimetype == 'application/json':
+        data = resp.get_data()
+        log.info("response: {}".format(json.dumps(json.loads(data), ensure_ascii=False)))
+    return resp
+
+
+def setup_error_handler(app):
+    @app.errorhandler(400)
+    @app.errorhandler(ValueError)
+    def http_bad_request(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_BAD_REQUEST)
+
+    @app.errorhandler(403)
+    def http_forbidden(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_FORBIDDEN)
+
+    @app.errorhandler(404)
+    def http_not_found(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_NOT_FOUND)
+
+    @app.errorhandler(500)
+    @app.errorhandler(Exception)
+    def http_server_error(e):
+        log.warn(
+            '{addr} request: {method}, '
+            'url: {url}'.format(addr=get_remote_addr(),
+                                method=request.method,
+                                url=request.url))
+        log.warn("{}".format(request.headers))
+        log.exception(e)
+        return fail(HTTP_SERVER_ERROR)

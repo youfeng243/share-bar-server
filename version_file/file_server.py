@@ -12,12 +12,12 @@ from werkzeug.contrib.fixers import ProxyFix
 UPLOAD_FOLDER = 'version_file/uploaded_files'
 ALLOWED_EXTENSIONS = set(['db'])
 
-APP = Flask(__name__)
-APP.debug = False
+application = Flask(__name__)
+application.debug = False
 
-APP.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-APP.wsgi_app = ProxyFix(APP.wsgi_app)
+application.wsgi_app = ProxyFix(application.wsgi_app)
 
 
 def allowed_file(filename):
@@ -26,7 +26,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-@APP.route('/data/<game>/<version>', methods=['GET'])
+@application.route('/data/<game>/<version>', methods=['GET'])
 def get_data(game, version):
     ''' Get the uploaded files'''
     name = version + '.db'
@@ -47,11 +47,11 @@ def del_game(game):
     return requests.delete(url, json=payload).text
 
 
-@APP.route('/data/<game>', methods=['DELETE'])
+@application.route('/data/<game>', methods=['DELETE'])
 def delete(game):
     ''' Delete a game '''
     if json.loads(del_game(game))['success']:
-        path = os.path.join(APP.config['UPLOAD_FOLDER'], game)
+        path = os.path.join(application.config['UPLOAD_FOLDER'], game)
         for root, dir, files in os.walk(path):
             for doc in files:
                 os.remove(os.path.join(path, doc))
@@ -59,12 +59,12 @@ def delete(game):
     return '删除失败！'
 
 
-@APP.route('/data', methods=['POST'])
+@application.route('/data', methods=['POST'])
 def upload():
     ''' Post a .db file and save it '''
-    upload_file = request.files['data']
+    upload_file = request.files.get('data')
     if upload_file and allowed_file(upload_file.filename):
-        path = APP.config['UPLOAD_FOLDER']
+        path = application.config['UPLOAD_FOLDER']
         if not os.path.exists(path):
             os.makedirs(path)
         upload_file.save(os.path.join(path, 'temp.db'))
@@ -81,7 +81,7 @@ def upload():
         return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + syncres
 
 
-@APP.route('/download', methods=['POST'])
+@application.route('/download', methods=['POST'])
 def download():
     ''' Post a JSON file and get the file which matches '''
     if request.json is None:
@@ -93,11 +93,11 @@ def download():
     return redirect(url_for('get_data', game=game, version=version))
 
 
-@APP.route('/')
+@application.route('/')
 def html():
     ''' HTML interface '''
     return render_template('upload.html')
 
 
 if __name__ == '__main__':
-    APP.run(host='0.0.0.0', port=8081)
+    application.run(host='0.0.0.0', port=8081)

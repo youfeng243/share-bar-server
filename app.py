@@ -7,14 +7,11 @@
 @file: gun.config.py
 @time: 2017/8/28 20:45
 """
-import json
 
 from flask import Flask
-from flask import request
 
 import settings
-from exts.common import log, fail, HTTP_BAD_REQUEST, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR, \
-    DEFAULT_GAME_UPDATE_TIME
+from exts.common import log, DEFAULT_GAME_UPDATE_TIME, print_request_log, setup_error_handler
 from exts.login_manager import setup_admin_login
 from exts.resource import db, redis_cache_client
 from service.address.view import bp as address_bp
@@ -76,86 +73,13 @@ def register_bp(app):
     app.register_blueprint(maintain_bp)
 
 
+def setup_hooks(app):
+    # 调试模式下显示请求日志
+    if app.debug:
+        app.after_request(print_request_log)
+
+
 # 设置游戏更新时间
 def confirm_game_update_time():
     if GameService.get_game_update_time(redis_cache_client) is None:
         GameService.set_game_update_time(DEFAULT_GAME_UPDATE_TIME, redis_cache_client)
-
-
-def _get_remote_addr():
-    return request.headers.get('X-Real-Ip', request.remote_addr)
-    # address = request.headers.get('X-Forwarded-For', request.remote_addr)
-    # if address is not None:
-    #     # An 'X-Forwarded-For' header includes a comma separated list of the
-    #     # addresses, the first address being the actual remote address.
-    #     address = address.encode('utf-8').split(b',')[0].strip()
-    # return address
-
-
-def _request_log(resp, *args, **kwargs):
-    log.info('{addr} request: [{status}] {method}, '
-             'url: {url}'.format(addr=_get_remote_addr(),
-                                 status=resp.status,
-                                 method=request.method,
-                                 url=request.url)
-             )
-    log.info("{}".format(request.headers))
-    # 不是debug模式下也需要打印数据信息
-    if resp.mimetype == 'application/json':
-        data = resp.get_data()
-        log.info("response: {}".format(json.dumps(json.loads(data), ensure_ascii=False)))
-    return resp
-
-
-def setup_hooks(app):
-    # 调试模式下显示请求日志
-    if app.debug:
-        app.after_request(_request_log)
-
-
-def setup_error_handler(app):
-    @app.errorhandler(400)
-    @app.errorhandler(ValueError)
-    def http_bad_request(e):
-        log.warn(
-            '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
-        log.warn("{}".format(request.headers))
-        log.exception(e)
-        return fail(HTTP_BAD_REQUEST)
-
-    @app.errorhandler(403)
-    def http_forbidden(e):
-        log.warn(
-            '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
-        log.warn("{}".format(request.headers))
-        log.exception(e)
-        return fail(HTTP_FORBIDDEN)
-
-    @app.errorhandler(404)
-    def http_not_found(e):
-        log.warn(
-            '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
-        log.warn("{}".format(request.headers))
-        log.exception(e)
-        return fail(HTTP_NOT_FOUND)
-
-    @app.errorhandler(500)
-    @app.errorhandler(Exception)
-    def http_server_error(e):
-        log.warn(
-            '{addr} request: {method}, '
-            'url: {url}'.format(addr=_get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
-        log.warn("{}".format(request.headers))
-        log.exception(e)
-        return fail(HTTP_SERVER_ERROR)

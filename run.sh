@@ -28,7 +28,7 @@ start() {
     .venv/bin/pip install -U pip
     .venv/bin/pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
 
-    .venv/bin/gunicorn -c ${config} file_server:APP
+    .venv/bin/gunicorn -c ${config} file_server:application
 
     # nohup .venv/bin/python file_server.py > /dev/null 2>&1 &
     echo "启动文件服务器.."
@@ -47,7 +47,7 @@ stop() {
 
     ps -ef | grep -v grep | grep 'background_process' | grep python | awk '{print $2}' | xargs kill -9
 
-    ps -ef | grep -v grep | grep 'file_server:APP' | awk '{print $2}' | xargs kill -9
+    ps -ef | grep -v grep | grep 'file_server:application' | awk '{print $2}' | xargs kill -9
 
 	echo "${project} stop success..."
 	return 1
@@ -64,19 +64,22 @@ status() {
     if [ -z "${pid}" ]; then
         return 0
     fi
-    echo "wsgi:application ${pid}"
+    echo "----wsgi:application----"
+    ehco "${pid}"
 
-    pid=`ps -ef | grep -v grep | grep 'file_server:APP' | awk '{print $2}'`
+    pid=`ps -ef | grep -v grep | grep 'file_server:application' | awk '{print $2}'`
     if [ -z "${pid}" ]; then
         return 0
     fi
-    echo "file_server:APP ${pid}"
+    echo "----file_server:application----"
+    ehco "${pid}"
 
     pid=`ps -ef | grep -v grep | grep 'background_process' | grep python | awk '{print $2}'`
     if [ -z "${pid}" ]; then
         return 0
     fi
-    echo "background_process ${pid}"
+    echo "----background_process----"
+    ehco "${pid}"
 
     return 1
 }
