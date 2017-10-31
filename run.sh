@@ -32,6 +32,9 @@ start() {
 
     # nohup .venv/bin/python file_server.py > /dev/null 2>&1 &
     echo "启动文件服务器.."
+
+    status
+
     echo "${project} start success..."
 }
 
