@@ -25,8 +25,14 @@ class Maintain(ModelBase):
 
     __tablename__ = 'maintain'
 
+    # 用户启用
+    STATUS_USING = 'using'
+
+    # 用户禁用
+    STATUS_FORBID = 'forbid'
+
     # 使用状态
-    STATUS_VALUES = ('forbid', 'using')
+    STATUS_VALUES = (STATUS_FORBID, STATUS_USING)
 
     # 用户名
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
@@ -38,7 +44,7 @@ class Maintain(ModelBase):
     name = db.Column(db.String(64), nullable=False)
 
     # 启用状态 using 启用 unused 停用
-    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default='using')
+    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUS_USING)
 
     # 管理地址ID
     address_id = db.Column(db.Integer, default=ALL_ADDRESS_ID)

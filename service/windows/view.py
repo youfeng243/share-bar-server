@@ -317,6 +317,10 @@ def maintain_login():
             username, password))
         return fail(HTTP_OK, u"当前维修人员账号不存在，维修人员无法登录!!")
 
+    # 判断当前用户是否已经被禁用了
+    if maintain.state == Maintain.STATUS_FORBID:
+        return fail(HTTP_OK, u"当前账户已被禁用，无法登录!!")
+
     # 判断密码是否正确
     if not maintain.verify_password(password):
         log.error("当前维护人员密码错误: username = {} password = {}".format(username, password))
