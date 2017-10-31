@@ -65,21 +65,21 @@ status() {
         return 0
     fi
     echo "----wsgi:application----"
-    ehco ${pid}
+    echo ${pid}
 
     pid=`ps -ef | grep -v grep | grep 'file_server:application' | awk '{print $2}'`
     if [ -z "${pid}" ]; then
         return 0
     fi
     echo "----file_server:application----"
-    ehco ${pid}
+    echo ${pid}
 
     pid=`ps -ef | grep -v grep | grep 'background_process' | grep python | awk '{print $2}'`
     if [ -z "${pid}" ]; then
         return 0
     fi
     echo "----background_process----"
-    ehco ${pid}
+    echo ${pid}
 
     return 1
 }
