@@ -42,5 +42,7 @@ errorlog = 'log/gunicorn.log'
 # 接受最大请求数然后重启进程
 max_requests = 1000000
 max_requests_jitter = 500000
-
+timeout = 1200
+# 最大支持10M
+limit_request_line = 10 * 1024 * 1024
 x_forwarded_for_header = 'X-FORWARDED-FOR'
