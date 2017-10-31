@@ -45,4 +45,5 @@ max_requests_jitter = 500000
 timeout = 1200
 # 最大支持10M
 limit_request_line = 0
+limit_request_field_size = 0
 x_forwarded_for_header = 'X-FORWARDED-FOR'

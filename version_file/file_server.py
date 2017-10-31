@@ -29,6 +29,8 @@ application.debug = False
 
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['SECRET_KEY'] = "4&^^%%$%BJHGFGHHVVBN%$$#^"
+# 文件大小限制
+application.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 application.wsgi_app = ProxyFix(application.wsgi_app)
 
