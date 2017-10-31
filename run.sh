@@ -37,10 +37,6 @@ start() {
 
 stop() {
 	status
-	if [ $? = 0 ]; then
-	    echo "${project} not running.."
-	    return 0
-	fi
 
     ps -ef | grep -v grep | grep 'wsgi:application' | awk '{print $2}' | xargs kill -9
     rm -rf ${project}.pid
