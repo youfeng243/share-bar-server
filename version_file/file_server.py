@@ -10,6 +10,11 @@ import requests
 from flask import Flask, request, redirect, url_for, abort, send_from_directory, render_template
 from werkzeug.contrib.fixers import ProxyFix
 
+import sys
+sys.path.append('..')
+sys.path.append('../..')
+sys.path.append('../../..')
+
 from exts.common import get_remote_addr, HTTP_BAD_REQUEST, fail, HTTP_FORBIDDEN, HTTP_NOT_FOUND, HTTP_SERVER_ERROR
 from logger import Logger
 
