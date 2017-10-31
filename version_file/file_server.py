@@ -96,7 +96,7 @@ def allowed_file(filename):
 def get_data(game, version):
     ''' Get the uploaded files'''
     name = version + '.db'
-    return send_from_directory('uploaded_files/' + game, name, as_attachment=True)
+    return send_from_directory('uploaded_files/' + game, name, as_attachment=False)
 
 
 def sync_game(game, version):
