@@ -9,7 +9,7 @@ import requests
 from flask import Flask, request, redirect, url_for, abort, send_from_directory, render_template
 from werkzeug.contrib.fixers import ProxyFix
 
-UPLOAD_FOLDER = 'version_file/uploaded_files'
+UPLOAD_FOLDER = 'uploaded_files'
 ALLOWED_EXTENSIONS = set(['db'])
 
 application = Flask(__name__)
@@ -61,24 +61,29 @@ def delete(game):
 
 @application.route('/data', methods=['POST'])
 def upload():
-    ''' Post a .db file and save it '''
-    upload_file = request.files.get('data')
-    if upload_file and allowed_file(upload_file.filename):
-        path = application.config['UPLOAD_FOLDER']
-        if not os.path.exists(path):
-            os.makedirs(path)
-        upload_file.save(os.path.join(path, 'temp.db'))
-        conn = sqlite3.connect(os.path.join(path, 'temp.db'))
-        res = conn.execute('SELECT game, version FROM config')
-        for row in res:
-            game = row[0]
-            version = row[1]
-        conn.close()
-        if not os.path.exists(os.path.join(path, game)):
-            os.makedirs(os.path.join(path, game))
-        os.rename(os.path.join(path, 'temp.db'), os.path.join(path, game, version + '.db'))
-        syncres = json.loads(sync_game(game, version))['result']
-        return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + syncres
+    try:
+        ''' Post a .db file and save it '''
+        upload_file = request.files.get('data')
+        if upload_file and allowed_file(upload_file.filename):
+            path = application.config['UPLOAD_FOLDER']
+            if not os.path.exists(path):
+                os.makedirs(path)
+            upload_file.save(os.path.join(path, 'temp.db'))
+            conn = sqlite3.connect(os.path.join(path, 'temp.db'))
+            res = conn.execute('SELECT game, version FROM config')
+            for row in res:
+                game = row[0]
+                version = row[1]
+            conn.close()
+            if not os.path.exists(os.path.join(path, game)):
+                os.makedirs(os.path.join(path, game))
+            os.rename(os.path.join(path, 'temp.db'), os.path.join(path, game, version + '.db'))
+            syncres = json.loads(sync_game(game, version))['result']
+            return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + syncres
+    except Exception as e:
+        return render_template('upload.html')
+
+    return render_template('upload.html')
 
 
 @application.route('/download', methods=['POST'])
