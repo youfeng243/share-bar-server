@@ -82,9 +82,9 @@ def upload():
             syncres = json.loads(sync_game(game, version))['result']
             return '上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + syncres
     except Exception as e:
-        return render_template('upload.html')
+        return redirect('/')
 
-    return render_template('upload.html')
+    return redirect('/')
 
 
 @application.route('/download', methods=['POST'])
