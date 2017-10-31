@@ -7,6 +7,7 @@ import sqlite3
 
 import requests
 from flask import Flask, request, redirect, url_for, abort, send_from_directory, render_template
+from werkzeug.contrib.fixers import ProxyFix
 
 UPLOAD_FOLDER = 'version_file/uploaded_files'
 ALLOWED_EXTENSIONS = set(['db'])
@@ -15,6 +16,8 @@ APP = Flask(__name__)
 APP.debug = False
 
 APP.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+APP.wsgi_app = ProxyFix(APP.wsgi_app)
 
 
 def allowed_file(filename):

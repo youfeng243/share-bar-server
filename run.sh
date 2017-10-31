@@ -23,11 +23,14 @@ start() {
     echo "启动后台缓存处理进程.."
 
     cd version_file
+    mkdir -p log
     virtualenv .venv -p python2
     .venv/bin/pip install -U pip
     .venv/bin/pip install -r requirements.txt -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
 
-    nohup .venv/bin/python file_server.py > /dev/null 2>&1 &
+    .venv/bin/gunicorn -c ${config} file_server:APP
+
+    # nohup .venv/bin/python file_server.py > /dev/null 2>&1 &
     echo "启动文件服务器.."
     echo "${project} start success..."
 }
@@ -44,7 +47,7 @@ stop() {
 
     ps -ef | grep -v grep | grep 'background_process' | grep python | awk '{print $2}' | xargs kill -9
 
-    ps -ef | grep -v grep | grep 'file_server' | grep python | awk '{print $2}' | xargs kill -9
+    ps -ef | grep -v grep | grep 'file_server:APP' | awk '{print $2}' | xargs kill -9
 
 	echo "${project} stop success..."
 	return 1
@@ -61,7 +64,20 @@ status() {
     if [ -z "${pid}" ]; then
         return 0
     fi
-    echo ${pid}
+    echo "wsgi:application ${pid}"
+
+    pid=`ps -ef | grep -v grep | grep 'file_server:APP' | awk '{print $2}'`
+    if [ -z "${pid}" ]; then
+        return 0
+    fi
+    echo "file_server:APP ${pid}"
+
+    pid=`ps -ef | grep -v grep | grep 'background_process' | grep python | awk '{print $2}'`
+    if [ -z "${pid}" ]; then
+        return 0
+    fi
+    echo "background_process ${pid}"
+
     return 1
 }
 
