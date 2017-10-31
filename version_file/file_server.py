@@ -4,13 +4,13 @@
 import json
 import os
 import sqlite3
+import sys
 import time
 
 import requests
 from flask import Flask, request, redirect, url_for, abort, send_from_directory, render_template
 from werkzeug.contrib.fixers import ProxyFix
 
-import sys
 sys.path.append('..')
 sys.path.append('../..')
 sys.path.append('../../..')
@@ -25,7 +25,7 @@ ALLOWED_EXTENSIONS = {'db'}
 
 application = Flask(__name__)
 
-application.debug = False
+# application.debug = False
 
 application.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 application.config['SECRET_KEY'] = "4&^^%%$%BJHGFGHHVVBN%$$#^"
@@ -204,4 +204,4 @@ def html():
 
 
 if __name__ == '__main__':
-    application.run(host='0.0.0.0', port=8081)
+    application.run(host='0.0.0.0', port=8081, threaded=True)
