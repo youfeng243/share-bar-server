@@ -21,7 +21,7 @@ from logger import Logger
 log = Logger('file_server.log').get_logger()
 
 UPLOAD_FOLDER = 'uploaded_files'
-ALLOWED_EXTENSIONS = set(['db'])
+ALLOWED_EXTENSIONS = {'db'}
 
 application = Flask(__name__)
 
