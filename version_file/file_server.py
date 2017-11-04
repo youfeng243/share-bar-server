@@ -154,7 +154,7 @@ def upload():
     try:
         upload_file = request.files.get('data')
         if upload_file and allowed_file(upload_file.filename):
-
+            log.info("当前准备提交的文件名: filename = {}".format(upload_file.filename))
             if not os.path.exists(base_path):
                 os.makedirs(base_path)
 
@@ -171,7 +171,7 @@ def upload():
             sync_res = json.loads(sync_game(game, version))['result']
             log.info('上传成功！文件名：' + game + '/' + version + '.db。—— 后台状态：' + sync_res)
             return redirect('/')
-        log.info("没有提交任何文件!")
+        log.info("当前文件不存在或者文件格式不对: filename = {}".format(upload_file.filename))
     except Exception as e:
         log.error("上传游戏信息失败:")
         log.exception(e)
