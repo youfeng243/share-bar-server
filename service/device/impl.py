@@ -163,6 +163,12 @@ class DeviceService(object):
             log.error("当前设备码不正确, 找不到设备: device_code = {}".format(device_code))
             return
 
+        # 如果设备正在更新，则重新锁定设备
+        if device.update_state == Device.UPDATE_ING:
+            log.info("当前设备正在更新中，重新锁定设备: device_id = {}".format(device.id))
+            DeviceService.set_device_status(device, Device.STATUE_LOCK)
+            return
+
         DeviceService.set_device_status(device, to_status)
         log.info("设备状态切换完成: device_code = {} from_status = {} to_status = {}".format(
             device_code, from_status, to_status))
