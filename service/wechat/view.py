@@ -78,13 +78,6 @@ def menu(name):
             log.info("当前绑定的user_id cookie = {}".format(u_id))
 
             return redirect_to(name)
-
-        # 初始化极验验证码
-        gt = GeetestLib(settings.PC_GEETEST_ID, settings.PC_GEETEST_KEY)
-        status = gt.pre_process(openid)
-        session[gt.GT_STATUS_SESSION_KEY] = status
-        response_str = gt.get_response_str()
-        log.info("极验验证码初始化状态: response_str = {}".format(response_str))
         return redirect('#/login')
 
     # 判断当前用户是否已经绑定
@@ -122,6 +115,20 @@ def wechat_check():
         return fail(HTTP_OK, u"当前openid没有注册!", 0)
 
     return success()
+
+
+# 获取极验初始化信息
+@bp.route('/geetest', methods=['GET'])
+@wechat_required
+def geetest():
+    # 初始化极验验证码
+    gt = GeetestLib(settings.PC_GEETEST_ID, settings.PC_GEETEST_KEY)
+    status = gt.pre_process(g.openid)
+    session[gt.GT_STATUS_SESSION_KEY] = status
+    response_str = gt.get_response_str()
+    log.info("极验验证码初始化状态: response_str = {}".format(response_str))
+
+    return success(json.loads(response_str))
 
 
 # 请求手机验证码，进行用户注册

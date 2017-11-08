@@ -187,3 +187,18 @@ post = {
     "success": true,
     "error": null
 }
+
+/wechat/geetest, methods=['GET']
+参数
+无
+返回:
+{
+    "result": {
+            'success': True or False,  # 布尔类型。极验API服务器是否宕机（即处于 fallback 状态）
+            'gt': 'xxxxx',  # 字符串类型。验证 id，极验后台申请得到
+            'challenge': challenge, # 字符串类型。验证流水号，后服务端 SDK 向极验服务器申请得到
+            "new_captcha": True or False # 布尔类型。宕机情况下使用，表示验证是 3.0 还是 2.0，3.0 的 sdk 该字段为 true
+            }
+    "success": true,
+    "error": null
+}
