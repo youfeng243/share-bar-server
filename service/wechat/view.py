@@ -18,6 +18,7 @@ from flask import session
 
 import settings
 from exts.common import log, fail, HTTP_OK, success, WECHAT_JSAPI_TICKET_KEY, encode_user_id, decode_user_id
+from exts.geetest import GeetestLib
 from exts.resource import redis_cache_client, sms_client
 from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
@@ -77,6 +78,13 @@ def menu(name):
             log.info("当前绑定的user_id cookie = {}".format(u_id))
 
             return redirect_to(name)
+
+        # 初始化极验验证码
+        gt = GeetestLib(settings.PC_GEETEST_ID, settings.PC_GEETEST_KEY)
+        status = gt.pre_process(openid)
+        session[gt.GT_STATUS_SESSION_KEY] = status
+        response_str = gt.get_response_str()
+        log.info("极验验证码初始化状态: response_str = {}".format(response_str))
         return redirect('#/login')
 
     # 判断当前用户是否已经绑定
@@ -140,6 +148,25 @@ def request_code():
 
     if sms_client.mobile_reach_rate_limit(mobile):
         return fail(HTTP_OK, u'验证码已发送')
+
+    gt = GeetestLib(settings.PC_GEETEST_ID, settings.PC_GEETEST_KEY)
+    challenge = request.json.get(gt.FN_CHALLENGE)
+    validate = request.json.get(gt.FN_VALIDATE)
+    seccode = request.json.get(gt.FN_SECCODE)
+    status = session.get(gt.GT_STATUS_SESSION_KEY)
+
+    if status:
+        result = gt.success_validate(challenge, validate, seccode, g.openid)
+    else:
+        result = gt.failback_validate(challenge, validate, seccode)
+
+    log.info("滑动验证码参数: mobile = {} {} {}".format(mobile, gt.FN_CHALLENGE, challenge))
+    log.info("滑动验证码参数: mobile = {} {} {}".format(mobile, gt.FN_VALIDATE, validate))
+    log.info("滑动验证码参数: mobile = {} {} {}".format(mobile, gt.FN_SECCODE, seccode))
+    log.info("当前滑动验证码破解情况: result = {}".format(result))
+    if result <= 0:
+        log.info("当期手机号滑动验证码破解失败，不进行短信验证码请求: {}".format(mobile))
+        return fail(HTTP_OK, u'滑动验证码识别失败，无法请求短信验证码!')
 
     # 通过手机号请求验证码
     if sms_client.request_sms(mobile):
