@@ -68,12 +68,12 @@ def menu(name):
 
     # 判断是否已经绑定了微信
     def already_bind_openid(openid):
-        user = UserService.get_by_openid(openid)
-        if user is not None:
+        user_info = UserService.get_by_openid(openid)
+        if user_info is not None and user_info.deleted == False:
             log.info("当前需要登录的: openid = {}".format(openid))
 
             # 生成对应的cookie
-            u_id = encode_user_id(user.id)
+            u_id = encode_user_id(user_info.id)
             session['u_id'] = u_id
             log.info("当前绑定的user_id cookie = {}".format(u_id))
 
@@ -92,9 +92,14 @@ def menu(name):
         return already_bind_openid(g.openid)
 
     # 如果user_id 不存在 则需要重新登录绑定
-    if UserService.get_by_id(user_id) is None:
+    user = get_current_user(user_id)
+    if user is None:
         log.warn("数据库中没有当前用户信息，需要登录: user_id = {}".format(user_id))
         return already_bind_openid(g.openid)
+
+    if user.deleted:
+        log.warn("当前用户被删除，需要重新登录: user_id = {}".format(user_id))
+        return redirect('#/login')
 
     return redirect_to(name)
 
@@ -113,6 +118,10 @@ def wechat_check():
     if user is None:
         log.info("当前openid没有注册用户信息: {}".format(openid))
         return fail(HTTP_OK, u"当前openid没有注册!", 0)
+
+    if user.deleted:
+        log.info("当前openid没有注册用户信息: {}".format(openid))
+        return fail(HTTP_OK, u"当前用户已经被删除!", -2)
 
     return success()
 
@@ -224,6 +233,9 @@ def wechat_login():
         u_id = encode_user_id(user.id)
         session['u_id'] = u_id
         log.info("当前绑定的user_id cookie = {}".format(u_id))
+        # 去除用户删除标志
+        user.deleted = False
+        user.save()
         return success(user.to_dict())
 
     if user is not None and user.openid != g.openid:
@@ -265,6 +277,10 @@ def get_user_info():
     if user is None:
         log.warn("当前user_id没有获得用户信息: {}".format(g.user_id))
         return fail(HTTP_OK, u'没有当前用户信息')
+
+    if user.deleted:
+        log.warn("当前user_id用户已经被删除: {}".format(g.user_id))
+        return fail(HTTP_OK, u'当前用户已经被删除')
 
     # 判断昵称或头像是否已经获取到了
     if user.head_img_url == '' or user.nick_name == '':

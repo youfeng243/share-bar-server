@@ -102,7 +102,7 @@ def qr_code_online(device_code):
         return fail(HTTP_OK, u"用户还绑定手机号码登录!", LOGIN_ERROR_BIND)
 
     # 如果当前用户 被禁用 则不能上线
-    if user.deleted is True:
+    if user.deleted:
         log.warn("当前用户已经被删除了，不能上线: user_id = {}".format(user.id))
         return fail(HTTP_OK, u"当前用户已经被删除了，不能上机", LOGIN_ERROR_DELETE)
 
