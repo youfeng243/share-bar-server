@@ -21,6 +21,9 @@ Content-Type: application/json
 参数:
 json = {
     "mobile": "手机号码"
+    "geetest_challenge": 'xx'
+    "geetest_validate": 'xx'
+    "geetest_seccode": 'xx'
 }
 返回:
 {
@@ -188,6 +191,7 @@ post = {
     "error": null
 }
 
+9. 获得极验初始化配置信息
 /wechat/geetest, methods=['GET']
 参数
 无
