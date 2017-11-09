@@ -26,7 +26,7 @@ from exts.resource import redis_cache_client
 from service.address.model import Address
 from service.charge.impl import ChargeService
 from service.device.impl import DeviceService, GameService
-from service.device.model import Device
+from service.device.model import Device, DeviceStatus
 from service.maintain.impl import MaintainService
 from service.maintain.model import Maintain
 from service.windows.impl import WindowsService
@@ -150,7 +150,7 @@ def qr_code_online(device_code):
         # 判断当前设备是否处于空闲状态 且设备必须处于在线状态
         device_status = DeviceService.get_device_status(device)
         device_alive = DeviceService.get_device_alive_status(device)
-        if device_status != Device.STATUE_FREE or device_alive != Device.ALIVE_ONLINE:
+        if device_status != DeviceStatus.STATUE_FREE or device_alive != Device.ALIVE_ONLINE:
             log.warn("当前设备不处于空闲状态，不能上机: device_id = {} state = {} alive = {}".format(
                 device.id, device_status, device_alive))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，或者当前设备不在线，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
@@ -219,7 +219,7 @@ def check_connect():
     # 从维护状态跳转到空闲状态
     if device_status == Device.STATUS_MAINTAIN:
         log.info("当前状态为维护状态，设备已经有心跳需要重新设置空闲状态!")
-        DeviceService.status_transfer(device_code, device_status, Device.STATUE_FREE)
+        DeviceService.status_transfer(device_code, device_status, DeviceStatus.STATUE_FREE)
 
         # 重新获得设备状态
         device_status = DeviceService.get_device_status(device_code)
@@ -339,7 +339,7 @@ def maintain_login():
         return fail(HTTP_OK, u"当前设备离线，维修人员无法登录!!")
 
     # 判断当前设备使用状态
-    if DeviceService.get_device_status(device) == Device.STATUE_BUSY:
+    if DeviceService.get_device_status(device) == DeviceStatus.STATUE_BUSY:
         log.error("当前设备用户正在使用，维修人员无法登录: device_code = {}".format(device_code))
         return fail(HTTP_OK, u"当前设备用户正在使用，维修人员无法登录!!")
 
@@ -421,12 +421,13 @@ def modify_device_game_state():
         # device.update_state = update_state
 
         # 锁定设备
-        if current_status != Device.STATUE_FREE and current_status != Device.STATUE_LOCK:
+        if current_status != DeviceStatus.STATUE_FREE and \
+                        current_status != DeviceStatus.STATUE_LOCK:
             return fail(HTTP_OK, u"当前设备不为空闲或者锁定状态，无法更新!")
 
         # 如果当前设备为空闲状态 则锁定设备
-        if current_status == Device.STATUE_FREE:
-            if not DeviceService.set_device_status(device, Device.STATUE_LOCK):
+        if current_status == DeviceStatus.STATUE_FREE:
+            if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
                 log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device.id))
                 return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
 
@@ -439,8 +440,8 @@ def modify_device_game_state():
         return success(u'当前状态不正确, 不能设置')
 
     # 如果当前设备被锁定了 则解锁
-    if current_status == Device.STATUE_LOCK:
-        if not DeviceService.set_device_status(device, Device.STATUE_FREE):
+    if current_status == DeviceStatus.STATUE_LOCK:
+        if not DeviceService.set_device_status(device, DeviceStatus.STATUE_FREE):
             log.error("解锁设备异常: device_id = {}".format(device.id))
             return fail(HTTP_OK, u'设备解锁失败，多进程写入设备状态异常!')
 

@@ -16,7 +16,7 @@ from exts.common import fail, HTTP_OK, log, success, is_valid_time
 from exts.resource import redis_cache_client
 from service.admin.impl import AdminService
 from service.device.impl import DeviceService, GameService
-from service.device.model import Device
+from service.device.model import Device, DeviceStatus
 from service.use_record.model import UseRecord
 from service.windows.impl import WindowsService
 
@@ -108,35 +108,35 @@ def lock_device():
 
     # 当前是否是想解锁设备
     if not lock:
-        if use_status == Device.STATUE_LOCK:
-            if not DeviceService.set_device_status(device, Device.STATUE_FREE):
+        if use_status == DeviceStatus.STATUE_LOCK:
+            if not DeviceService.set_device_status(device, DeviceStatus.STATUE_FREE):
                 return fail(HTTP_OK, u'设备解锁失败，多进程写入设备状态异常!')
             log.info("解锁设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
             return success(u'解锁设备成功')
         return success(u'当前设备未锁定，不需要解锁!')
 
     # 判断设备是否处于维护状态
-    if use_status == Device.STATUS_MAINTAIN:
+    if use_status == DeviceStatus.STATUS_MAINTAIN:
         log.info("当前设备维护人员已登录，无法锁定设备: device_id = {} use_status = {}".format(device_id, use_status))
         return fail(HTTP_OK, u"当前设备维护人员已登录，无法锁定设备!")
 
-    if use_status == Device.STATUE_LOCK:
+    if use_status == DeviceStatus.STATUE_LOCK:
         log.info("当前设备已被锁定，不需要再锁定: device_id = {} use_status = {}".format(device_id, use_status))
         return success(u"当前设备已被锁定，不需要再锁定")
 
     # 当前设备处于忙碌状态，锁定设备
-    if use_status == Device.STATUE_BUSY:
+    if use_status == DeviceStatus.STATUE_BUSY:
         log.info("当前设备有用户在使用，强制用户下机，锁定设备: device_id = {} use_status = {}".format(device_id, use_status))
         if not WindowsService.do_offline_order_by_device_code(device.device_code):
             return fail(HTTP_OK, u"强制用户下机失败，无法锁定设备!")
 
-        if not DeviceService.set_device_status(device, Device.STATUE_LOCK):
+        if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
             log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
             return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
         log.info("锁定设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
         return success(u'当前设备有用户在使用，强制用户下机，锁定设备成功')
 
-    if not DeviceService.set_device_status(device, Device.STATUE_LOCK):
+    if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
         log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
         return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
     log.info("锁定设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))

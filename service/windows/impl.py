@@ -18,7 +18,7 @@ from exts.distributed_lock import DistributeLock
 from exts.redis_api import RedisClient
 from exts.resource import redis_cache_client, db
 from service.device.impl import DeviceService
-from service.device.model import Device
+from service.device.model import DeviceStatus
 from service.template.impl import TemplateService
 from service.use_record.model import UseRecord
 from service.user.model import User
@@ -41,7 +41,7 @@ class WindowsService(object):
             record.end_time = datetime.now()
 
             # 设置设备为空闲状态
-            if not DeviceService.set_device_status(device, Device.STATUE_FREE):
+            if not DeviceService.set_device_status(device, DeviceStatus.STATUE_FREE):
                 log.error("设置设备状态异常，下机失败!")
                 return False, None, None
 
@@ -165,7 +165,7 @@ class WindowsService(object):
             lock.acquire()
 
             # 设置设备当前使用状态
-            if not DeviceService.set_device_status(device, Device.STATUE_BUSY):
+            if not DeviceService.set_device_status(device, DeviceStatus.STATUE_BUSY):
                 log.error("设置设备状态失败, 上机异常！！！")
                 return False
 

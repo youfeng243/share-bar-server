@@ -22,7 +22,7 @@ from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVIC
 from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.address.model import Address
-from service.device.model import Device, Game
+from service.device.model import Device, Game, DeviceStatus
 
 
 # 设备操作接口
@@ -166,7 +166,7 @@ class DeviceService(object):
         # 如果设备正在更新，则重新锁定设备
         if device.update_state == Device.UPDATE_ING:
             log.info("当前设备正在更新中，重新锁定设备: device_id = {}".format(device.id))
-            DeviceService.set_device_status(device, Device.STATUE_LOCK)
+            DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK)
             return
 
         DeviceService.set_device_status(device, to_status)
@@ -222,7 +222,7 @@ class DeviceService(object):
 
         # 当前设备在线，且设备正在被用户使用，则不能够删除
         if DeviceService.get_device_alive_status(device) == Device.ALIVE_ONLINE and \
-                        DeviceService.get_device_status(device) != Device.STATUE_FREE:
+                        DeviceService.get_device_status(device) != DeviceStatus.STATUE_FREE:
             log.warn("当前设备不处于空闲状态，不能删除: device_id = {}".format(device.id))
             return False
 

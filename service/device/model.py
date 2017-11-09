@@ -18,19 +18,21 @@ from service.deploy.model import Deploy
 __all__ = ['Deploy']
 
 
-# 设备信息
-class Device(ModelBase):
-    __tablename__ = 'device'
-
+# 设备状态
+class DeviceStatus(object):
     # 空闲状态
     STATUE_FREE = 'free'
     # 用户正在使用状态
     STATUE_BUSY = 'busy'
     # 锁定状态: 后台主动锁定，或称 维护状态，锁定状态必须由空闲状态转入，因为busy状态用户正在上机， 维护状态客户端正在操作
     STATUE_LOCK = 'lock'
-
     # 维护状态 客户端维护人员登录 则进入这个状态
     STATUS_MAINTAIN = 'maintain'
+
+
+# 设备信息
+class Device(ModelBase):
+    __tablename__ = 'device'
 
     # 当前设备存活状态
     ALIVE_OFFLINE = 'offline'
@@ -42,7 +44,10 @@ class Device(ModelBase):
     UPDATE_ING = 'ing'
 
     # 使用状态
-    STATUS_VALUES = (STATUE_FREE, STATUE_BUSY, STATUE_LOCK, STATUS_MAINTAIN)
+    STATUS_VALUES = (DeviceStatus.STATUE_FREE,
+                     DeviceStatus.STATUE_BUSY,
+                     DeviceStatus.STATUE_LOCK,
+                     DeviceStatus.STATUS_MAINTAIN)
 
     # 更新状态
     UPDATE_STATUS_VALUES = (UPDATE_WAIT, UPDATE_FINISH, UPDATE_ING)
@@ -63,7 +68,7 @@ class Device(ModelBase):
     income = db.Column(db.Integer, nullable=False, default=0)
 
     # 设备当前使用状态 free 空闲 busy 忙碌 lock 锁定
-    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=STATUE_FREE)
+    state = db.Column(db.Enum(*STATUS_VALUES), index=True, default=DeviceStatus.STATUE_FREE)
 
     # 状态版本信息 乐观锁
     state_version = db.Column(db.Integer, default=0)
