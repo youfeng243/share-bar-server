@@ -49,9 +49,6 @@ class User(ModelBase):
     # 当前用户使用状态信息 unused 禁用  using 使用
     state = db.Column(db.Enum(*STATUS_VALUES), index=True, default='using')
 
-    # 反向指向充值列表信息
-    recharge_query = db.relationship('Recharge', backref='user', lazy='dynamic')
-
     # 删除用户
     deleted = db.Column(db.Boolean, default=False)
 

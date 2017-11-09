@@ -17,7 +17,7 @@ class Recharge(ModelBase):
     __tablename__ = 'recharge'
 
     # 用户ID
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, index=True, nullable=False)
 
     # 充值流水账号 每一次充值带时间戳的唯一ID
     transaction_id = db.Column(db.String(64), unique=True, index=True, nullable=False)
@@ -32,12 +32,15 @@ class Recharge(ModelBase):
         return '<Recharge {} {}>'.format(self.username, self.dev_name)
 
     def to_dict(self):
-        return {
+
+        data = {
             'id': self.id,
-            'user': self.user.to_dict(),
+            'user_id': self.user_id,
             'amount': self.amount,
             'transaction_id': self.transaction_id,
             'pay_time': self.pay_time.strftime('%Y-%m-%d %H:%M:%S'),
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }
+
+        return data
