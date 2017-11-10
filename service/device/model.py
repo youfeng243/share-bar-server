@@ -47,11 +47,6 @@ class Device(ModelBase):
     ALIVE_OFFLINE = 'offline'
     ALIVE_ONLINE = 'online'
 
-    # 游戏更新状态
-    UPDATE_WAIT = 'wait'
-    UPDATE_FINISH = 'finish'
-    UPDATE_ING = 'ing'
-
     # 使用状态
     STATUS_VALUES = (DeviceStatus.STATUE_FREE,
                      DeviceStatus.STATUE_BUSY,
@@ -59,7 +54,10 @@ class Device(ModelBase):
                      DeviceStatus.STATUS_MAINTAIN)
 
     # 更新状态
-    UPDATE_STATUS_VALUES = (UPDATE_WAIT, UPDATE_FINISH, UPDATE_ING)
+    UPDATE_STATUS_VALUES = (DeviceUpdateStatus.UPDATE_WAIT,
+                            DeviceUpdateStatus.UPDATE_FINISH,
+                            DeviceUpdateStatus.UPDATE_ING,
+                            DeviceUpdateStatus.UPDATE_CHECK)
 
     # 存活状态
     ALIVE_VALUES = (ALIVE_OFFLINE, ALIVE_ONLINE)
@@ -86,7 +84,7 @@ class Device(ModelBase):
     alive = db.Column(db.Enum(*ALIVE_VALUES), index=True, default=ALIVE_OFFLINE)
 
     # 更新状态
-    update_state = db.Column(db.Enum(*UPDATE_STATUS_VALUES), default=UPDATE_FINISH)
+    update_state = db.Column(db.Enum(*UPDATE_STATUS_VALUES), default=DeviceUpdateStatus.UPDATE_FINISH)
 
     # 更新状态版本信息
     update_state_version = db.Column(db.Integer, default=0)

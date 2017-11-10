@@ -26,7 +26,7 @@ from exts.resource import redis_cache_client
 from service.address.model import Address
 from service.charge.impl import ChargeService
 from service.device.impl import DeviceService, GameService
-from service.device.model import Device, DeviceStatus
+from service.device.model import Device, DeviceStatus, DeviceUpdateStatus
 from service.maintain.impl import MaintainService
 from service.maintain.model import Maintain
 from service.windows.impl import WindowsService
@@ -405,7 +405,7 @@ def modify_device_game_state():
     device_code = request.json.get('device_code')
     update_state = request.json.get('update_state')
 
-    if update_state != Device.UPDATE_ING and update_state != Device.UPDATE_FINISH:
+    if update_state != DeviceUpdateStatus.UPDATE_ING and update_state != DeviceUpdateStatus.UPDATE_FINISH:
         log.error("当前状态不允许: update_state = {}".format(update_state))
         return fail(HTTP_OK, u"参数错误!")
 
@@ -417,7 +417,7 @@ def modify_device_game_state():
     # 获取当前设备状态
     current_status = DeviceService.get_device_status(device)
 
-    if update_state == Device.UPDATE_ING:
+    if update_state == DeviceUpdateStatus.UPDATE_ING:
         # 锁定设备
         if current_status != DeviceStatus.STATUE_FREE and \
                         current_status != DeviceStatus.STATUE_LOCK:
@@ -434,7 +434,7 @@ def modify_device_game_state():
         return fail(HTTP_OK, u"更新状态设置失败")
 
     # 如果当前设备状态不为ing 则不进行更新设置
-    if DeviceService.get_update_state(device) != Device.UPDATE_ING:
+    if DeviceService.get_update_state(device) != DeviceUpdateStatus.UPDATE_ING:
         return success(u'当前状态不正确, 不能设置')
 
     # 如果当前设备被锁定了 则解锁

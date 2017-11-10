@@ -22,7 +22,7 @@ from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVIC
 from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.address.model import Address
-from service.device.model import Device, Game, DeviceStatus
+from service.device.model import Device, Game, DeviceStatus, DeviceUpdateStatus
 
 
 # 设备操作接口
@@ -164,7 +164,7 @@ class DeviceService(object):
             return
 
         # 如果设备正在更新，则重新锁定设备
-        if DeviceService.get_update_state(device) == Device.UPDATE_ING:
+        if DeviceService.get_update_state(device) == DeviceUpdateStatus.UPDATE_ING:
             log.info("当前设备正在更新中，重新锁定设备: device_id = {}".format(device.id))
             DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK)
             return
@@ -606,7 +606,7 @@ class GameService(object):
             log.error("当前设备不存在，或者参数错误: device_id = {}".format(device_id))
             return False
 
-        if DeviceService.get_update_state(device) != Device.UPDATE_FINISH:
+        if DeviceService.get_update_state(device) != DeviceUpdateStatus.UPDATE_FINISH:
             log.info("当前设备游戏更新状态不需要设置: device_id = {} update_state = {}".format(
                 device.id, device.update_state))
             return True
@@ -617,7 +617,7 @@ class GameService(object):
             return True
 
         log.info("当前存在游戏需要更新，通知客户端更新: device_id = {}".format(device.id))
-        return DeviceService.set_update_state(device, Device.UPDATE_WAIT)
+        return DeviceService.set_update_state(device, DeviceUpdateStatus.UPDATE_WAIT)
 
     # 更新所有设备游戏状态
     @staticmethod
