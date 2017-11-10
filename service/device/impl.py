@@ -164,7 +164,7 @@ class DeviceService(object):
             return
 
         # 如果设备正在更新，则重新锁定设备
-        if device.update_state == Device.UPDATE_ING:
+        if DeviceService.get_update_state(device) == Device.UPDATE_ING:
             log.info("当前设备正在更新中，重新锁定设备: device_id = {}".format(device.id))
             DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK)
             return
@@ -405,6 +405,30 @@ class DeviceService(object):
 
         return True
 
+    # 获取游戏更新状态
+    @staticmethod
+    def get_update_state(device_code):
+
+        if isinstance(device_code, Device):
+            return device_code.update_state
+
+        if isinstance(device_code, basestring):
+            device_update_key = RedisClient.get_device_update_status_key(device_code)
+            update_state = redis_device_client.get(device_update_key)
+            if update_state is not None:
+                return update_state
+
+            device = DeviceService.get_device_by_code(device_code)
+            if device is None:
+                log.error("当前设备号没有搜索到设备信息: device_code = {}".format(device_code))
+                return None
+
+            redis_device_client.setex(device_update_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.update_state)
+            return device.update_state
+
+        log.error("当前参数既不是字符串类型也不是Device类型: type = {}".format(type(device_code)))
+        return None
+
 
 # 游戏列表接口
 class GameService(object):
@@ -582,7 +606,7 @@ class GameService(object):
             log.error("当前设备不存在，或者参数错误: device_id = {}".format(device_id))
             return False
 
-        if device.update_state != Device.UPDATE_FINISH:
+        if DeviceService.get_update_state(device) != Device.UPDATE_FINISH:
             log.info("当前设备游戏更新状态不需要设置: device_id = {} update_state = {}".format(
                 device.id, device.update_state))
             return True

@@ -418,8 +418,6 @@ def modify_device_game_state():
     current_status = DeviceService.get_device_status(device)
 
     if update_state == Device.UPDATE_ING:
-        # device.update_state = update_state
-
         # 锁定设备
         if current_status != DeviceStatus.STATUE_FREE and \
                         current_status != DeviceStatus.STATUE_LOCK:
@@ -436,7 +434,7 @@ def modify_device_game_state():
         return fail(HTTP_OK, u"更新状态设置失败")
 
     # 如果当前设备状态不为ing 则不进行更新设置
-    if device.update_state != Device.UPDATE_ING:
+    if DeviceService.get_update_state(device) != Device.UPDATE_ING:
         return success(u'当前状态不正确, 不能设置')
 
     # 如果当前设备被锁定了 则解锁
@@ -460,10 +458,12 @@ def get_device_game_state():
         return fail(HTTP_OK, u"need application/json!!")
 
     device_code = request.json.get('device_code')
+    if not isinstance(device_code, basestring):
+        return fail(HTTP_OK, u"参数类型错误!")
 
-    device = DeviceService.get_device_by_code(device_code)
-    if device is None:
+    update_state = DeviceService.get_update_state(device_code)
+    if update_state is None:
         log.error("当前设备号没有获取到任何设备信息: {}".format(device_code))
-        return fail(HTTP_OK, u"参数错误,获取设备信息失败!!")
+        return fail(HTTP_OK, u'当前设备号信息不正确，无法获取更新状态信息')
 
-    return success(device.update_state)
+    return success(update_state)

@@ -30,6 +30,15 @@ class DeviceStatus(object):
     STATUS_MAINTAIN = 'maintain'
 
 
+# 设备更新状态
+class DeviceUpdateStatus(object):
+    # 游戏更新状态
+    UPDATE_WAIT = 'wait'
+    UPDATE_FINISH = 'finish'
+    UPDATE_ING = 'ing'
+    UPDATE_CHECK = 'check'
+
+
 # 设备信息
 class Device(ModelBase):
     __tablename__ = 'device'
