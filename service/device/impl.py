@@ -379,8 +379,9 @@ class DeviceService(object):
             return success(package_result(0, []))
         return success(package_result(total, [item.to_dict() for item in item_list]))
 
+    # 写入更新状态到缓存
     @staticmethod
-    def set_update_state(device_id, update_state, last_update_time=None):
+    def set_update_state(device, update_state, last_update_time=None):
         update_info = {
             Device.update_state: update_state
         }
@@ -388,11 +389,19 @@ class DeviceService(object):
         if last_update_time is not None:
             update_info[Device.last_update_time] = last_update_time
 
-        rowcount = Device.query.filter_by(id=device_id).update(update_info)
+        rowcount = Device.query.filter_by(id=device.id).update(update_info)
         if rowcount <= 0:
             log.error("设备游戏更新状态更新失败: device_id = {} update_state = {}".format(
-                device_id, update_state))
+                device.id, update_state))
             return False
+
+        log.info("设备更新状态写入数据库完成: rowcount = {} ".format(rowcount))
+        device_update_key = RedisClient.get_device_update_status_key(device.device_code)
+
+        # 存储状态到redis中 状态只保存一天，防止数据被删除 缓存一直存在
+        redis_device_client.setex(device_update_key, DEFAULT_EXPIRED_DEVICE_STATUS, update_state)
+        log.info("设备更新状态设置成功: device_id = {} device_code = {} update_state = {}".format(
+            device.id, device.device_code, update_state))
 
         return True
 
@@ -584,7 +593,7 @@ class GameService(object):
             return True
 
         log.info("当前存在游戏需要更新，通知客户端更新: device_id = {}".format(device.id))
-        return DeviceService.set_update_state(device.id, Device.UPDATE_WAIT)
+        return DeviceService.set_update_state(device, Device.UPDATE_WAIT)
 
     # 更新所有设备游戏状态
     @staticmethod

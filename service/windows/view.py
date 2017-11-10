@@ -431,7 +431,7 @@ def modify_device_game_state():
                 log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device.id))
                 return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
 
-        if DeviceService.set_update_state(device.id, update_state):
+        if DeviceService.set_update_state(device, update_state):
             return success(u"设备游戏更新状态设置成功!")
         return fail(HTTP_OK, u"更新状态设置失败")
 
@@ -447,7 +447,7 @@ def modify_device_game_state():
 
     # 设置游戏更新完成。。
     GameService.update_device_game(device_id=device.id)
-    if DeviceService.set_update_state(device.id, update_state, last_update_time=datetime.now()):
+    if DeviceService.set_update_state(device, update_state, last_update_time=datetime.now()):
         return success(u"设备游戏更新状态设置成功!")
     return fail(HTTP_OK, u"更新状态设置失败")
 

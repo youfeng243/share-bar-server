@@ -92,6 +92,9 @@ REDIS_PRE_DEVICE_HEART_KEY = 'bar#device#heart#'
 # 设备状态key
 REDIS_PRE_DEVICE_STATUS_KEY = 'bar#device#status#'
 
+# 设备更新状态key
+REDIS_PRE_DEVICE_UPDATE_STATUS_KEY = 'bar#device#update#status#'
+
 # 游戏更新时间
 REDIS_PRE_UPDATE_TIME_KEY = 'bar#game#update#time'
 
