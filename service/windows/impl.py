@@ -18,7 +18,7 @@ from exts.distributed_lock import DistributeLock
 from exts.redis_api import RedisClient
 from exts.resource import redis_cache_client, db
 from service.device.impl import DeviceService
-from service.device.model import DeviceStatus
+from service.device.model import DeviceStatus, DeviceUpdateStatus
 from service.template.impl import TemplateService
 from service.use_record.model import UseRecord
 from service.user.model import User
@@ -250,6 +250,13 @@ class WindowsService(object):
             device_code_key = RedisClient.get_device_code_key(device_code)
             # 获得keep_alive_key 更新最新存活时间
             user_online_key = RedisClient.get_user_online_key(record_key)
+
+            # 设置设备自检, 如果设备处于完成更新状态 则可以进入自检，否则其他状态不能设置自检
+            if DeviceService.get_update_state(device_code) == DeviceUpdateStatus.UPDATE_FINISH:
+                if DeviceService.set_update_state(device_code, DeviceUpdateStatus.UPDATE_CHECK):
+                    log.info("设置自检状态成功: device_code = {}".format(device_code))
+                else:
+                    log.error("设置自检状态失败: device_code = {}".format(device_code))
 
             # 从redis中删除上机记录
             redis_cache_client.delete(record_key)

@@ -163,9 +163,11 @@ class DeviceService(object):
             log.error("当前设备码不正确, 找不到设备: device_code = {}".format(device_code))
             return
 
-        # 如果设备正在更新，则重新锁定设备
-        if DeviceService.get_update_state(device) == DeviceUpdateStatus.UPDATE_ING:
-            log.info("当前设备正在更新中，重新锁定设备: device_id = {}".format(device.id))
+        # 如果设备正在更新或者正在自检，则重新锁定设备
+        current_update_state = DeviceService.get_update_state(device)
+        if current_update_state == DeviceUpdateStatus.UPDATE_ING or \
+                        current_update_state == DeviceUpdateStatus.UPDATE_CHECK:
+            log.info("当前设备正在更新或者自检中，重新锁定设备: device_id = {}".format(device.id))
             DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK)
             return
 
@@ -382,6 +384,13 @@ class DeviceService(object):
     # 写入更新状态到缓存
     @staticmethod
     def set_update_state(device, update_state, last_update_time=None):
+
+        # 如果传出的是 设备号 则查找
+        if isinstance(device, basestring):
+            device = DeviceService.get_device_by_code(device)
+            if device is None:
+                return False
+
         update_info = {
             Device.update_state: update_state
         }
@@ -418,11 +427,13 @@ class DeviceService(object):
             if update_state is not None:
                 return update_state
 
+            log.info("当前设备游戏更新状态还未缓存: device_code = {}".format(device_code))
             device = DeviceService.get_device_by_code(device_code)
             if device is None:
                 log.error("当前设备号没有搜索到设备信息: device_code = {}".format(device_code))
                 return None
 
+            # 缓存游戏更新设备状态
             redis_device_client.setex(device_update_key, DEFAULT_EXPIRED_DEVICE_STATUS, device.update_state)
             return device.update_state
 

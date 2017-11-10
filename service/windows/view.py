@@ -405,7 +405,8 @@ def modify_device_game_state():
     device_code = request.json.get('device_code')
     update_state = request.json.get('update_state')
 
-    if update_state != DeviceUpdateStatus.UPDATE_ING and update_state != DeviceUpdateStatus.UPDATE_FINISH:
+    if update_state not in (DeviceUpdateStatus.UPDATE_ING,
+                            DeviceUpdateStatus.UPDATE_FINISH):
         log.error("当前状态不允许: update_state = {}".format(update_state))
         return fail(HTTP_OK, u"参数错误!")
 
@@ -414,10 +415,17 @@ def modify_device_game_state():
         log.error("当前设备号没有获取到任何设备信息: {}".format(device_code))
         return fail(HTTP_OK, u"参数错误,获取设备信息失败!!")
 
+    # 获取当前游戏更新状态
+    current_update_state = DeviceService.get_update_state(device)
+
     # 获取当前设备状态
     current_status = DeviceService.get_device_status(device)
 
+    # 如果当前发送过来的状态是ing 则设备当前游戏更新状态必须是ing，否则状态错误
     if update_state == DeviceUpdateStatus.UPDATE_ING:
+        if current_update_state == DeviceUpdateStatus.UPDATE_CHECK:
+            return fail(HTTP_OK, u"当前游戏更新状态错误, 自检中不接收ing状态")
+
         # 锁定设备
         if current_status != DeviceStatus.STATUE_FREE and \
                         current_status != DeviceStatus.STATUE_LOCK:
@@ -433,9 +441,9 @@ def modify_device_game_state():
             return success(u"设备游戏更新状态设置成功!")
         return fail(HTTP_OK, u"更新状态设置失败")
 
-    # 如果当前设备状态不为ing 则不进行更新设置
-    if DeviceService.get_update_state(device) != DeviceUpdateStatus.UPDATE_ING:
-        return success(u'当前状态不正确, 不能设置')
+    # 判断当前属于什么状态
+    if current_update_state == DeviceUpdateStatus.UPDATE_FINISH:
+        return success(u'当前属于游戏更新完成状态，不需要设置')
 
     # 如果当前设备被锁定了 则解锁
     if current_status == DeviceStatus.STATUE_LOCK:
@@ -443,11 +451,49 @@ def modify_device_game_state():
             log.error("解锁设备异常: device_id = {}".format(device.id))
             return fail(HTTP_OK, u'设备解锁失败，多进程写入设备状态异常!')
 
-    # 设置游戏更新完成。。
-    GameService.update_device_game(device_id=device.id)
-    if DeviceService.set_update_state(device, update_state, last_update_time=datetime.now()):
+    # 如果当前属于更新中状态
+    if current_update_state == DeviceUpdateStatus.UPDATE_ING:
+        # 设置游戏更新完成。。
+        GameService.update_device_game(device_id=device.id)
+        if DeviceService.set_update_state(device, update_state, last_update_time=datetime.now()):
+            return success(u"设备游戏更新状态设置成功!")
+        return fail(HTTP_OK, u"更新状态设置失败")
+
+    if DeviceService.set_update_state(device, update_state):
         return success(u"设备游戏更新状态设置成功!")
     return fail(HTTP_OK, u"更新状态设置失败")
+
+    # if update_state == DeviceUpdateStatus.UPDATE_ING:
+    #     # 锁定设备
+    #     if current_status != DeviceStatus.STATUE_FREE and \
+    #                     current_status != DeviceStatus.STATUE_LOCK:
+    #         return fail(HTTP_OK, u"当前设备不为空闲或者锁定状态，无法更新!")
+    #
+    #     # 如果当前设备为空闲状态 则锁定设备
+    #     if current_status == DeviceStatus.STATUE_FREE:
+    #         if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
+    #             log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device.id))
+    #             return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
+    #
+    #     if DeviceService.set_update_state(device, update_state):
+    #         return success(u"设备游戏更新状态设置成功!")
+    #     return fail(HTTP_OK, u"更新状态设置失败")
+
+    # 如果当前设备状态不为ing 则不进行更新设置
+    # if DeviceService.get_update_state(device) != DeviceUpdateStatus.UPDATE_ING:
+    #     return success(u'当前状态不正确, 不能设置')
+    #
+    # # 如果当前设备被锁定了 则解锁
+    # if current_status == DeviceStatus.STATUE_LOCK:
+    #     if not DeviceService.set_device_status(device, DeviceStatus.STATUE_FREE):
+    #         log.error("解锁设备异常: device_id = {}".format(device.id))
+    #         return fail(HTTP_OK, u'设备解锁失败，多进程写入设备状态异常!')
+    #
+    # # 设置游戏更新完成。。
+    # GameService.update_device_game(device_id=device.id)
+    # if DeviceService.set_update_state(device, update_state, last_update_time=datetime.now()):
+    #     return success(u"设备游戏更新状态设置成功!")
+    # return fail(HTTP_OK, u"更新状态设置失败")
 
 
 # 获取游戏更新状态
