@@ -34,8 +34,11 @@ class DeviceStatus(object):
 class DeviceUpdateStatus(object):
     # 游戏更新状态
     UPDATE_WAIT = 'wait'
+    # 游戏更新完成
     UPDATE_FINISH = 'finish'
+    # 游戏更新中
     UPDATE_ING = 'ing'
+    # 游戏自检中
     UPDATE_CHECK = 'check'
 
 
