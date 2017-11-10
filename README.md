@@ -4,8 +4,8 @@ CMS based on Flask
 
 ## Quick Start
 
-#### 0.Init environment
-`sh deploy.sh`
+#### 0.Deploy environment
+`sudo sh deploy.sh`
 
 
 #### 1.Start server
@@ -18,7 +18,3 @@ CMS based on Flask
 
 #### 2.Restart server
 `sh run.sh restart`
-
-## Deploy
-* weixin.doumihuyu.com:22
-* /root/share-bar-server
