@@ -37,8 +37,10 @@ class GameManageService(object):
         return game_manage, True
 
     @staticmethod
+    def update_game_info(game_manage, md5):
+        game_manage.md5 = md5
+        return game_manage.save()
+
+    @staticmethod
     def get_game_info(game, version):
-        item = GameManage.query.filter_by(game=game, version=version).first()
-        if item is None:
-            return None
-        return item.to_dict()
+        return GameManage.query.filter_by(game=game, version=version).first()

@@ -36,9 +36,14 @@ def update_game():
             game, version, md5))
         return fail(HTTP_OK, u"参数错误")
 
-    game_manage, is_success = GameManageService.create(game, version, md5)
-    if not is_success:
-        return fail(HTTP_OK, u"游戏更新失败，请重试!")
+    game_manage = GameManageService.get_game_info(game, version)
+    if game_manage is None:
+        game_manage, is_success = GameManageService.create(game, version, md5)
+        if not is_success:
+            return fail(HTTP_OK, u"游戏更新失败，请重试!")
+    else:
+        if not GameManageService.update_game_info(game_manage, md5):
+            return fail(HTTP_OK, u"游戏更新失败，请重试!")
 
     # 开始更新游戏信息
     if not GameService.add_device_game(game, version):
@@ -62,8 +67,8 @@ def get_game_md5():
             game, version))
         return fail(HTTP_OK, u"参数错误")
 
-    result = GameManageService.get_game_info(game, version)
-    if result is None:
+    game_manage = GameManageService.get_game_info(game, version)
+    if game_manage is None:
         return fail(HTTP_OK, u'没有当前游戏版本记录')
 
-    return success(result)
+    return success(game_manage.to_dict())
