@@ -217,7 +217,7 @@ def check_connect():
     device_status = DeviceService.get_device_status(device_code)
 
     # 从维护状态跳转到空闲状态
-    if device_status == Device.STATUS_MAINTAIN:
+    if device_status == DeviceStatus.STATUS_MAINTAIN:
         log.info("当前状态为维护状态，设备已经有心跳需要重新设置空闲状态!")
         DeviceService.status_transfer(device_code, device_status, DeviceStatus.STATUE_FREE)
 
@@ -358,7 +358,7 @@ def maintain_login():
             return fail(HTTP_OK, u"当前维护人员管理的地址与设备所在地址不一致，无法登录!")
 
     # 开始登录，先设置设备状态
-    if not DeviceService.set_device_status(device, Device.STATUS_MAINTAIN):
+    if not DeviceService.set_device_status(device, DeviceStatus.STATUS_MAINTAIN):
         log.error("设备状态切换错误, 维修人员无法登录: device_code = {} username = {} password = {}".format(
             device_code, username, password))
         return fail(HTTP_OK, u"设备状态切换异常, 维修人员无法登录!")
