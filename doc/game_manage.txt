@@ -26,10 +26,14 @@ Content-Type: application/json
 
 返回
 {
-    'success': True or False
-    'result': {
-        'game': 'LOL',
-        'version': '2017-10-11'
-        'md5': 'fdasjffkljalkfjsldkfj'
-    }
+    "result": {
+        "ctime": "2017-11-11 11:27:56",
+        "game": "World of Warcraft",
+        "version": "2017-11-09",
+        "md5": "fdajsflkasjdflkasjflkdalksf",
+        "id": 1,
+        "utime": "2017-11-11 11:37:28"
+    },
+    "success": true or false,
+    "error": null
 }
