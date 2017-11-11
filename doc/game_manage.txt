@@ -16,7 +16,7 @@ Content-Type: application/json
 
 
 2. 获取游戏md5
-/game_manage/fetch POST
+/game_manage/md5 POST
 Content-Type: application/json
 参数:
 {
