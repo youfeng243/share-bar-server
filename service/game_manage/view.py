@@ -52,6 +52,42 @@ def update_game():
     return success(u'游戏更新成功!')
 
 
+@bp.route('/update', methods=['DELETE'])
+def update_game():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    game = request.json.get('game')
+    if not isinstance(game, basestring):
+        log.error("参数错误:  game = {}".format(
+            game))
+        return fail(HTTP_OK, u"参数错误")
+
+        # game_manage = GameManageService.get_game_info(game, version)
+        # if game_manage is None:
+        #     game_manage, is_success = GameManageService.create(game, version, md5)
+        #     if not is_success:
+        #         return fail(HTTP_OK, u"游戏更新失败，请重试!")
+        # else:
+        #     if not GameManageService.update_game_info(game_manage, md5):
+        #         return fail(HTTP_OK, u"游戏更新失败，请重试!")
+        #
+        # # 开始更新游戏信息
+        # if not GameService.add_device_game(game, version):
+        #     return fail(HTTP_OK, u"游戏更新失败，请重试!")
+        #
+        # return success(u'游戏更新成功!')
+    # 开始删除游戏信息
+    GameService.delete_device_game(game)
+
+    # 开始删除游戏列表信息
+    if not GameManageService.delete_game(game):
+        return fail(HTTP_OK, u"游戏删除失败，请重试!")
+
+    return success(u'游戏删除成功!')
+
+
 # 获取游戏信息
 @bp.route('/md5', methods=['POST'])
 def get_game_md5():

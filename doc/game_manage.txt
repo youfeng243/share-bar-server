@@ -37,3 +37,17 @@ Content-Type: application/json
     "success": true or false,
     "error": null
 }
+
+3. 删除游戏
+/game_manage/update DELETE
+Content-Type: application/json
+参数:
+{
+    'game': 'LOL',
+}
+
+返回
+{
+    'success': True or False
+    'result': '游戏删除成功' or '游戏删除失败'
+}

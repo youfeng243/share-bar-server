@@ -42,5 +42,17 @@ class GameManageService(object):
         return game_manage.save()
 
     @staticmethod
+    def delete_game(game):
+        try:
+            game_list = GameManage.query.filter_by(game=game).all()
+            [db.session.delete(game_item) for game_item in game_list]
+            db.session.commit()
+        except Exception as e:
+            log.error("删除游戏失败:")
+            log.exception(e)
+            return False
+        return True
+
+    @staticmethod
     def get_game_info(game, version):
         return GameManage.query.filter_by(game=game, version=version).first()
