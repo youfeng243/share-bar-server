@@ -34,8 +34,8 @@ class GameManage(ModelBase):
     def to_dict(self):
         return {
             'id': self.id,
-            'game': self.name,
-            'version': self.charge_mode,
+            'game': self.game,
+            'version': self.version,
             'md5': self.md5,
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
