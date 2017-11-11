@@ -98,6 +98,7 @@ def get_data(game, version):
     ''' Get the uploaded files'''
     base_game = None
     try:
+        log.info("当前需要解码的名称: game = {}".format(game))
         base_game = base64.urlsafe_b64decode(game)
     except Exception as e:
         log.error("base64解码失败: game = {}".format(game))
