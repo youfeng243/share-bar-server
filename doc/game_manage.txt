@@ -1,0 +1,35 @@
+1. 更新游戏
+/game_manage/update POST
+Content-Type: application/json
+参数:
+{
+    'game': 'LOL',
+    'version': '2017-10-11'
+    'md5': 'fdasjffkljalkfjsldkfj'
+}
+
+返回
+{
+    'success': True or False
+    'result': '游戏更新成功' or '游戏更新失败'
+}
+
+
+2. 获取游戏md5
+/game_manage/fetch POST
+Content-Type: application/json
+参数:
+{
+    'game': 'LOL',
+    'version': '2017-10-11'
+}
+
+返回
+{
+    'success': True or False
+    'result': {
+        'game': 'LOL',
+        'version': '2017-10-11'
+        'md5': 'fdasjffkljalkfjsldkfj'
+    }
+}
