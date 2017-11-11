@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 ''' The version file save and sync application '''
+import base64
 import json
 import os
 import sqlite3
@@ -95,8 +96,20 @@ def allowed_file(filename):
 @application.route('/data/<game>/<version>', methods=['GET'])
 def get_data(game, version):
     ''' Get the uploaded files'''
+    base_game = None
+    try:
+        base_game = base64.urlsafe_b64decode(game)
+    except Exception as e:
+        log.error("base64解码失败: game = {}".format(game))
+        log.exception(e)
+        return 'error: 游戏名称无法转base64解码'
+
+    if base_game is None:
+        return 'error: 游戏名称解码失败'
+
+    log.info("解码后的游戏名称: game = {}".format(base_game))
     name = version + '.db'
-    return send_from_directory('uploaded_files/' + game, name, as_attachment=False)
+    return send_from_directory('uploaded_files/' + base_game, name, as_attachment=False)
 
 
 def sync_game(game, version):
@@ -135,9 +148,21 @@ def del_game(game):
 
 @application.route('/data/<game>', methods=['DELETE'])
 def delete(game):
-    ''' Delete a game '''
-    if json.loads(del_game(game))['success']:
-        path = os.path.join(application.config['UPLOAD_FOLDER'], game)
+    base_game = None
+    try:
+        base_game = base64.urlsafe_b64decode(game)
+    except Exception as e:
+        log.error("base64解码失败: game = {}".format(game))
+        log.exception(e)
+        return 'error: 游戏名称无法转base64解码'
+
+    if base_game is None:
+        return 'error: 游戏名称解码失败'
+
+    log.info("解码后的游戏名称: game = {}".format(base_game))
+
+    if json.loads(del_game(base_game))['success']:
+        path = os.path.join(application.config['UPLOAD_FOLDER'], base_game)
         for root, dirs, files in os.walk(path):
             for doc in files:
                 os.remove(os.path.join(path, doc))
@@ -194,7 +219,12 @@ def download():
     version = request.json.get('version', None)
     if not all([game, version]):
         return abort(404)
-    return redirect(url_for('get_data', game=game, version=version))
+
+    log.info("当前需要下载的游戏: game = {} version = {}".format(game, version))
+
+    base_game = base64.urlsafe_b64encode(game)
+    log.info("转换后的游戏名称: game = {} base_name = {}".format(game, base_game))
+    return redirect(url_for('get_data', game=base_game, version=version))
 
 
 @application.route('/')
