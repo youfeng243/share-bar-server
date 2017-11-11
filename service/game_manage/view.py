@@ -53,7 +53,7 @@ def update_game():
 
 
 @bp.route('/update', methods=['DELETE'])
-def update_game():
+def delete_game():
     if not request.is_json:
         log.warn("参数错误...")
         return fail(HTTP_OK, u"need application/json!!")
