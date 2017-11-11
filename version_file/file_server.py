@@ -138,6 +138,7 @@ def del_game(game):
     try:
         r = requests.delete(url, json=payload)
         if r.status_code != 200:
+            log.error("请求游戏仓删除游戏接口状态码不正确: status_code = {}".format(r.status_code))
             return '发送删除请求失败'
         return r.text
     except Exception as e:
