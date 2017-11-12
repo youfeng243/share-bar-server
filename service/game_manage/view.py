@@ -108,3 +108,20 @@ def get_game_md5():
         return fail(HTTP_OK, u'没有当前游戏版本记录')
 
     return success(game_manage.to_dict())
+
+
+@bp.route('/log', methods=['POST'])
+def upload_game_log():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    device_code = request.json.get('device_code')
+    text = request.json.get('text')
+    if not isinstance(device_code, basestring) or \
+            not isinstance(text, basestring):
+        log.error("参数错误:  device_code = {} text = {}".format(
+            device_code, text))
+        return fail(HTTP_OK, u"参数错误")
+
+    return success('success')

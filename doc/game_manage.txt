@@ -51,3 +51,19 @@ Content-Type: application/json
     'success': True or False
     'result': '游戏删除成功' or '游戏删除失败'
 }
+
+
+4. 游戏更新日志
+/game_manage/log POST
+Content-Type: application/json
+参数:
+{
+    'device_code': 'xxxxx',
+    'text': '这里是日志，长度不宜太长，会导致请求body太大被拒绝'
+}
+
+返回
+{
+    'success': True  or False
+    'result': 'success'
+}
