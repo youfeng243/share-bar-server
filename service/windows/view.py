@@ -155,6 +155,14 @@ def qr_code_online(device_code):
                 device.id, device_status, device_alive))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，或者当前设备不在线，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
+        # 判断当前设备是否正在更新 或者正在自检，这种状态下不能够登录上线
+        current_update_state = DeviceService.get_update_state(device)
+        if current_update_state == DeviceUpdateStatus.UPDATE_ING or \
+                        current_update_state == DeviceUpdateStatus.UPDATE_CHECK:
+            log.info("当前设备正在更新或者自检中，不能登录: device_id = {} current_update_state = {}".format(
+                device.id, current_update_state))
+            return fail(HTTP_OK, u"当前设备处于自检或者更新中，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
+
         log.info("用户还未上机可以进行上机: user_id = {} device_id = {}".format(user.id, device.id))
         if not WindowsService.do_online(user, device, charge_mode):
             log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
