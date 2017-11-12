@@ -17,7 +17,7 @@ class GameManage(ModelBase):
     __tablename__ = 'game_manage'
 
     # 游戏名称
-    game = db.Column(db.String(256), nullable=False)
+    game = db.Column(db.String(256), index=True, nullable=False)
 
     # 游戏版本
     version = db.Column(db.String(32), nullable=False)
