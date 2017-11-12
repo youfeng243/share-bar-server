@@ -16,7 +16,7 @@ from exts import common
 from exts.common import log, HTTP_OK, fail, success
 from exts.resource import mongodb
 from service.device.impl import DeviceGameService
-from service.game_manage.impl import GameManageService
+from service.game_manage.impl import GameManageService, GameListService
 
 bp = Blueprint('game_manage', __name__, url_prefix='/game_manage')
 
@@ -38,6 +38,10 @@ def update_game():
         log.error("参数错误:  game = {} version = {} md5 = {}".format(
             game, version, md5))
         return fail(HTTP_OK, u"参数错误")
+
+    # 更新游戏列表
+    if not GameListService.update_game_list(game, version):
+        return fail(HTTP_OK, u"更新游戏列表失败!")
 
     game_manage = GameManageService.get_game_info(game, version)
     if game_manage is None:
@@ -81,6 +85,10 @@ def delete_game():
         #     return fail(HTTP_OK, u"游戏更新失败，请重试!")
         #
         # return success(u'游戏更新成功!')
+
+    # 从游戏列表中删除游戏
+    GameListService.delete_game_list(game)
+
     # 开始删除游戏信息
     DeviceGameService.delete_device_game(game)
 

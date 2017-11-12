@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
 from exts.resource import db
-from service.game_manage.model import GameManage
+from service.game_manage.model import GameManage, GameList
 
 
 class GameManageService(object):
@@ -56,3 +56,59 @@ class GameManageService(object):
     @staticmethod
     def get_game_info(game, version):
         return GameManage.query.filter_by(game=game, version=version).first()
+
+
+# 游戏列表操作接口
+class GameListService(object):
+    # 更新游戏接口
+    @staticmethod
+    def update_game_list(game, version):
+        try:
+            game_list = GameList.query.filter_by(game=game).first()
+            if game_list is not None:
+                game_list.version = version
+                return game_list.save()
+
+            try:
+                game_list = GameList(game=game,
+                                     version=version)
+                db.session.add(game_list)
+                db.session.commit()
+                return True
+            except IntegrityError:
+                log.error("主键重复: game = {} version = {}".format(
+                    game, version))
+                db.session.rollback()
+
+        except Exception as e:
+            log.error("游戏列表更新失败:")
+            log.exception(e)
+
+        return False
+
+    # 从游戏列表中删除游戏
+    @staticmethod
+    def delete_game_list(game):
+        try:
+            game_list = GameList.query.filter_by(game=game).first()
+            if game_list is not None:
+                db.session.delete(game_list)
+                db.session.commit()
+        except Exception as e:
+            log.error("删除游戏失败:")
+            log.exception(e)
+
+    # 获得游戏列表
+    @staticmethod
+    def get_game_list():
+
+        result_list = []
+        try:
+            game_list = GameList.query.all()
+
+            for game_item in game_list:
+                result_list.append([game_item.game, game_item.version])
+        except Exception as e:
+            log.error("获取最新游戏列表失败:")
+            log.exception(e)
+        return result_list
