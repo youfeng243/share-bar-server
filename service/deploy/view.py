@@ -14,8 +14,7 @@ from flask_login import login_required
 from exts.common import log, fail, HTTP_OK, success
 from service.address.model import Address
 from service.deploy.model import Deploy
-from service.device.impl import DeviceService
-from service.device.model import Device
+from service.device.impl import DeviceService, DeviceGameService
 
 bp = Blueprint('deploy', __name__, url_prefix='/admin')
 
@@ -75,6 +74,9 @@ def deploy_device():
         if not address.add_device_num(1):
             log.warn("新增设备数目存储失败!!")
             return fail(HTTP_OK, u"新增设备数目存储失败!")
+
+        # 部署游戏信息
+        DeviceGameService.deploy_device(device)
 
         # 这里添加部署记录然后返回
         deploy, is_success = Deploy.create(device.id, province, city, area, location)

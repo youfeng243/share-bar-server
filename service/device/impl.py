@@ -23,9 +23,9 @@ from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.address.model import Address
 from service.device.model import Device, Game, DeviceStatus, DeviceUpdateStatus
+from service.game_manage.impl import GameListService
 
 
-# 设备操作接口
 class DeviceService(object):
     @staticmethod
     def create(device_code, address_id):
@@ -44,6 +44,7 @@ class DeviceService(object):
                 device_code, address_id))
             log.exception(e)
             return None, False
+
         return device, True
 
     # 根据设备ID 获取设备信息
@@ -685,3 +686,29 @@ class DeviceGameService(object):
                 log.exception(e)
 
         return False
+
+    # 部署设备
+    @staticmethod
+    def deploy_device(device):
+        # 先获得所有游戏
+        game_list = GameListService.get_game_list()
+
+        log.info("当前需要部署的设备: device_id = {}".format(device.id))
+
+        # 添加游戏
+        for name, version in game_list:
+            game, is_success = DeviceGameService.add(device.id, name, version)
+            if is_success:
+                log.info("当前设备 游戏 添加成功: device_id = {} game = {} version = {}".format(
+                    device.id, name, version))
+            else:
+                log.error("当前设备 游戏 添加失败: device_id = {} game = {} version = {}".format(
+                    device.id, name, version))
+
+        # 设置当前游戏为等待更新
+        if DeviceGameService.update(device):
+            log.info("当前设备更新状态设置成功: device_id = {} update_state = {}".format(device.id, device.update_state))
+        else:
+            log.error("当前设备更新状态设置失败: device_id = {} update_state = {}".format(device.id, device.update_state))
+
+        log.info("当前设备游戏部署完成: device_id = {}".format(device.id))
