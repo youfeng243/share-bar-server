@@ -90,13 +90,13 @@ class WindowsService(object):
             db.session.add(record)
             db.session.commit()
 
-            return True, record, user
+            return True, record, user, device
         except Exception as e:
             log.error("未知错误: user_id = {} device_id = {} record_id = {}".format(user_id, device_id, record_id))
             log.exception(e)
             db.session.rollback()
 
-        return False, None, None
+        return False, None, None, None
 
     # 上线操作
     @staticmethod
@@ -235,10 +235,10 @@ class WindowsService(object):
                 return success({'status': 1, 'msg': 'logout successed!'})
 
             # 结账下机
-            result, record, user = WindowsService.cal_offline(user_id=user_id,
-                                                              device_id=device_id,
-                                                              record_id=record_id,
-                                                              charge_mode=charge_mode)
+            result, record, user, device = WindowsService.cal_offline(user_id=user_id,
+                                                                      device_id=device_id,
+                                                                      record_id=record_id,
+                                                                      charge_mode=charge_mode)
             if not result:
                 log.error("下机扣费失败: user_id = {} device_id = {} charge_mode = {}".format(
                     user_id, device_id, charge_mode))
@@ -252,9 +252,14 @@ class WindowsService(object):
             user_online_key = RedisClient.get_user_online_key(record_key)
 
             # 设置设备自检, 如果设备处于完成更新状态 则可以进入自检，否则其他状态不能设置自检
-            if DeviceService.get_update_state(device_code) == DeviceUpdateStatus.UPDATE_FINISH:
-                if DeviceService.set_update_state(device_code, DeviceUpdateStatus.UPDATE_CHECK):
+            if DeviceService.get_update_state(device) == DeviceUpdateStatus.UPDATE_FINISH:
+                if DeviceService.set_update_state(device, DeviceUpdateStatus.UPDATE_CHECK):
                     log.info("设置自检状态成功: device_code = {}".format(device_code))
+                    # 如果自检状态设备成功，则直接锁定设备
+                    if DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
+                        log.info("设备自检状态设置成功，锁定设备成功:  device_id = {}".format(device.id))
+                    else:
+                        log.error("设备自检状态设置成功，锁定设备失败:  device_id = {}".format(device.id))
                 else:
                     log.error("设置自检状态失败: device_code = {}".format(device_code))
 
