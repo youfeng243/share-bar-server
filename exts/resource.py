@@ -11,6 +11,8 @@
 from flask_sqlalchemy import SQLAlchemy
 
 import settings
+from exts.common import log
+from exts.mongo import MongDb
 from exts.redis_api import RedisClient
 from exts.sms_api import SmsClient
 
@@ -26,3 +28,9 @@ redis_device_client = RedisClient(db=1)
 # 短信接口
 sms_client = SmsClient(redis_cache_client, settings.TX_SMS_APP_ID, settings.TX_SMS_APP_KEY,
                        settings.TX_SMS_TEXT_TEMP_ID)
+
+# mongodb
+mongodb = MongDb(settings.MONGO_HOST,
+                 settings.MONGO_PORT,
+                 settings.MONGO_DB,
+                 log=log)

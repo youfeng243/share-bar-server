@@ -38,3 +38,9 @@ TX_SMS_TEXT_TEMP_ID = 49320
 # 极验验证码
 PC_GEETEST_ID = "4f9d27c0d8669edc6c77adf10a043524"
 PC_GEETEST_KEY = "4596ad2340a8f03535d448e67a574e66"
+
+# mongodb配置信息
+MONGO_HOST = '127.0.0.1'
+MONGO_PORT = 27017
+MONGO_DB = 'share_bar_db'
+MONGO_LOG_TABLE = 'device_update_log'

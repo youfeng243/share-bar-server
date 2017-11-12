@@ -12,6 +12,7 @@ create_db_sql="create database IF NOT EXISTS ${DBNAME} default character set utf
 # 安装redis
 apt-get install -y redis-server
 apt-get install -y git
+apt-get install mongodb
 
 # 安装mysql
 apt-get install -y mysql-server mysql-client libmysqlclient-dev

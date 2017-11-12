@@ -11,7 +11,10 @@
 from flask import Blueprint
 from flask import request
 
+import settings
+from exts import common
 from exts.common import log, HTTP_OK, fail, success
+from exts.resource import mongodb
 from service.device.impl import GameService
 from service.game_manage.impl import GameManageService
 
@@ -123,5 +126,14 @@ def upload_game_log():
         log.error("参数错误:  device_code = {} text = {}".format(
             device_code, text))
         return fail(HTTP_OK, u"参数错误")
+    try:
+        mongodb.insert(settings.MONGO_LOG_TABLE, {
+            'in_time': common.get_now_time(),
+            'text': text,
+            'device_code': device_code,
+        })
+    except Exception as e:
+        log.error("插入日志信息失败:")
+        log.exception(e)
 
     return success('success')
