@@ -12,7 +12,7 @@ from exts.model_base import ModelBase
 from exts.resource import db
 
 
-# 管理员信息
+# 游戏版本管理信息
 class GameManage(ModelBase):
     __tablename__ = 'game_manage'
 
@@ -37,6 +37,26 @@ class GameManage(ModelBase):
             'game': self.game,
             'version': self.version,
             'md5': self.md5,
+            'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
+            'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+
+
+# 游戏列表管理信息，存储最新游戏版本
+class GameList(ModelBase):
+    __tablename__ = 'game_list'
+
+    # 游戏名称
+    game = db.Column(db.String(256), index=True, nullable=False)
+
+    # 游戏版本
+    version = db.Column(db.String(32), nullable=False)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'game': self.game,
+            'version': self.version,
             'utime': self.utime.strftime('%Y-%m-%d %H:%M:%S'),
             'ctime': self.ctime.strftime('%Y-%m-%d %H:%M:%S'),
         }

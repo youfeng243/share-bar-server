@@ -18,7 +18,7 @@ from service.address.view import bp as address_bp
 from service.admin.view import bp as admin_bp
 from service.charge.view import bp as charge_bp
 from service.deploy.view import bp as deploy_bp
-from service.device.impl import GameService
+from service.device.impl import DeviceGameService
 from service.device.view import bp as device_bp
 from service.game_manage.view import bp as game_manage_bp
 from service.maintain.view import bp as maintain_bp
@@ -83,5 +83,5 @@ def setup_hooks(app):
 
 # 设置游戏更新时间
 def confirm_game_update_time():
-    if GameService.get_game_update_time(redis_cache_client) is None:
-        GameService.set_game_update_time(DEFAULT_GAME_UPDATE_TIME, redis_cache_client)
+    if DeviceGameService.get_game_update_time(redis_cache_client) is None:
+        DeviceGameService.set_game_update_time(DEFAULT_GAME_UPDATE_TIME, redis_cache_client)

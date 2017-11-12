@@ -442,7 +442,7 @@ class DeviceService(object):
 
 
 # 游戏列表接口
-class GameService(object):
+class DeviceGameService(object):
     # 创建游戏列表
     @staticmethod
     def create(device_id, name, newest_version):
@@ -470,7 +470,7 @@ class GameService(object):
 
         game = Game.query.filter_by(device_id=device_id, name=name).first()
         if game is None:
-            return GameService.create(device_id, name, newest_version)
+            return DeviceGameService.create(device_id, name, newest_version)
 
         game.newest_version = newest_version
         if game.newest_version != game.current_version:
@@ -537,7 +537,7 @@ class GameService(object):
         while True:
             for device in Device.get_all():
                 log.info('device_id = {}'.format(device.id))
-                game, is_success = GameService.add(device.id, name, version)
+                game, is_success = DeviceGameService.add(device.id, name, version)
                 if not is_success or game is None:
                     log.error("游戏更新失败，中断更新: device_id = {}".format(device.id))
                     break
@@ -555,7 +555,7 @@ class GameService(object):
 
         while True:
             for game in Game.query.filter_by(device_id=device_id):
-                # game, is_success = GameService.add(device.id, name, version)
+                # game, is_success = DeviceGameService.add(device.id, name, version)
                 # if not is_success or game is None:
                 #     log.error("游戏更新失败，中断更新: device_id = {}".format(device.id))
                 #     break
@@ -595,7 +595,7 @@ class GameService(object):
         while True:
             for device in Device.get_all():
                 log.info('device_id = {}'.format(device.id))
-                is_success = GameService.delete(device.id, name)
+                is_success = DeviceGameService.delete(device.id, name)
                 if not is_success:
                     log.error("游戏删除失败，中断删除: device_id = {}".format(device.id))
                     break
@@ -623,7 +623,7 @@ class GameService(object):
             return True
 
         # 判断是否有游戏需要更新
-        if not GameService.is_device_need_update(device.id):
+        if not DeviceGameService.is_device_need_update(device.id):
             log.info("当前游戏都是最新版, 不需要更新: device_id = {}".format(device.id))
             return True
 
@@ -640,7 +640,7 @@ class GameService(object):
 
             for device in Device.get_all():
                 log.info('设置游戏状态: device_id = {}'.format(device.id))
-                is_success = GameService.update(device.id)
+                is_success = DeviceGameService.update(device.id)
                 if not is_success:
                     log.error("游戏状态设置失败，中断设置: device_id = {}".format(device.id))
                     break

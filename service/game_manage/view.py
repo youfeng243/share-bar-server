@@ -15,7 +15,7 @@ import settings
 from exts import common
 from exts.common import log, HTTP_OK, fail, success
 from exts.resource import mongodb
-from service.device.impl import GameService
+from service.device.impl import DeviceGameService
 from service.game_manage.impl import GameManageService
 
 bp = Blueprint('game_manage', __name__, url_prefix='/game_manage')
@@ -49,7 +49,7 @@ def update_game():
             return fail(HTTP_OK, u"游戏更新失败，请重试!")
 
     # 开始更新游戏信息
-    if not GameService.add_device_game(game, version):
+    if not DeviceGameService.add_device_game(game, version):
         return fail(HTTP_OK, u"游戏更新失败，请重试!")
 
     return success(u'游戏更新成功!')
@@ -77,12 +77,12 @@ def delete_game():
         #         return fail(HTTP_OK, u"游戏更新失败，请重试!")
         #
         # # 开始更新游戏信息
-        # if not GameService.add_device_game(game, version):
+        # if not DeviceGameService.add_device_game(game, version):
         #     return fail(HTTP_OK, u"游戏更新失败，请重试!")
         #
         # return success(u'游戏更新成功!')
     # 开始删除游戏信息
-    GameService.delete_device_game(game)
+    DeviceGameService.delete_device_game(game)
 
     # 开始删除游戏列表信息
     if not GameManageService.delete_game(game):

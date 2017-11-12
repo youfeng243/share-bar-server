@@ -18,7 +18,7 @@ import settings
 from exts.common import WECHAT_ACCESS_TOKEN_KEY, WECHAT_JSAPI_TICKET_KEY, REDIS_PRE_RECORD_KEY, log, cal_cost_time, \
     DEFAULT_GAME_UPDATE_TIME
 from exts.redis_api import RedisClient
-from service.device.impl import GameService
+from service.device.impl import DeviceGameService
 from service.windows.impl import WindowsService
 
 try:
@@ -282,7 +282,7 @@ def parse_time(string):
 # 更新游戏
 def update_game():
     log.info("开始后台更新游戏...")
-    if GameService.update_game_all_by_http():
+    if DeviceGameService.update_game_all_by_http():
         log.info("游戏更新成功!")
     else:
         log.error("游戏更新失败!")
@@ -308,7 +308,7 @@ def update_game_thread():
         while True:
             try:
                 # 获取当前游戏更新时间
-                time_str = GameService.get_game_update_time(cache_client)
+                time_str = DeviceGameService.get_game_update_time(cache_client)
                 if time_str == pre_update_time:
                     log.info("当前定时更新游戏时间: {}".format(time_str))
                     break

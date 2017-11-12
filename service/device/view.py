@@ -15,7 +15,7 @@ from flask_login import login_required
 from exts.common import fail, HTTP_OK, log, success, is_valid_time
 from exts.resource import redis_cache_client
 from service.admin.impl import AdminService
-from service.device.impl import DeviceService, GameService
+from service.device.impl import DeviceService, DeviceGameService
 from service.device.model import Device, DeviceStatus
 from service.use_record.model import UseRecord
 from service.windows.impl import WindowsService
@@ -215,7 +215,7 @@ def device_game_list():
             page, size, device_id))
         return fail(HTTP_OK, u"参数错误!!")
 
-    return GameService.get_device_game_list(device_id, page, size)
+    return DeviceGameService.get_device_game_list(device_id, page, size)
 
 
 # 设备游戏管理列表
@@ -248,12 +248,12 @@ def device_game_update():
 
     log.info("当前设备更新参数为: device_id = {} is_all = {}".format(device_id, is_all))
     if is_all:
-        if GameService.update_all():
+        if DeviceGameService.update_all():
             log.info("所有设备游戏更新状态设置成功!")
             return success(u"设备游戏更新状态设置成功!")
         return fail(HTTP_OK, u"游戏更新设置失败，请重试!")
 
-    if GameService.update(device_id):
+    if DeviceGameService.update(device_id):
         log.info("设备游戏更新状态设置成功: device_id = {}".format(device_id))
         return success(u"设备游戏更新状态设置成功!")
 
@@ -274,13 +274,13 @@ def device_need_update():
         log.warn("参数错误...")
         return fail(HTTP_OK, u"参数错误!")
 
-    return success(GameService.is_device_need_update(device_id))
+    return success(DeviceGameService.is_device_need_update(device_id))
 
 
 # 更新游戏
 @bp.route('/backdoor/update/game', methods=['GET'])
 def backdoor_game_update():
-    if GameService.update_all():
+    if DeviceGameService.update_all():
         log.info("所有设备游戏更新状态设置成功!")
         return success(u"设备游戏更新状态设置成功!")
     return fail(HTTP_OK, u"游戏更新设置失败，请重试!")
@@ -305,7 +305,7 @@ def modify_game_update_time():
         return fail(HTTP_OK, u"时间格式错误: %H:%M:%S")
 
     # 设置时间
-    GameService.set_game_update_time(time_str, redis_cache_client)
+    DeviceGameService.set_game_update_time(time_str, redis_cache_client)
     return success(u"时间更新成功!")
 
 
@@ -313,7 +313,7 @@ def modify_game_update_time():
 @bp.route('/device/game/time', methods=['GET'])
 @login_required
 def get_game_update_time():
-    return success(GameService.get_game_update_time(redis_cache_client))
+    return success(DeviceGameService.get_game_update_time(redis_cache_client))
 
 
 # 添加游戏 或者更新游戏版本
@@ -339,7 +339,7 @@ def device_game_add():
         return fail(HTTP_OK, msg)
 
     # 开始更新游戏信息
-    if not GameService.add_device_game(name, version):
+    if not DeviceGameService.add_device_game(name, version):
         return fail(HTTP_OK, u"游戏更新失败，请重试!")
 
     return success(u'游戏更新成功!')
@@ -367,7 +367,7 @@ def device_game_delete():
         return fail(HTTP_OK, msg)
 
     # 开始更新游戏信息
-    if not GameService.delete_device_game(name):
+    if not DeviceGameService.delete_device_game(name):
         return fail(HTTP_OK, u"游戏删除失败，请重试!")
 
     return success(u'游戏删除成功!')

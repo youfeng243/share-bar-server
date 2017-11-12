@@ -25,7 +25,7 @@ from exts.redis_api import RedisClient
 from exts.resource import redis_cache_client
 from service.address.model import Address
 from service.charge.impl import ChargeService
-from service.device.impl import DeviceService, GameService
+from service.device.impl import DeviceService, DeviceGameService
 from service.device.model import Device, DeviceStatus, DeviceUpdateStatus
 from service.maintain.impl import MaintainService
 from service.maintain.model import Maintain
@@ -392,7 +392,7 @@ def device_game_list():
     #         page, size, device_code))
     #     return fail(HTTP_OK, u"参数错误!!")
 
-    return GameService.get_device_game_list(device.id)
+    return DeviceGameService.get_device_game_list(device.id)
 
 
 # 修改游戏更新状态
@@ -454,7 +454,7 @@ def modify_device_game_state():
     # 如果当前属于更新中状态
     if current_update_state == DeviceUpdateStatus.UPDATE_ING:
         # 设置游戏更新完成。。
-        GameService.update_device_game(device_id=device.id)
+        DeviceGameService.update_device_game(device_id=device.id)
         if DeviceService.set_update_state(device, update_state, last_update_time=datetime.now()):
             return success(u"设备游戏更新状态设置成功!")
         return fail(HTTP_OK, u"更新状态设置失败")
@@ -490,7 +490,7 @@ def modify_device_game_state():
     #         return fail(HTTP_OK, u'设备解锁失败，多进程写入设备状态异常!')
     #
     # # 设置游戏更新完成。。
-    # GameService.update_device_game(device_id=device.id)
+    # DeviceGameService.update_device_game(device_id=device.id)
     # if DeviceService.set_update_state(device, update_state, last_update_time=datetime.now()):
     #     return success(u"设备游戏更新状态设置成功!")
     # return fail(HTTP_OK, u"更新状态设置失败")
