@@ -40,10 +40,24 @@ class WindowsService(object):
             # 记录下机时间
             record.end_time = datetime.now()
 
-            # 设置设备为空闲状态
-            if not DeviceService.set_device_status(device, DeviceStatus.STATUE_FREE):
-                log.error("设置设备状态异常，下机失败!")
-                return False, None, None
+            # 设置设备自检, 如果设备处于完成更新状态 则可以进入自检，否则其他状态不能设置自检
+            if DeviceService.get_update_state(device) == DeviceUpdateStatus.UPDATE_FINISH:
+                if not DeviceService.set_update_state(device, DeviceUpdateStatus.UPDATE_CHECK):
+                    log.error("设置自检状态失败: device_code = {}".format(device.device_code))
+                    return False, None, None
+
+                log.info("设置自检状态成功: device_code = {}".format(device.device_code))
+
+                # 如果自检状态设备成功，则直接锁定设备
+                if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
+                    log.error("设备自检状态设置成功，锁定设备失败:  device_id = {}".format(device.id))
+                    return False, None, None
+                log.info("设备自检状态设置成功，锁定设备成功:  device_id = {}".format(device.id))
+            else:
+                # 设置设备为空闲状态
+                if not DeviceService.set_device_status(device, DeviceStatus.STATUE_FREE):
+                    log.error("设置设备状态异常，下机失败!")
+                    return False, None, None
 
             log.info("本次上机时间: {} 下机时间: {} 使用记录ID: {} 当前设备: {}".format(
                 record.ctime.strftime('%Y-%m-%d %H:%M:%S'),
@@ -90,13 +104,13 @@ class WindowsService(object):
             db.session.add(record)
             db.session.commit()
 
-            return True, record, user, device
+            return True, record, user
         except Exception as e:
             log.error("未知错误: user_id = {} device_id = {} record_id = {}".format(user_id, device_id, record_id))
             log.exception(e)
             db.session.rollback()
 
-        return False, None, None, None
+        return False, None, None
 
     # 上线操作
     @staticmethod
@@ -235,10 +249,10 @@ class WindowsService(object):
                 return success({'status': 1, 'msg': 'logout successed!'})
 
             # 结账下机
-            result, record, user, device = WindowsService.cal_offline(user_id=user_id,
-                                                                      device_id=device_id,
-                                                                      record_id=record_id,
-                                                                      charge_mode=charge_mode)
+            result, record, user = WindowsService.cal_offline(user_id=user_id,
+                                                              device_id=device_id,
+                                                              record_id=record_id,
+                                                              charge_mode=charge_mode)
             if not result:
                 log.error("下机扣费失败: user_id = {} device_id = {} charge_mode = {}".format(
                     user_id, device_id, charge_mode))
@@ -250,18 +264,6 @@ class WindowsService(object):
             device_code_key = RedisClient.get_device_code_key(device_code)
             # 获得keep_alive_key 更新最新存活时间
             user_online_key = RedisClient.get_user_online_key(record_key)
-
-            # 设置设备自检, 如果设备处于完成更新状态 则可以进入自检，否则其他状态不能设置自检
-            if DeviceService.get_update_state(device) == DeviceUpdateStatus.UPDATE_FINISH:
-                if DeviceService.set_update_state(device, DeviceUpdateStatus.UPDATE_CHECK):
-                    log.info("设置自检状态成功: device_code = {}".format(device_code))
-                    # 如果自检状态设备成功，则直接锁定设备
-                    if DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
-                        log.info("设备自检状态设置成功，锁定设备成功:  device_id = {}".format(device.id))
-                    else:
-                        log.error("设备自检状态设置成功，锁定设备失败:  device_id = {}".format(device.id))
-                else:
-                    log.error("设置自检状态失败: device_code = {}".format(device_code))
 
             # 从redis中删除上机记录
             redis_cache_client.delete(record_key)
