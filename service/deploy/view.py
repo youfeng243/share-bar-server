@@ -76,7 +76,7 @@ def deploy_device():
             return fail(HTTP_OK, u"新增设备数目存储失败!")
 
         # 部署游戏信息
-        DeviceGameService.deploy_device(device)
+        DeviceGameService.deploy_device_game(device)
 
         # 这里添加部署记录然后返回
         deploy, is_success = Deploy.create(device.id, province, city, area, location)

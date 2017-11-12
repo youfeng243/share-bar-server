@@ -689,7 +689,7 @@ class DeviceGameService(object):
 
     # 部署设备
     @staticmethod
-    def deploy_device(device):
+    def deploy_device_game(device):
         # 先获得所有游戏
         game_list = GameListService.get_game_list()
 
