@@ -218,11 +218,16 @@ def check_connect():
     if device_code is None:
         return fail(HTTP_OK, u"not have device_code!!!")
 
-    # 保持心跳
-    DeviceService.keep_device_heart(device_code)
-
     # 获得设备使用状态
     device_status = DeviceService.get_device_status(device_code)
+    if device_status is None:
+        return success({
+            'status': 0,
+            'device_status': device_status,
+            'msg': "not deploy"})
+
+    # 保持心跳
+    DeviceService.keep_device_heart(device_code)
 
     # 从维护状态跳转到空闲状态
     if device_status == DeviceStatus.STATUS_MAINTAIN:
