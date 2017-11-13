@@ -18,7 +18,6 @@ from service.admin.impl import AdminService
 from service.device.impl import DeviceService, DeviceGameService
 from service.device.model import Device, DeviceStatus
 from service.use_record.model import UseRecord
-from service.windows.impl import WindowsService
 
 bp = Blueprint('device', __name__, url_prefix='/admin')
 
@@ -126,15 +125,16 @@ def lock_device():
 
     # 当前设备处于忙碌状态，锁定设备
     if use_status == DeviceStatus.STATUE_BUSY:
-        log.info("当前设备有用户在使用，强制用户下机，锁定设备: device_id = {} use_status = {}".format(device_id, use_status))
-        if not WindowsService.do_offline_order_by_device_code(device.device_code):
-            return fail(HTTP_OK, u"强制用户下机失败，无法锁定设备!")
-
-        if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
-            log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
-            return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
-        log.info("锁定设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
-        return success(u'当前设备有用户在使用，强制用户下机，锁定设备成功')
+        # log.info("当前设备有用户在使用，强制用户下机，锁定设备: device_id = {} use_status = {}".format(device_id, use_status))
+        # if not WindowsService.do_offline_order_by_device_code(device.device_code):
+        #     return fail(HTTP_OK, u"强制用户下机失败，无法锁定设备!")
+        #
+        # if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
+        #     log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
+        #     return fail(HTTP_OK, u'锁定设备失败，设置设备状态信息失败!!')
+        # log.info("锁定设备成功: device_id = {} device_code = {}".format(device.id, device.device_code))
+        # return success(u'当前设备有用户在使用，强制用户下机，锁定设备成功')
+        return fail(HTTP_OK, u"当前设备用户正在使用，不能锁定!")
 
     if not DeviceService.set_device_status(device, DeviceStatus.STATUE_LOCK):
         log.error("锁定设备失败，设置设备状态信息失败: device_id = {}".format(device_id))
