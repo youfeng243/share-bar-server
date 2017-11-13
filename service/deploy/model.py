@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from exts.common import log
 from exts.model_base import ModelBase
 from exts.resource import db
-from service.device.impl import DeviceService
+from service.device.model import Device
 
 
 class Deploy(ModelBase):
@@ -67,7 +67,7 @@ class Deploy(ModelBase):
         return deploy, True
 
     def to_dict(self):
-        device = DeviceService.get_device_by_id(self.device_id)
+        device = Device.get(self.device_id)
         if device is None:
             device_dict = {}
         else:

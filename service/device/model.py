@@ -13,9 +13,6 @@ from datetime import datetime
 from exts.common import log
 from exts.model_base import ModelBase
 from exts.resource import db
-from service.deploy.model import Deploy
-
-__all__ = ['Deploy']
 
 
 # 设备状态
@@ -70,9 +67,6 @@ class Device(ModelBase):
 
     # 投放ID
     address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
-
-    # # 部署记录
-    # deploy_query = db.relationship('Deploy', backref='device', lazy='dynamic')
 
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
