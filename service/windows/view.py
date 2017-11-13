@@ -222,7 +222,7 @@ def check_connect():
     device_status = DeviceService.get_device_status(device_code)
     if device_status is None:
         return success({
-            'status': 0,
+            'status': -1,
             'device_status': device_status,
             'msg': "not deploy"})
 
