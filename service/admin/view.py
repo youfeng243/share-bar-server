@@ -126,6 +126,40 @@ def update():
     return success(admin.to_dict())
 
 
+@bp.route('', methods=['DELETE'])
+@login_required
+def delete_admin():
+    # 只支持修改 名称 与 启用状态
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
+
+    # 判断当前管理员是否为超级管理员，只有超级管理员才有修改管理员信息的权限
+    if current_user.role.name != Role.SUPER_ADMIN:
+        return fail(HTTP_OK, u"没有操作权限，只有超级管理员才能够编辑管理员信息...!")
+
+    a_id = request.json.get('id', None)
+    if a_id is None:
+        log.warn("没有传入管理员id信息")
+        return fail(HTTP_OK, u"没有传入管理员id信息!")
+
+    if g.admin.id == a_id:
+        return fail(HTTP_OK, u"不能删除自身账户信息")
+
+    admin = Admin.get(a_id)
+    if admin is None:
+        log.warn("当前ID信息不存在: id = {}".format(a_id))
+        return fail(HTTP_OK, u"当前ID信息不存在!")
+
+    # 判断存储是否正确
+    if not admin.delete():
+        log.warn("管理员信息删除失败!!!")
+        return fail(HTTP_OK, u"管理员信息删除失败!")
+
+    log.info("管理员信息删除成功: {}".format(admin.to_dict()))
+    return success(admin.to_dict())
+
+
 # 添加管理员
 @bp.route('', methods=['POST'])
 @login_required

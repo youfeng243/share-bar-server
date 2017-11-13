@@ -47,6 +47,7 @@ Content-Type: application/json
 参数:
 name 或者 state 可选选项
 state = ('unused', 'using')
+注意: 不能停用自身，只能停用其他用户
 json={
     id:'xxxx'
     name or state: 'xxx'
@@ -95,4 +96,21 @@ json={
     'result': [
     {}, {}
     ]
+}
+
+6. 删除管理员
+/admin, method=DELETE
+Content-Type: application/json
+注意: 不能删除管理员自身
+参数:
+name 或者 state 可选选项
+json={
+    id: 1
+}
+
+返回
+{
+    'success': True,
+    'error': None,
+    'result': 'xxxx'
 }
