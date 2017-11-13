@@ -13,8 +13,8 @@ from exts.resource import db
 
 
 # 游戏版本管理信息
-class GameManage(ModelBase):
-    __tablename__ = 'game_manage'
+class GameVersionManage(ModelBase):
+    __tablename__ = 'game_version_manage'
 
     # 游戏名称
     game = db.Column(db.String(256), index=True, nullable=False)

@@ -11,15 +11,15 @@ from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
 from exts.resource import db
-from service.game_manage.model import GameManage, GameList
+from service.game_version_manage.model import GameVersionManage, GameList
 
 
-class GameManageService(object):
+class GameVersionManageService(object):
     @staticmethod
     def create(game, version, md5):
 
         try:
-            game_manage = GameManage(game=game,
+            game_manage = GameVersionManage(game=game,
                                      version=version,
                                      md5=md5)
             db.session.add(game_manage)
@@ -44,7 +44,7 @@ class GameManageService(object):
     @staticmethod
     def delete_game(game):
         try:
-            game_list = GameManage.query.filter_by(game=game).all()
+            game_list = GameVersionManage.query.filter_by(game=game).all()
             [db.session.delete(game_item) for game_item in game_list]
             db.session.commit()
         except Exception as e:
@@ -55,7 +55,7 @@ class GameManageService(object):
 
     @staticmethod
     def get_game_info(game, version):
-        return GameManage.query.filter_by(game=game, version=version).first()
+        return GameVersionManage.query.filter_by(game=game, version=version).first()
 
 
 # 游戏列表操作接口

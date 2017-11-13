@@ -20,7 +20,7 @@ from service.charge.view import bp as charge_bp
 from service.deploy.view import bp as deploy_bp
 from service.device.impl import DeviceGameService
 from service.device.view import bp as device_bp
-from service.game_manage.view import bp as game_manage_bp
+from service.game_version_manage.view import bp as game_manage_bp
 from service.maintain.view import bp as maintain_bp
 from service.recharge.view import bp as recharge_bp
 from service.role.view import bp as role_bp

@@ -23,7 +23,7 @@ from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.address.model import Address
 from service.device.model import Device, DeviceGame, DeviceStatus, DeviceUpdateStatus
-from service.game_manage.impl import GameListService
+from service.game_version_manage.impl import GameListService
 
 
 class DeviceService(object):

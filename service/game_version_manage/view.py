@@ -16,7 +16,7 @@ from exts import common
 from exts.common import log, HTTP_OK, fail, success
 from exts.resource import mongodb
 from service.device.impl import DeviceGameService
-from service.game_manage.impl import GameManageService, GameListService
+from service.game_version_manage.impl import GameVersionManageService, GameListService
 
 bp = Blueprint('game_manage', __name__, url_prefix='/game_manage')
 
@@ -43,13 +43,13 @@ def update_game():
     if not GameListService.update_game_list(game, version):
         return fail(HTTP_OK, u"更新游戏列表失败!")
 
-    game_manage = GameManageService.get_game_info(game, version)
+    game_manage = GameVersionManageService.get_game_info(game, version)
     if game_manage is None:
-        game_manage, is_success = GameManageService.create(game, version, md5)
+        game_manage, is_success = GameVersionManageService.create(game, version, md5)
         if not is_success:
             return fail(HTTP_OK, u"游戏更新失败，请重试!")
     else:
-        if not GameManageService.update_game_info(game_manage, md5):
+        if not GameVersionManageService.update_game_info(game_manage, md5):
             return fail(HTTP_OK, u"游戏更新失败，请重试!")
 
     # 开始更新游戏信息
@@ -71,13 +71,13 @@ def delete_game():
             game))
         return fail(HTTP_OK, u"参数错误")
 
-        # game_manage = GameManageService.get_game_info(game, version)
+        # game_manage = GameVersionManageService.get_game_info(game, version)
         # if game_manage is None:
-        #     game_manage, is_success = GameManageService.create(game, version, md5)
+        #     game_manage, is_success = GameVersionManageService.create(game, version, md5)
         #     if not is_success:
         #         return fail(HTTP_OK, u"游戏更新失败，请重试!")
         # else:
-        #     if not GameManageService.update_game_info(game_manage, md5):
+        #     if not GameVersionManageService.update_game_info(game_manage, md5):
         #         return fail(HTTP_OK, u"游戏更新失败，请重试!")
         #
         # # 开始更新游戏信息
@@ -93,7 +93,7 @@ def delete_game():
     DeviceGameService.delete_device_game(game)
 
     # 开始删除游戏列表信息
-    if not GameManageService.delete_game(game):
+    if not GameVersionManageService.delete_game(game):
         return fail(HTTP_OK, u"游戏删除失败，请重试!")
 
     return success(u'游戏删除成功!')
@@ -114,7 +114,7 @@ def get_game_md5():
             game, version))
         return fail(HTTP_OK, u"参数错误")
 
-    game_manage = GameManageService.get_game_info(game, version)
+    game_manage = GameVersionManageService.get_game_info(game, version)
     if game_manage is None:
         return fail(HTTP_OK, u'没有当前游戏版本记录')
 
