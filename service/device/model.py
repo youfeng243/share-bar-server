@@ -141,8 +141,8 @@ class Device(ModelBase):
 
 
 # 游戏信息管理
-class Game(ModelBase):
-    __tablename__ = 'game'
+class DeviceGame(ModelBase):
+    __tablename__ = 'device_game'
 
     # 设备ID
     device_id = db.Column(db.Integer, index=True, nullable=False)
@@ -188,4 +188,4 @@ class Game(ModelBase):
         return game_dict
 
     def __repr__(self):
-        return '<Game {}>'.format(self.id)
+        return '<DeviceGame {}>'.format(self.id)

@@ -22,7 +22,7 @@ from exts.common import log, DEFAULT_EXPIRED_DEVICE_HEART, DEFAULT_EXPIRED_DEVIC
 from exts.redis_api import RedisClient
 from exts.resource import db, redis_device_client
 from service.address.model import Address
-from service.device.model import Device, Game, DeviceStatus, DeviceUpdateStatus
+from service.device.model import Device, DeviceGame, DeviceStatus, DeviceUpdateStatus
 from service.game_manage.impl import GameListService
 
 
@@ -447,7 +447,7 @@ class DeviceGameService(object):
     # 创建游戏列表
     @staticmethod
     def create(device_id, name, newest_version):
-        game = Game(device_id=device_id,
+        game = DeviceGame(device_id=device_id,
                     name=name, newest_version=newest_version,
                     need_update=True)
         try:
@@ -469,7 +469,7 @@ class DeviceGameService(object):
     @staticmethod
     def add(device_id, name, newest_version):
 
-        game = Game.query.filter_by(device_id=device_id, name=name).first()
+        game = DeviceGame.query.filter_by(device_id=device_id, name=name).first()
         if game is None:
             return DeviceGameService.create(device_id, name, newest_version)
 
@@ -493,7 +493,7 @@ class DeviceGameService(object):
     # 删除游戏
     @staticmethod
     def delete(device_id, name):
-        game = Game.query.filter_by(device_id=device_id, name=name).first()
+        game = DeviceGame.query.filter_by(device_id=device_id, name=name).first()
         if game is None:
             log.info("当前设备没有找到游戏: device_id = {} game = {}".format(device_id, name))
             return True
@@ -515,13 +515,13 @@ class DeviceGameService(object):
 
         # 如果page 和 size为0 则返回全部游戏数据
         if page <= 0 or size <= 0:
-            item_list = Game.query.filter(Game.device_id == device_id).all()
+            item_list = DeviceGame.query.filter(DeviceGame.device_id == device_id).all()
             return success(package_result(len(item_list), [item.to_full_dict() for item in item_list]))
 
-        query = Game.query
+        query = DeviceGame.query
 
         # 再通过用户名查找
-        pagination = query.filter(Game.device_id == device_id).paginate(page=page,
+        pagination = query.filter(DeviceGame.device_id == device_id).paginate(page=page,
                                                                         per_page=size,
                                                                         error_out=False)
         if pagination is None or pagination.total <= 0:
@@ -555,7 +555,7 @@ class DeviceGameService(object):
         is_success = True
 
         while True:
-            for game in Game.query.filter_by(device_id=device_id):
+            for game in DeviceGame.query.filter_by(device_id=device_id):
                 # game, is_success = DeviceGameService.add(device.id, name, version)
                 # if not is_success or game is None:
                 #     log.error("游戏更新失败，中断更新: device_id = {}".format(device.id))
@@ -578,7 +578,7 @@ class DeviceGameService(object):
         is_success = False
 
         while True:
-            for game in Game.query.filter_by(device_id=device_id):
+            for game in DeviceGame.query.filter_by(device_id=device_id):
                 if game.current_version != game.newest_version:
                     is_success = True
                     break
