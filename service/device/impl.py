@@ -229,13 +229,24 @@ class DeviceService(object):
             log.warn("当前设备不处于空闲状态，不能删除: device_id = {}".format(device.id))
             return False
 
+        # 删除设备状态缓存信息
         device_status_key = RedisClient.get_device_status_key(device.device_code)
+        redis_device_client.delete(device_status_key)
+
+        # 删除设备更新状态缓存
+        device_update_status_key = RedisClient.get_device_update_status_key(device.device_code)
+        redis_device_client.delete(device_update_status_key)
+
+        # 删除设备心跳缓存
+        device_heart_key = RedisClient.get_device_heart_key(device.device_code)
+        redis_device_client.delete(device_heart_key)
+
+        # 删除设备上的游戏
+        DeviceGameService.delete_deploy_device_game(device.id)
+
         if not device.delete():
             log.warn("设备信息删除失败: {}".format(json.dumps(device.to_dict(), ensure_ascii=False)))
             return False
-
-        # 删除缓存信息
-        redis_device_client.delete(device_status_key)
         return True
 
     @staticmethod
@@ -448,8 +459,8 @@ class DeviceGameService(object):
     @staticmethod
     def create(device_id, name, newest_version):
         game = DeviceGame(device_id=device_id,
-                    name=name, newest_version=newest_version,
-                    need_update=True)
+                          name=name, newest_version=newest_version,
+                          need_update=True)
         try:
             db.session.add(game)
             db.session.commit()
@@ -522,8 +533,8 @@ class DeviceGameService(object):
 
         # 再通过用户名查找
         pagination = query.filter(DeviceGame.device_id == device_id).paginate(page=page,
-                                                                        per_page=size,
-                                                                        error_out=False)
+                                                                              per_page=size,
+                                                                              error_out=False)
         if pagination is None or pagination.total <= 0:
             return success(package_result(0, []))
             # return pagination.total, pagination.items
@@ -605,6 +616,21 @@ class DeviceGameService(object):
 
         log.info("游戏删除耗时: game = {} {} s".format(name, time.time() - start_time))
         return is_success
+
+    # 删除设备上部署的游戏
+    @staticmethod
+    def delete_deploy_device_game(device_id):
+        log.info("当前需要删除游戏的设备: device_id = {}".format(device_id))
+        # 找到游戏列表
+        game_list = GameListService.get_game_list()
+        for game, version in game_list:
+            is_success = DeviceGameService.delete(device_id, game)
+            if not is_success:
+                log.error("游戏删除失败: device_id = {} game = {}".format(device_id, game))
+                continue
+
+            log.info("当前设备游戏删除成功: device_id = {} game = {}".format(device_id, game))
+        log.info("当前设备游戏删除完成: device_id = {}".format(device_id))
 
     # 更新指定设备游戏状态
     @staticmethod
