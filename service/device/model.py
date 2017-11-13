@@ -10,7 +10,7 @@
 import json
 from datetime import datetime
 
-from exts.common import log, package_result
+from exts.common import log
 from exts.model_base import ModelBase
 from exts.resource import db
 from service.deploy.model import Deploy
@@ -71,8 +71,8 @@ class Device(ModelBase):
     # 投放ID
     address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
 
-    # 部署记录
-    deploy_query = db.relationship('Deploy', backref='device', lazy='dynamic')
+    # # 部署记录
+    # deploy_query = db.relationship('Deploy', backref='device', lazy='dynamic')
 
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
@@ -98,24 +98,24 @@ class Device(ModelBase):
     def __repr__(self):
         return '<Device {}>'.format(self.name)
 
-    # 获得部署列表
-    def get_deploy_list(self, page, size):
-        # 获取数据总数目
-        total = 0
-        result_list = list()
-
-        # 获取部署信息列表
-        item_paginate = self.deploy_query.paginate(page=page, per_page=size, error_out=False)
-        if item_paginate is None:
-            log.warn("获取部署信息翻页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
-            return package_result(total, result_list)
-
-        item_list = item_paginate.items
-        if item_list is None:
-            log.warn("部署信息分页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
-            return package_result(total, result_list)
-
-        return package_result(item_paginate.total, [item.to_dict() for item in item_list])
+    # # 获得部署列表
+    # def get_device_deploy_list(self, page, size):
+    #     # 获取数据总数目
+    #     total = 0
+    #     result_list = list()
+    #
+    #     # 获取部署信息列表
+    #     item_paginate = self.deploy_query.paginate(page=page, per_page=size, error_out=False)
+    #     if item_paginate is None:
+    #         log.warn("获取部署信息翻页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
+    #         return package_result(total, result_list)
+    #
+    #     item_list = item_paginate.items
+    #     if item_list is None:
+    #         log.warn("部署信息分页查询失败: device = {} page = {} size = {}".format(self.id, page, size))
+    #         return package_result(total, result_list)
+    #
+    #     return package_result(item_paginate.total, [item.to_dict() for item in item_list])
 
     # 删除设备需要事务控制
     def delete(self):

@@ -13,6 +13,7 @@ from flask_login import login_required
 
 from exts.common import log, fail, HTTP_OK, success
 from service.address.model import Address
+from service.deploy.impl import DeployService
 from service.deploy.model import Deploy
 from service.device.impl import DeviceService, DeviceGameService
 
@@ -137,10 +138,10 @@ def get_deploy_list():
     if device_id is None:
         return fail(HTTP_OK, u"没有设备ID信息，无法获取设备记录")
 
-    # 查找对应的设备
-    device = DeviceService.get_device_by_id(device_id)
-    if device is None:
-        return fail(HTTP_OK, u"没有对应的设备信息...")
+    # # 查找对应的设备
+    # device = DeviceService.get_device_by_id(device_id)
+    # if device is None:
+    #     return fail(HTTP_OK, u"没有对应的设备信息...")
 
     # 返回记录列表信息
-    return success(device.get_deploy_list(page, size))
+    return success(DeployService.get_device_deploy_list(device_id, page, size))

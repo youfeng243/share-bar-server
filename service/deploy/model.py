@@ -10,16 +10,16 @@
 from sqlalchemy.exc import IntegrityError
 
 from exts.common import log
-from exts.resource import db
 from exts.model_base import ModelBase
+from exts.resource import db
+from service.device.impl import DeviceService
 
 
-# 设备部署管理 部署记录信息
 class Deploy(ModelBase):
     __tablename__ = 'deploy'
 
     # 设备名称
-    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    device_id = db.Column(db.Integer, index=True, nullable=False)
 
     # 省份信息
     province = db.Column(db.String(16), nullable=False)
@@ -67,9 +67,15 @@ class Deploy(ModelBase):
         return deploy, True
 
     def to_dict(self):
+        device = DeviceService.get_device_by_id(self.device_id)
+        if device is None:
+            device_dict = {}
+        else:
+            device_dict = device.to_dict()
+
         return {
             'id': self.id,
-            'device': self.device.to_dict(),
+            'device': device_dict,
             'province': self.province,
             'city': self.city,
             'area': self.area,
