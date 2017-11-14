@@ -271,6 +271,7 @@ def wechat_login():
 
 # 获取当前用户信息接口
 @bp.route('/user', methods=['GET'])
+@wechat_required
 @bind_required
 def get_user_info():
     user = get_current_user(g.user_id)
