@@ -304,6 +304,8 @@ def get_user_wechat_info(refresh_token, openid):
         head_img_url, nick_name = data.get('headimgurl', ''), data.get('nickname', '')
         head_img_url = head_img_url.strip()
         nick_name = nick_name.strip()
+        log.info("当前用户获取的昵称与头像信息为: openid = {} nick_name = {} head_img_url = {}".format(
+            openid, nick_name, head_img_url))
     except Exception as e:
         log.error("访问微信用户信息失败: ")
         log.exception(e)
