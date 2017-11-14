@@ -110,7 +110,7 @@ def wechat_check():
     openid = session.get('openid', None)
     # refresh_token = session.get('refresh_token', None)
     # 如果两个关键的token都存在 则正常进入下面的流程
-    if openid is None:  # or refresh_token is None:
+    if openid is None:
         log.warn("当前用户没有openid..")
         return fail(HTTP_OK, u"当前用户没有openid!", -1)
 

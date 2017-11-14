@@ -156,14 +156,12 @@ def wechat_required(func):
 
         # 判断重新刷新token是否已经过期，如果过期则需要重新授权登录
         openid = session.get('openid', None)
-        refresh_token = session.get('refresh_token', None)
         # 如果两个关键的token都存在 则正常进入下面的流程
-        if openid is not None and refresh_token is not None:
+        if openid is not None:
             g.openid = openid
-            g.refresh_token = refresh_token
             return func(*args, **kwargs)
 
-        log.info("session 中没有openid 或者 没有 refresh_token")
+        log.info("session 中没有openid")
         code = request.args.get('code', None)
         if code is None:
             log.info("url中没有code参数...")
@@ -199,15 +197,6 @@ def wechat_required(func):
                 return fail(HTTP_OK, u"解析openid失败!")
             session['openid'] = openid
 
-            # 保存refresh_token
-            refresh_token = data.get('refresh_token', None)
-            if refresh_token is None:
-                log.warn("解析refresh_token失败: data = {}".format(resp.content))
-                return fail(HTTP_OK, u"解析refresh_token失败!")
-
-            session['refresh_token'] = refresh_token
-            log.info("用户初次使用得到refresh_token = {}".format(refresh_token))
-
             # 保存access_token
             access_token = data.get('access_token', None)
             if access_token is not None:
@@ -222,8 +211,7 @@ def wechat_required(func):
                 redis_cache_client.setex(RedisClient.get_openid_key(openid), expires_in, access_token)
 
             g.openid = openid
-            g.refresh_token = refresh_token
-            log.info("通过url链接获得openid成功: openid = {} refresh_token = {}".format(openid, refresh_token))
+            log.info("通过url链接获得openid成功: openid = {}".format(openid))
             return func(*args, **kwargs)
         except Exception as e:
             log.error("获取用户openid失败:")
