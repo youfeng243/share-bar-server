@@ -24,9 +24,9 @@ from service.recharge.impl import RechargeService
 from service.recharge.model import Recharge
 from service.use_record.model import UseRecord
 from service.user.impl import UserService
-from tools.wechat_api import wechat_required, get_user_wechat_info, get_current_user, gen_jsapi_signature, \
+from tools.wechat_api import wechat_required, get_current_user, gen_jsapi_signature, \
     bind_required, \
-    get_current_user_by_openid
+    get_current_user_by_openid, get_wechat_user_info
 from tools.wx_pay import WxPay, WxPayError
 from tools.xml_data import XMLData
 
@@ -253,7 +253,7 @@ def wechat_login():
     # 如果手机号与微信号都没有任何记录，则需要建立账号
 
     # 获得用户的头像与昵称信息
-    head_img_url, nick_name = get_user_wechat_info(g.refresh_token, g.openid)
+    subscribe, nick_name, head_img_url = get_wechat_user_info(g.openid)
     log.info("当前用户获取的信息为: openid = {} head = {} nick_name = {}".format(
         g.openid, head_img_url, nick_name))
     user, is_success = UserService.create(mobile, g.openid,
@@ -286,7 +286,7 @@ def get_user_info():
     # 判断昵称或头像是否已经获取到了
     if user.head_img_url == '' or user.nick_name == '':
         # 先判断token是否存在
-        head_img_url, nick_name = get_user_wechat_info(g.refresh_token, user.openid)
+        subscribe, nick_name, head_img_url = get_wechat_user_info(user.openid)
         if head_img_url == '' or nick_name == '':
             log.error("再次更新用户ID = {} 头像与昵称失败: head_img_url = {} nick_name = {}".format(
                 user.id, head_img_url, nick_name))

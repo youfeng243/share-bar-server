@@ -247,70 +247,70 @@ def wechat_required(func):
 #
 
 # 获得用户头像和昵称信息
-def get_user_wechat_info(refresh_token, openid):
-    head_img_url = ""
-    nick_name = ""
-    if refresh_token is None or openid is None:
-        log.warn("access_token or openid = None, 无法获取头像昵称信息...")
-        return head_img_url, nick_name
-
-    access_token = redis_cache_client.get(RedisClient.get_openid_key(openid))
-    if access_token is None:
-        # 重新刷新access_token
-        refresh_url = 'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid={}&grant_type=refresh_token&refresh_token={}'.format(
-            settings.WECHAT_APP_ID, refresh_token)
-        try:
-            resp = requests.get(refresh_url, verify=False, timeout=30)
-            if resp.status_code != 200:
-                log.warn("访问刷新微信access_token信息失败: status_code = {} url = {}".format(resp.status_code, refresh_url))
-                return head_img_url, nick_name
-
-            log.info("当前获取的用户信息为: text = {}".format(resp.text))
-            data = json.loads(resp.content)
-            if data is None:
-                log.warn("解析微信access_token失败: data = {}".format(data))
-                return head_img_url, nick_name
-
-            access_token = data.get('access_token', None)
-            expires_in = data.get('expires_in', None)
-            if access_token is None or expires_in is None:
-                log.warn("解析微信access_token失败: data = {}".format(data))
-                return head_img_url, nick_name
-
-            # 存入redis
-            redis_cache_client.setex(RedisClient.get_openid_key(openid), expires_in, access_token)
-
-            log.info("重新刷新微信access_token成功: access_token = {} expires_in = {} openid = {}".format(
-                access_token, expires_in, openid))
-        except Exception as e:
-            log.error("访问刷新微信access_token信息失败: ")
-            log.exception(e)
-            return head_img_url, nick_name
-
-    url = "https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}&lang=zh_CN". \
-        format(access_token, openid)
-
-    try:
-        resp = requests.get(url, verify=False, timeout=30)
-        if resp.status_code != 200:
-            log.warn("访问用户信息失败: status_code = {} url = {}".format(resp.status_code, url))
-            return head_img_url, nick_name
-
-        data = json.loads(resp.content)
-        if data is None:
-            log.warn("解析用户信息失败: data = {}".format(data))
-            return head_img_url, nick_name
-
-        head_img_url, nick_name = data.get('headimgurl', ''), data.get('nickname', '')
-        head_img_url = head_img_url.strip()
-        nick_name = nick_name.strip()
-        log.info("当前用户获取的昵称与头像信息为: openid = {} nick_name = {} head_img_url = {}".format(
-            openid, nick_name, head_img_url))
-    except Exception as e:
-        log.error("访问微信用户信息失败: ")
-        log.exception(e)
-
-    return head_img_url, nick_name
+# def get_user_wechat_info(refresh_token, openid):
+#     head_img_url = ""
+#     nick_name = ""
+#     if refresh_token is None or openid is None:
+#         log.warn("access_token or openid = None, 无法获取头像昵称信息...")
+#         return head_img_url, nick_name
+#
+#     access_token = redis_cache_client.get(RedisClient.get_openid_key(openid))
+#     if access_token is None:
+#         # 重新刷新access_token
+#         refresh_url = 'https://api.weixin.qq.com/sns/oauth2/refresh_token?appid={}&grant_type=refresh_token&refresh_token={}'.format(
+#             settings.WECHAT_APP_ID, refresh_token)
+#         try:
+#             resp = requests.get(refresh_url, verify=False, timeout=30)
+#             if resp.status_code != 200:
+#                 log.warn("访问刷新微信access_token信息失败: status_code = {} url = {}".format(resp.status_code, refresh_url))
+#                 return head_img_url, nick_name
+#
+#             log.info("当前获取的用户信息为: text = {}".format(resp.text))
+#             data = json.loads(resp.content)
+#             if data is None:
+#                 log.warn("解析微信access_token失败: data = {}".format(data))
+#                 return head_img_url, nick_name
+#
+#             access_token = data.get('access_token', None)
+#             expires_in = data.get('expires_in', None)
+#             if access_token is None or expires_in is None:
+#                 log.warn("解析微信access_token失败: data = {}".format(data))
+#                 return head_img_url, nick_name
+#
+#             # 存入redis
+#             redis_cache_client.setex(RedisClient.get_openid_key(openid), expires_in, access_token)
+#
+#             log.info("重新刷新微信access_token成功: access_token = {} expires_in = {} openid = {}".format(
+#                 access_token, expires_in, openid))
+#         except Exception as e:
+#             log.error("访问刷新微信access_token信息失败: ")
+#             log.exception(e)
+#             return head_img_url, nick_name
+#
+#     url = "https://api.weixin.qq.com/sns/userinfo?access_token={}&openid={}&lang=zh_CN". \
+#         format(access_token, openid)
+#
+#     try:
+#         resp = requests.get(url, verify=False, timeout=30)
+#         if resp.status_code != 200:
+#             log.warn("访问用户信息失败: status_code = {} url = {}".format(resp.status_code, url))
+#             return head_img_url, nick_name
+#
+#         data = json.loads(resp.content)
+#         if data is None:
+#             log.warn("解析用户信息失败: data = {}".format(data))
+#             return head_img_url, nick_name
+#
+#         head_img_url, nick_name = data.get('headimgurl', ''), data.get('nickname', '')
+#         head_img_url = head_img_url.strip()
+#         nick_name = nick_name.strip()
+#         log.info("当前用户获取的昵称与头像信息为: openid = {} nick_name = {} head_img_url = {}".format(
+#             openid, nick_name, head_img_url))
+#     except Exception as e:
+#         log.error("访问微信用户信息失败: ")
+#         log.exception(e)
+#
+#     return head_img_url, nick_name
 
 
 # 获得用户的关注状态 以及头像和昵称信息
@@ -350,8 +350,16 @@ def get_wechat_user_info(openid):
         # 如果用户关注了 才去获取昵称和头像信息
         if subscribe == 1:
             # 获得用户昵称 和头像信息
-            nick_name = json_data.get('nickname')
-            head_img_url = json_data.get('headimgurl')
+            nick_name = json_data.get('nickname', '')
+            head_img_url = json_data.get('headimgurl', '')
+            if isinstance(nick_name, basestring):
+                nick_name = nick_name.strip()
+            else:
+                nick_name = ''
+            if isinstance(head_img_url, basestring):
+                head_img_url = head_img_url.strip()
+            else:
+                head_img_url = ''
             log.info("当前用户关注了公众号, 能够获取昵称和头像: openid = {} nick_name = {} head_img_url = {}".format(
                 openid, nick_name, head_img_url))
 
