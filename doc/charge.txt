@@ -1,0 +1,59 @@
+1. 新建费率
+/admin/charge, method=POST
+Content-Type: application/json
+参数:
+json={
+    # 找个名称必须唯一
+    "name": "费率模板的名称",
+    "charge_mode": 5,  # 单位  分钱/分钟
+}
+
+返回
+{
+    "result": {
+
+    },
+    "success": true or false
+    "error": null
+}
+
+2. 获取费率列表
+/admin/charge/list, method=POST
+Content-Type: application/json
+参数:
+{
+    'page': 1,
+    'size': 50,
+}
+返回
+{
+    "result": {
+
+    },
+    "success": true or false
+    "error": null
+}
+
+3. 删除费率
+/admin/charge, method=DELETE
+Content-Type: application/json
+参数:
+{
+    'list': [1,2,3]
+}
+返回:
+{
+"result": [1, 2,3]
+    "success": true or false
+    "error": null
+}
+
+4. 获得当前正在生效的费率
+/admin/charge/newest, method=GET
+返回:
+{
+    "result": {
+    }
+    "success": true or false
+    "error": null
+}
