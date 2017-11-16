@@ -35,7 +35,7 @@ from tools.wechat_api import get_current_user, bind_required, get_wechat_user_in
 bp = Blueprint('windows', __name__, url_prefix='/windows')
 
 
-# 扫描上线登录 需要确保微信端已经登录
+# 扫描上机登录 需要确保微信端已经登录
 @bp.route('/login/<device_code>', methods=['GET'])
 # @bind_required
 def qr_code_online(device_code):
@@ -49,11 +49,11 @@ def qr_code_online(device_code):
     # LOGIN_ERROR_NOT_FIND = -4
     # # 用户余额不足
     # LOGIN_ERROR_NOT_SUFFICIENT_FUNDS = -5
-    # # 上线失败 未知错误
+    # # 上机失败 未知错误
     # LOGIN_ERROR_UNKNOW = -6
     # # 设备已经在使用了
     # LOGIN_ERROR_DEVICE_IN_USEING = -7
-    # # 当前用户已经在使用上线了，但是不是当前设备在使用
+    # # 当前用户已经在使用上机了，但是不是当前设备在使用
     # LOGIN_ERROR_USER_IN_USEING = -8
     # # 当前设备不处于空闲状态，不能上机
     # LOGIN_ERROR_DEVICE_NOT_FREE = -9
@@ -101,15 +101,15 @@ def qr_code_online(device_code):
         log.warn("当前user_id还未绑定手机号码: user_id = {}".format(user_id))
         return fail(HTTP_OK, u"用户还绑定手机号码登录!", LOGIN_ERROR_BIND)
 
-    # 如果当前用户 被禁用 则不能上线
+    # 如果当前用户 被禁用 则不能上机
     if user.deleted:
-        log.warn("当前用户已经被删除了，不能上线: user_id = {}".format(user.id))
+        log.warn("当前用户已经被删除了，无法上机: user_id = {}".format(user.id))
         return fail(HTTP_OK, u"当前用户已经被删除了，不能上机", LOGIN_ERROR_DELETE)
 
     # 判断当前用户是否已经被禁用了
     if user.state == 'unused':
-        log.warn("当前用户已经被禁用了，不能上线: user_id = {}".format(user.id))
-        return fail(HTTP_OK, u"当前用户已经被禁用了，不能上线", LOGIN_ERROR_FORBID)
+        log.warn("当前用户已经被禁用了，无法上机: user_id = {}".format(user.id))
+        return fail(HTTP_OK, u"当前用户已经被禁用了，不能上机", LOGIN_ERROR_FORBID)
 
     # 获得设备信息
     device = DeviceService.get_device_by_code(device_code=device_code)
@@ -122,15 +122,15 @@ def qr_code_online(device_code):
 
     # 判断用户是否余额充足 如果小于一分钟不能上机
     if user.balance_account < charge_mode:
-        log.info("用户余额不足，不能上线: user_id = {} device_id = {} account = {}".format(
+        log.info("用户余额不足，不能上机: user_id = {} device_id = {} account = {}".format(
             user.id, device.id, user.balance_account))
-        return fail(HTTP_OK, u"用户余额不足，不能上线!", LOGIN_ERROR_NOT_SUFFICIENT_FUNDS)
+        return fail(HTTP_OK, u"用户余额不足，不能上机!", LOGIN_ERROR_NOT_SUFFICIENT_FUNDS)
 
     # 判断是否已经在redis中进行记录
     record_key = RedisClient.get_record_key(user.id, device.id)
-    # 获得用户上线key
+    # 获得用户上机key
     user_key = RedisClient.get_user_key(user.id)
-    # 获得设备上线key
+    # 获得设备上机key
     device_key = RedisClient.get_device_key(device.id)
 
     # 判断是否已经登录了
@@ -140,12 +140,12 @@ def qr_code_online(device_code):
         # 判断当前设备是否已经在使用了
         if redis_cache_client.get(device_key):
             log.warn("当前设备{}已经在被使用，但是用户ID = {}又在申请".format(device.id, user.id))
-            return fail(HTTP_OK, u"当前设备已经在使用上线了，但是不是当前用户在使用!", LOGIN_ERROR_DEVICE_IN_USING)
+            return fail(HTTP_OK, u"当前设备已经在使用上机了，但是不是当前用户在使用!", LOGIN_ERROR_DEVICE_IN_USING)
 
-        # 判断当前用户是否已经上线了
+        # 判断当前用户是否已经上机了
         if redis_cache_client.get(user_key):
-            log.warn("当前用户{}已经在上线，但是又在申请当前设备ID = {}".format(user.id, device.id))
-            return fail(HTTP_OK, u"当前用户已经在使用上线了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
+            log.warn("当前用户{}已经在上机，但是又在申请当前设备ID = {}".format(user.id, device.id))
+            return fail(HTTP_OK, u"当前用户已经在使用上机了，但是不是当前设备在使用!", LOGIN_ERROR_USER_IN_USING)
 
         # 判断当前设备是否处于空闲状态 且设备必须处于在线状态
         device_status = DeviceService.get_device_status(device)
@@ -155,7 +155,7 @@ def qr_code_online(device_code):
                 device.id, device_status, device_alive))
             return fail(HTTP_OK, u"当前设备不处于空闲状态，或者当前设备不在线，不能上机!", LOGIN_ERROR_DEVICE_NOT_FREE)
 
-        # 判断当前设备是否正在更新 或者正在自检，这种状态下不能够登录上线
+        # 判断当前设备是否正在更新 或者正在自检，这种状态下不能够登录上机
         current_update_state = DeviceService.get_update_state(device)
         if current_update_state == DeviceUpdateStatus.UPDATE_ING or \
                         current_update_state == DeviceUpdateStatus.UPDATE_CHECK:
@@ -165,7 +165,7 @@ def qr_code_online(device_code):
 
         log.info("用户还未上机可以进行上机: user_id = {} device_id = {}".format(user.id, device.id))
         if not WindowsService.do_online(user, device, charge_mode):
-            log.warn("上线记录创建失败，上线失败: user_id = {} device_id = {}".format(user.id, device.id))
+            log.warn("上机记录创建失败，上机失败: user_id = {} device_id = {}".format(user.id, device.id))
             return fail(HTTP_OK, u"上机异常!!", LOGIN_ERROR_UNKNOW)
 
     log.info("来自微信端游戏仓界面扫描: user_id = {} device_id = {}".format(user.id, device.id))
@@ -207,7 +207,7 @@ def get_online_status():
     return success(WindowsService.get_current_time_charging(charging))
 
 
-# 判断设备是否已经上线登录
+# 判断设备是否已经上机登录
 @bp.route('/check', methods=['POST'])
 def check_connect():
     if not request.is_json:
