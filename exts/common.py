@@ -29,7 +29,7 @@ HTTP_NOT_IMPLEMENTED = 501
 '''
 默认费率
 '''
-DEFAULT_CHARGE_MODE = 5
+DEFAULT_CHARGE_MODE = 50
 
 '''
 默认游戏定时更新时间
