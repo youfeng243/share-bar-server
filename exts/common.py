@@ -271,9 +271,7 @@ def print_request_log(resp, *args, **kwargs):
 
 
 def setup_error_handler(app):
-    @app.errorhandler(400)
-    @app.errorhandler(ValueError)
-    def http_bad_request(e):
+    def log_error(e):
         log.warn(
             '{addr} request: {method}, '
             'url: {url}'.format(addr=get_remote_addr(),
@@ -281,38 +279,25 @@ def setup_error_handler(app):
                                 url=request.url))
         log.warn("{}".format(request.headers))
         log.exception(e)
+
+    @app.errorhandler(400)
+    @app.errorhandler(ValueError)
+    def http_bad_request(e):
+        log_error(e)
         return fail(HTTP_BAD_REQUEST)
 
     @app.errorhandler(403)
     def http_forbidden(e):
-        log.warn(
-            '{addr} request: {method}, '
-            'url: {url}'.format(addr=get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
-        log.warn("{}".format(request.headers))
-        log.exception(e)
+        log_error(e)
         return fail(HTTP_FORBIDDEN)
 
     @app.errorhandler(404)
     def http_not_found(e):
-        log.warn(
-            '{addr} request: {method}, '
-            'url: {url}'.format(addr=get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
-        log.warn("{}".format(request.headers))
-        log.exception(e)
+        log_error(e)
         return fail(HTTP_NOT_FOUND)
 
     @app.errorhandler(500)
     @app.errorhandler(Exception)
     def http_server_error(e):
-        log.warn(
-            '{addr} request: {method}, '
-            'url: {url}'.format(addr=get_remote_addr(),
-                                method=request.method,
-                                url=request.url))
-        log.warn("{}".format(request.headers))
-        log.exception(e)
+        log_error(e)
         return fail(HTTP_SERVER_ERROR)
