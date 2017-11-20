@@ -324,6 +324,8 @@ def get_wechat_user_info(openid):
                 resp.status_code, url))
             return subscribe, nick_name, head_img_url
 
+        log.info("当前获取的用户信息为: text = {}".format(resp.text))
+
         json_data = json.loads(resp.text)
         errcode = json_data.get('errcode')
         if errcode is not None:
@@ -350,7 +352,8 @@ def get_wechat_user_info(openid):
                 head_img_url = ''
             log.info("当前用户关注了公众号, 能够获取昵称和头像: openid = {} nick_name = {} head_img_url = {}".format(
                 openid, nick_name, head_img_url))
-
+        else:
+            log.warn("当前用户并没有关注公众号，无法获取用户信息: openid = {} subscribe = {}".format(openid, subscribe))
     except Exception as e:
         log.error("访问微信用户链接失败: url = {}".format(url))
         log.exception(e)
