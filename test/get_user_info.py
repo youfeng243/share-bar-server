@@ -83,4 +83,4 @@ def get_wechat_user_info(openid):
 
 
 if __name__ == '__main__':
-    print get_wechat_user_info('oU6SZ0shrPKq1o952sEcq0Mft5GI')
+    print get_wechat_user_info('oU6SZ0rHqeAKqFWWN3mnDkjDGkdc')
