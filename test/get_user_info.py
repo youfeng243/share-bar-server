@@ -23,6 +23,7 @@ log = Logger('get_user_info.log').get_logger()
 tmp_redis_client = RedisClient(db=0)
 
 
+# 获得用户的关注状态 以及头像和昵称信息
 def get_wechat_user_info(openid):
     # 默认设置是未关注状态
     subscribe, nick_name, head_img_url = 0, '', ''
@@ -45,6 +46,8 @@ def get_wechat_user_info(openid):
                 resp.status_code, url))
             return subscribe, nick_name, head_img_url
 
+        log.info("当前获取的用户信息为: text = {}".format(resp.text))
+
         json_data = json.loads(resp.text)
         errcode = json_data.get('errcode')
         if errcode is not None:
@@ -59,10 +62,20 @@ def get_wechat_user_info(openid):
         # 如果用户关注了 才去获取昵称和头像信息
         if subscribe == 1:
             # 获得用户昵称 和头像信息
-            nick_name = json_data.get('nickname')
-            head_img_url = json_data.get('headimgurl')
+            nick_name = json_data.get('nickname', '')
+            head_img_url = json_data.get('headimgurl', '')
+            if isinstance(nick_name, basestring):
+                nick_name = nick_name.strip()
+            else:
+                nick_name = ''
+            if isinstance(head_img_url, basestring):
+                head_img_url = head_img_url.strip()
+            else:
+                head_img_url = ''
             log.info("当前用户关注了公众号, 能够获取昵称和头像: openid = {} nick_name = {} head_img_url = {}".format(
                 openid, nick_name, head_img_url))
+        else:
+            log.warn("当前用户并没有关注公众号，无法获取用户信息: openid = {} subscribe = {}".format(openid, subscribe))
     except Exception as e:
         log.error("访问微信用户链接失败: url = {}".format(url))
         log.exception(e)
@@ -70,4 +83,4 @@ def get_wechat_user_info(openid):
 
 
 if __name__ == '__main__':
-    print get_wechat_user_info('oU6SZ0rHqeAKqFWWN3mnDkjDGkdc')
+    print get_wechat_user_info('oU6SZ0shrPKq1o952sEcq0Mft5GI')
