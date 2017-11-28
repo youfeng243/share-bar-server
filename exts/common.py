@@ -63,7 +63,7 @@ redis 缓存公共前缀管理
 '''
 
 # 最新费率
-REDIS_NEWEST_CHARGE_MODE = 'bar#charge#newest'
+# REDIS_NEWEST_CHARGE_MODE = 'bar#charge#newest'
 
 # 上线记录关联前缀
 REDIS_PRE_RECORD_KEY = 'bar#online#record#'
@@ -136,7 +136,7 @@ DEFAULT_EXPIRED_MOBILE = 60  # 1 minute
 DEFAULT_EXPIRED_CAPTCHA = 300  # 5 分钟
 
 # 费率过期时间
-DEFAULT_EXPIRED_CHARGE = 3600  # 一个小时过期
+# DEFAULT_EXPIRED_CHARGE = 3600  # 一个小时过期
 
 # 设备心跳过期时间
 DEFAULT_EXPIRED_DEVICE_HEART = 300  # 5 分钟

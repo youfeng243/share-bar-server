@@ -28,8 +28,10 @@ from service.game_version_manage.impl import GameListService
 
 class DeviceService(object):
     @staticmethod
-    def create(device_code, address_id):
-        device = Device(device_code=device_code, address_id=address_id)
+    def create(device_code, address_id, charge_id):
+        device = Device(device_code=device_code,
+                        address_id=address_id,
+                        charge_id=charge_id)
 
         try:
             db.session.add(device)
@@ -46,6 +48,11 @@ class DeviceService(object):
             return None, False
 
         return device, True
+
+    # 获得费率信息
+    @staticmethod
+    def get_charge_mode(device):
+        return device.charge.charge_mode
 
     # 根据设备ID 获取设备信息
     @staticmethod

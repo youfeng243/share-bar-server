@@ -9,7 +9,9 @@ json={
     "area":"南山区",
     "location":"芒果网大厦",
     //设备编码，听说是机器mac地址
-    "device_code": "342314321412432"
+    "device_code": "342314321412432",
+    // 费率模板ID
+    "charge_id": 1
 }
 
 返回

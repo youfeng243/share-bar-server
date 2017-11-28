@@ -86,25 +86,67 @@ def delete_charges():
         result_list.append(charge_id)
 
     # 如果当前费率有被成功删除的，则需要更新redis中的费率信息
-    if len(result_list) > 0:
-        charge = ChargeService.update_charge_to_redis()
-        if charge is not None:
-            log.info("完成一次 redis 中费率更新: 最新费率 charge_mode = {}".format(charge.charge_mode))
-        else:
-            log.info("更新费率到redis失败!")
+    # if len(result_list) > 0:
+    #     charge = ChargeService.update_charge_to_redis()
+    #     if charge is not None:
+    #         log.info("完成一次 redis 中费率更新: 最新费率 charge_mode = {}".format(charge.charge_mode))
+    #     else:
+    #         log.info("更新费率到redis失败!")
 
     return success(result_list)
 
 
-# 获得当前最新费率
-@bp.route('/charge/newest', methods=['GET'])
+# 修改费率
+@bp.route('/charge', methods=['PUT'])
 @login_required
-def newest_charge():
-    charge = ChargeService.update_charge_to_redis()
-    if charge is not None:
-        log.info("完成一次 redis 中费率更新: 最新费率 charge_mode = {} ctime = {} ".format(
-            charge.charge_mode, charge.ctime.strftime('%Y-%m-%d %H:%M:%S')))
-        return success(charge.to_dict())
+def update_charges():
+    if not request.is_json:
+        log.warn("参数错误...")
+        return fail(HTTP_OK, u"need application/json!!")
 
-    log.info("更新费率到redis失败!")
-    return fail(HTTP_OK, u"费率更新失败!")
+    charge_id = request.json.get('id', None)
+    if charge_id is None:
+        log.warn("参数错误: charge_id 为None")
+        return fail(HTTP_OK, u"参数错误: charge_id 为None")
+
+    charge = Charge.get(charge_id)
+    if charge is None:
+        log.warn("当前费率模板不存在: charge_id = {}".format(charge_id))
+        return fail(HTTP_OK, u"当前费率模板不存在: charge id = {}".format(charge))
+
+    name = request.json.get('name', None)
+    charge_mode = request.json.get('charge_mode', None)
+    if not isinstance(name, basestring) and not isinstance(charge_mode, int):
+        return fail(HTTP_OK, u"需要修改的参数错误，至少需要传入一个需要修改的参数")
+
+    if isinstance(name, basestring) and name.strip() != '':
+        other_charge = ChargeService.find_by_name(name.strip())
+        if other_charge is not None and other_charge.id != charge.id:
+            log.error("修改名称重复: charge_id = {} charge_name = {}".format(charge_id, name))
+            return fail(HTTP_OK, u"需要修改的模板名称重复!")
+        charge.name = name.strip()
+    else:
+        return fail(HTTP_OK, u'费率模板名称不能为空字符串!')
+
+    if isinstance(charge_mode, int) and charge_mode > 0:
+        charge.charge_mode = charge_mode
+    else:
+        return fail(HTTP_OK, u"charge_mode 参数类型错误!")
+
+    if not charge.save():
+        return fail(HTTP_OK, u"费率模板存储错误!")
+
+    return success(charge.to_dict())
+
+# 获得当前最新费率
+# @bp.route('/charge/newest', methods=['GET'])
+# @login_required
+# def newest_charge():
+#     charge = ChargeService.update_charge_to_redis()
+#     if charge is not None:
+#         log.info("完成一次 redis 中费率更新: 最新费率 charge_mode = {} ctime = {} ".format(
+#             charge.charge_mode, charge.ctime.strftime('%Y-%m-%d %H:%M:%S')))
+#         return success(charge.to_dict())
+#
+#     log.info("更新费率到redis失败!")
+#     return fail(HTTP_OK, u"费率更新失败!")

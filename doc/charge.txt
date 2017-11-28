@@ -48,12 +48,23 @@ Content-Type: application/json
     "error": null
 }
 
-4. 获得当前正在生效的费率
-/admin/charge/newest, method=GET
+4. 修改费率
+/admin/charge, method=PUT
+Content-Type: application/json
+参数:
+{
+    'id': 1,
+    'name': '这是要修改的名称',
+    'charge_mode': 10 # 这是要修改的费率， name 和 charge_mode 至少需要传入一个 id是必须传入参数
+}
 返回:
 {
-    "result": {
-    }
+"result": {
+    'id': 1,
+    'charge_mode': 10,
+    '这是要修改的名称',
+}
     "success": true or false
     "error": null
 }
+

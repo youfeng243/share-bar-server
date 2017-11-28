@@ -68,6 +68,9 @@ class Device(ModelBase):
     # 投放ID
     address_id = db.Column(db.Integer, db.ForeignKey('address.id'))
 
+    # 费率模板ID
+    charge_id = db.Column(db.Integer, db.ForeignKey('charge.id'))
+
     # 设备收入
     income = db.Column(db.Integer, nullable=False, default=0)
 
@@ -128,6 +131,8 @@ class Device(ModelBase):
     def to_dict(self):
         return {
             'id': self.id,
+            # 费率
+            'charge': self.charge.to_dict(),
             'device_code': self.device_code,
             'address': self.address.to_dict(),
             'income': self.income,

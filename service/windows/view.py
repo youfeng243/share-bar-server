@@ -118,7 +118,8 @@ def qr_code_online(device_code):
         return fail(HTTP_OK, u"设备信息异常，设备不存在", LOGIN_ERROR_NOT_FIND)
 
     # 获得最新费率
-    charge_mode = ChargeService.get_newest_charge_mode()
+    charge_mode = DeviceService.get_charge_mode(device)
+    log.info("当前费率: charge_mode = {}".format(charge_mode))
 
     # 判断用户是否余额充足 如果小于一分钟不能上机
     if user.balance_account < charge_mode:

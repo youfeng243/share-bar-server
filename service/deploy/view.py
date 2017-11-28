@@ -13,6 +13,7 @@ from flask_login import login_required
 
 from exts.common import log, fail, HTTP_OK, success
 from service.address.model import Address
+from service.charge.model import Charge
 from service.deploy.impl import DeployService
 from service.deploy.model import Deploy
 from service.device.impl import DeviceService, DeviceGameService
@@ -54,6 +55,16 @@ def deploy_device():
         log.warn("没有设备编号信息无法部署...")
         return fail(HTTP_OK, u"没有设备编号信息无法部署!")
 
+    charge_id = request.json.get('charge_id', None)
+    if charge_id is None:
+        log.warn("当前部署没有传入费率模板ID: device_code = {}".format(device_code))
+        return fail(HTTP_OK, u"没有传入费率模板ID")
+
+    charge = Charge.get(charge_id)
+    if charge is None:
+        log.warn("当前费率模板不存在: charge_id = {} device_code = {}".format(charge_id, device_code))
+        return fail(HTTP_OK, u"当前费率模板不存在!")
+
     # 先获得地址信息 通过地址四个属性进行查找
     address = Address.find_address(province, city, area, location)
     if address is None:
@@ -68,7 +79,7 @@ def deploy_device():
     device = DeviceService.get_device_by_code(device_code)
     if device is None:
         # 如果没有找到设备信息则新建设备信息
-        device, is_success = DeviceService.create(device_code, address.id)
+        device, is_success = DeviceService.create(device_code, address.id, charge_id)
         if device is None:
             log.warn("新建设备信息失败了!!")
             return fail(HTTP_OK, u"新建设备信息失败了!")

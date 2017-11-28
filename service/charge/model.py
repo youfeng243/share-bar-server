@@ -10,6 +10,9 @@
 
 from exts.model_base import ModelBase
 from exts.resource import db
+from service.device.model import Device
+
+__all__ = ['Device']
 
 
 # 管理员信息
@@ -21,6 +24,9 @@ class Charge(ModelBase):
 
     # 费率  分钱/分钟
     charge_mode = db.Column(db.Integer, nullable=False)
+
+    # 反向指向设备列表信息
+    device_query = db.relationship('Device', backref='charge', lazy='dynamic')
 
     def to_dict(self):
         return {
